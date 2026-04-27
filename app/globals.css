@@ -1,0 +1,125 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Updated to warm, inviting color scheme with orange/coral primary */
+:root {
+  --background: 255 251 247;
+  --foreground: 51 51 51;
+  --card: 255 255 255;
+  --card-foreground: 51 51 51;
+  --popover: 255 255 255;
+  --popover-foreground: 51 51 51;
+  --primary: 255 107 53;
+  --primary-foreground: 255 255 255;
+  --secondary: 255 237 213;
+  --secondary-foreground: 51 51 51;
+  --muted: 250 245 240;
+  --muted-foreground: 115 115 115;
+  --accent: 255 152 0;
+  --accent-foreground: 255 255 255;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 245 230 215;
+  --input: 245 230 215;
+  --ring: 255 107 53;
+  --chart-1: 255 107 53;
+  --chart-2: 255 152 0;
+  --chart-3: 255 183 77;
+  --chart-4: 255 204 128;
+  --chart-5: 255 224 178;
+  --radius: 0.5rem;
+  --sidebar: oklch(0.985 0.01 60);
+  --sidebar-foreground: oklch(0.25 0 0);
+  --sidebar-primary: oklch(0.55 0.15 40);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.97 0.01 60);
+  --sidebar-accent-foreground: oklch(0.25 0 0);
+  --sidebar-border: oklch(0.92 0.01 60);
+  --sidebar-ring: oklch(0.7 0.1 40);
+}
+
+.dark {
+  --background: 30 25 23;
+  --foreground: 250 245 240;
+  --card: 41 37 36;
+  --card-foreground: 250 245 240;
+  --popover: 41 37 36;
+  --popover-foreground: 250 245 240;
+  --primary: 255 152 0;
+  --primary-foreground: 255 255 255;
+  --secondary: 68 64 60;
+  --secondary-foreground: 250 245 240;
+  --muted: 68 64 60;
+  --muted-foreground: 163 163 163;
+  --accent: 255 152 0;
+  --accent-foreground: 255 255 255;
+  --destructive: 220 38 38;
+  --destructive-foreground: 250 245 240;
+  --border: 68 64 60;
+  --input: 68 64 60;
+  --ring: 255 152 0;
+  --chart-1: 255 152 0;
+  --chart-2: 255 183 77;
+  --chart-3: 255 204 128;
+  --chart-4: 255 224 178;
+  --chart-5: 255 235 204;
+  --sidebar: oklch(0.18 0.01 40);
+  --sidebar-foreground: oklch(0.98 0.01 60);
+  --sidebar-primary: oklch(0.6 0.15 40);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.25 0.01 40);
+  --sidebar-accent-foreground: oklch(0.98 0.01 60);
+  --sidebar-border: oklch(0.25 0.01 40);
+  --sidebar-ring: oklch(0.5 0.1 40);
+}
+/* </CHANGE> */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

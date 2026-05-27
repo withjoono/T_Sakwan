@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/use-auth"
 import { matchAll, matchCutoff, SCHOOL_META, type SchoolKey } from "@/lib/sakwan/cutoffs"
-import { buildMogoInputLink, buildMogoAnalysisLink, fetchMogoScores, MOGO_URL } from "@/lib/sakwan/mogo"
 import { getExamFormat } from "@/lib/sakwan/exam-format"
+import { loadScores } from "@/lib/sakwan/scores-store"
+import { ANSWER_KEY_AVAILABLE } from "@/lib/sakwan/answer-keys"
 import {
   AlertCircle,
   ArrowRight,
@@ -15,10 +17,8 @@ import {
   BookOpen,
   CheckCircle,
   Clock,
-  ExternalLink,
   FileText,
   Info,
-  RefreshCcw,
   Sparkles,
   Target,
   TrendingUp,
@@ -45,52 +45,32 @@ export default function MockPage() {
   const [manualScore, setManualScore] = useState<number>(258)
   const { user, isAuthenticated } = useAuth()
 
-  const [mogoScore, setMogoScore] = useState<number | null>(null)
-  const [scoreSource, setScoreSource] = useState<"mogo" | "manual" | "none">("manual")
-  const [loadingScore, setLoadingScore] = useState(false)
-  const [scoreError, setScoreError] = useState<string | null>(null)
-
-  const loadMogoScore = async () => {
-    if (!user?.id) return
-    setLoadingScore(true)
-    setScoreError(null)
-    try {
-      const scores = await fetchMogoScores(user.id)
-      if (scores.length === 0) {
-        setScoreError("Mogo에 응시 기록이 없거나 API 접근이 막혀 있습니다.")
-        setScoreSource("manual")
-      } else {
-        const latest = [...scores].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))[0]
-        if (latest.totalStandardSum) {
-          setMogoScore(latest.totalStandardSum)
-          setScoreSource("mogo")
-        } else {
-          setScoreError("최신 응시 회차에 총점이 없습니다.")
-        }
-      }
-    } catch {
-      setScoreError("점수 조회 실패 — Mogo API CORS 또는 인증 확인 필요")
-    } finally {
-      setLoadingScore(false)
-    }
-  }
+  // Sakwan 자체 저장소(Firestore/localStorage)에서 최근 점수 로드
+  const [latestScore, setLatestScore] = useState<number | null>(null)
+  const [latestMeta, setLatestMeta] = useState<{ year: number; track: ExamTrack } | null>(null)
 
   useEffect(() => {
-    if (isAuthenticated) void loadMogoScore()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user?.id])
+    if (!user?.id) return
+    void loadScores(String(user.id)).then((arr) => {
+      if (arr[0]) {
+        setLatestScore(arr[0].totalScore)
+        setLatestMeta({ year: arr[0].year, track: arr[0].track as ExamTrack })
+      }
+    })
+  }, [user?.id])
 
-  const myScore = scoreSource === "mogo" && mogoScore !== null ? mogoScore : manualScore
+  const myScore = latestScore ?? manualScore
+  const scoreSource = latestScore !== null ? "exam" : "manual"
+
   const matchedSchools = matchAll(myScore)
-  const visibleSchools = matchedSchools.filter((m) => (track === "saagwan" ? m.meta.track === "saagwan" : m.meta.track === "police"))
+  const visibleSchools = matchedSchools.filter((m) =>
+    track === "saagwan" ? m.meta.track === "saagwan" : m.meta.track === "police",
+  )
   const examFormat = getExamFormat(track)
 
-  // 응시 deep-link 계산: 기출이면 해당 연도, 모의는 비활성
-  const mogoLink = useMemo(() => {
-    if (source === "mock") return ""
-    return buildMogoInputLink({ type: track, year: pastYear, grade: "고3", month: 7 })
-  }, [source, track, pastYear])
-  const mockEnabled = source === "past"
+  const examLink = `/mock/exam?track=${track}&year=${pastYear}`
+  const sourceEnabled = source === "past"
+  const keyAvailable = ANSWER_KEY_AVAILABLE[`${track}-${pastYear}`]
 
   return (
     <div className="min-h-screen bg-white">
@@ -104,12 +84,14 @@ export default function MockPage() {
             <span className="text-sm font-semibold text-amber-100">TS 사관 모의고사</span>
           </div>
           <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            이 점수면 작년 합격이었나?
+            사관·경찰 전용 OMR로 응시,
             <br />
-            <span className="bg-gradient-to-r from-amber-300 to-red-300 bg-clip-text text-transparent">지금 알 수 있습니다.</span>
+            <span className="bg-gradient-to-r from-amber-300 to-red-300 bg-clip-text text-transparent">
+              바로 합격선 매칭.
+            </span>
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-red-100">
-            기출문제 (2022~2026) 즉시 응시, 사관·경찰 합격선 매칭은 TS 사관에서. 모의문제는 6월 오픈 예정.
+            기출 2022~2026은 지금 응시 가능. 모의문제는 6월 오픈 예정.
           </p>
         </div>
       </section>
@@ -134,7 +116,7 @@ export default function MockPage() {
         </div>
       </section>
 
-      {/* 응시 선택 — 기출 / 모의문제 */}
+      {/* 응시 선택 */}
       <section className="bg-gradient-to-b from-white to-gray-50 py-12">
         <div className="container mx-auto max-w-5xl px-6">
           <div className="mb-6">
@@ -154,7 +136,7 @@ export default function MockPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-lg">📚 기출문제</CardTitle>
-                    <CardDescription>연도별 1개 기출 — 2022·2023·2024·2025·2026</CardDescription>
+                    <CardDescription>2022~2026 연도별 OMR 응시</CardDescription>
                   </div>
                   <button
                     onClick={() => setSource("past")}
@@ -166,26 +148,30 @@ export default function MockPage() {
               <CardContent>
                 <label className="mb-2 block text-xs font-bold text-gray-500">연도 선택</label>
                 <div className="flex flex-wrap gap-2">
-                  {PAST_YEARS.map((y) => (
-                    <button
-                      key={y}
-                      onClick={() => {
-                        setSource("past")
-                        setPastYear(y)
-                      }}
-                      className={`rounded-lg border-2 px-3 py-1.5 text-sm font-bold transition-all ${
-                        source === "past" && pastYear === y
-                          ? "border-red-500 bg-red-50 text-red-700"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-red-200"
-                      }`}
-                    >
-                      {y}년
-                    </button>
-                  ))}
+                  {PAST_YEARS.map((y) => {
+                    const available = ANSWER_KEY_AVAILABLE[`${track}-${y}`]
+                    return (
+                      <button
+                        key={y}
+                        onClick={() => {
+                          setSource("past")
+                          setPastYear(y)
+                        }}
+                        className={`flex items-center gap-1 rounded-lg border-2 px-3 py-1.5 text-sm font-bold transition-all ${
+                          source === "past" && pastYear === y
+                            ? "border-red-500 bg-red-50 text-red-700"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-red-200"
+                        }`}
+                      >
+                        {y}년
+                        {!available ? <span className="text-[9px] text-amber-600">·정답 미입력</span> : null}
+                      </button>
+                    )
+                  })}
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <Clock className="h-3 w-3" />
-                  연도당 시험 1회 — 국어·영어·수학 (국영수 3과목)
+                  선택한 연도의 1차 기출 그대로 OMR로 응시
                 </div>
               </CardContent>
             </Card>
@@ -214,38 +200,37 @@ export default function MockPage() {
                     <div>
                       <div className="text-sm font-bold text-amber-900">{MOCK_OPEN_DATE} 오픈 예정</div>
                       <div className="mt-1 text-xs text-amber-800">
-                        매월 신규 회차를 제작·공개합니다. 기출과 동일한 형식·난이도로 사관·경찰 1차 변별을 정밀하게 시뮬레이션.
+                        매월 신규 회차를 제작·공개합니다. 기출과 동일한 형식·난이도.
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 text-xs text-gray-500">사전 알림 신청은 메인 페이지 사전예약 폼에서.</div>
               </CardContent>
             </Card>
           </div>
 
-          {/* CTA: 응시하기 */}
+          {/* CTA */}
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            {mockEnabled ? (
-              <a href={mogoLink} target="_blank" rel="noopener noreferrer">
+            {sourceEnabled ? (
+              <Link href={examLink}>
                 <Button size="lg" className="rounded-lg bg-red-700 px-8 py-6 text-lg font-bold text-white hover:bg-red-800">
-                  {pastYear}년 {track === "saagwan" ? "사관" : "경찰대"} 기출 응시 <ExternalLink className="ml-2 h-5 w-5" />
+                  {pastYear}년 {track === "saagwan" ? "사관" : "경찰대"} 응시 시작 <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </a>
+              </Link>
             ) : (
               <Button size="lg" disabled className="rounded-lg bg-gray-300 px-8 py-6 text-lg font-bold text-gray-500">
                 {MOCK_OPEN_DATE} 오픈 예정
               </Button>
             )}
-            <a href={buildMogoAnalysisLink()} target="_blank" rel="noopener noreferrer">
-              <Button size="lg" variant="outline" className="rounded-lg border-2 border-gray-300 bg-transparent px-8 py-6 text-lg font-bold text-gray-700 hover:bg-gray-50">
-                Mogo 점수 분석 보기
-              </Button>
-            </a>
+            {!isAuthenticated && (
+              <span className="text-xs text-gray-500">※ 응시 결과 저장에는 로그인이 필요합니다</span>
+            )}
           </div>
-          <p className="mt-3 text-center text-xs text-gray-500">
-            응시·채점은 {MOGO_URL.replace("https://", "")} 에서 진행됩니다.
-          </p>
+          {sourceEnabled && !keyAvailable && (
+            <p className="mt-3 text-center text-xs text-amber-700">
+              ⚠ {pastYear}년 정답표 미입력 — 응시는 가능하나 채점은 placeholder 기준 (실제 점수와 다를 수 있음)
+            </p>
+          )}
         </div>
       </section>
 
@@ -260,15 +245,24 @@ export default function MockPage() {
                   <div className="flex items-baseline gap-3">
                     <span className="text-4xl font-black text-red-700">{myScore}</span>
                     <span className="text-sm font-bold text-gray-500">/ 300점</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${scoreSource === "mogo" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
-                      {scoreSource === "mogo" ? "Mogo 최신 회차" : "임시 입력값"}
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        scoreSource === "exam"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {scoreSource === "exam" ? (
+                        <>실제 응시 ({latestMeta?.year}년)</>
+                      ) : (
+                        "임시 입력값"
+                      )}
                     </span>
                   </div>
-                  {scoreError && (
-                    <div className="mt-2 flex items-start gap-1 text-xs text-amber-700">
-                      <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0" />
-                      {scoreError}
-                    </div>
+                  {latestMeta && (
+                    <Link href="/mock/result" className="mt-1 inline-block text-xs text-blue-600 hover:underline">
+                      최근 결과 자세히 보기 →
+                    </Link>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -279,14 +273,11 @@ export default function MockPage() {
                     value={manualScore}
                     onChange={(e) => {
                       setManualScore(Number(e.target.value))
-                      setScoreSource("manual")
+                      setLatestScore(null)
                     }}
                     className="w-24 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
                   />
-                  <Button variant="outline" size="sm" onClick={loadMogoScore} disabled={loadingScore || !isAuthenticated} className="rounded-lg">
-                    <RefreshCcw className={`mr-1 h-3 w-3 ${loadingScore ? "animate-spin" : ""}`} />
-                    {isAuthenticated ? "Mogo 점수 동기화" : "로그인 후 동기화"}
-                  </Button>
+                  <span className="text-xs text-gray-500">또는 실제 응시 →</span>
                 </div>
               </div>
             </CardContent>
@@ -300,13 +291,15 @@ export default function MockPage() {
           <div className="mb-6">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1">
               <BookOpen className="h-4 w-4 text-blue-700" />
-              <span className="text-xs font-bold text-blue-700">{track === "saagwan" ? "사관학교" : "경찰대"} 1차 시험 형식</span>
+              <span className="text-xs font-bold text-blue-700">
+                {track === "saagwan" ? "사관학교" : "경찰대"} 1차 시험 형식
+              </span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">시험 구성 — 응시 전 미리 확인</h2>
+            <h2 className="text-3xl font-bold text-gray-900">시험 구성</h2>
             <p className="mt-2 text-sm text-gray-500">
               {track === "saagwan"
-                ? "수능과 다른 사관학교 전용 시험 형식. Mogo의 일반 모의고사 폼 그대로는 점수 입력이 안 맞을 수 있습니다."
-                : "경찰대 1차 형식 (확인 중) — 사관과 다른 점 포함."}
+                ? "수능과 다른 사관학교 전용 형식. Sakwan OMR도 이 형식 그대로 구현."
+                : "경찰대 1차 형식 (확인 중)."}
             </p>
           </div>
 
@@ -352,15 +345,13 @@ export default function MockPage() {
             ))}
           </div>
 
-          {track === "saagwan" ? (
-            <div className="mt-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-              <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />
-              <div>
-                <strong>Mogo 입력 폼 안내:</strong> 현재 Mogo는 수능 형식(국어 45·수학 30 분리 등)이라 사관 모의 점수 입력이 그대로 맞지 않습니다.
-                Mogo에 사관 전용 입력 폼이 추가되기 전까지는 <em>총점만</em> 입력해 사용하거나, 종이로 응시 후 총점만 입력하시는 것을 권장합니다.
-              </div>
+          <div className="mt-5 flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+            <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-700" />
+            <div>
+              <strong>OMR 응시 방식:</strong> 문제지(PDF/종이)를 보면서 Sakwan에서 답안만 입력 → 자동 채점 → 합격선 매칭까지 즉시.
+              문제 본문은 별도 제공(추후 PDF 다운로드 예정).
             </div>
-          ) : null}
+          </div>
         </div>
       </section>
 
@@ -415,7 +406,6 @@ export default function MockPage() {
                 <span className="text-xs font-bold text-blue-700">모의지원 — 사관 선택 분석</span>
               </div>
               <h2 className="text-3xl font-bold text-gray-900">공사·육사·해사, 어디가 유리?</h2>
-              <p className="mt-2 text-gray-600">내 점수 기준 합격 가능성 비교 — 합격선과의 격차로 계산.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {(["airforce", "army", "navy"] as SchoolKey[]).map((k) => {
@@ -451,7 +441,7 @@ export default function MockPage() {
               <TrendingUp className="h-4 w-4 text-purple-700" />
               <span className="text-xs font-bold text-purple-700">교차지원 시뮬레이션</span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">문과 ↔ 이과, 어디가 유리?</h2>
+            <h2 className="text-3xl font-bold text-gray-900">문과 ↔ 이과</h2>
           </div>
 
           <Card>
@@ -467,15 +457,13 @@ export default function MockPage() {
                 <div className="rounded-xl border border-gray-200 bg-white p-5">
                   <div className="text-xs font-semibold text-gray-500">현재 ({crossStream === "science" ? "이과" : "문과"})</div>
                   <div className="my-1 text-3xl font-black text-gray-900">{crossStream === "science" ? "72%" : "58%"}</div>
-                  <div className="text-xs text-gray-500">합격 예상 확률 (육사 기준)</div>
                 </div>
                 <div className="rounded-xl border-2 border-purple-300 bg-purple-50 p-5">
                   <div className="text-xs font-semibold text-purple-600">전환 시 ({crossStream === "science" ? "문과" : "이과"})</div>
                   <div className="my-1 text-3xl font-black text-purple-700">{crossStream === "science" ? "65%" : "75%"}</div>
-                  <div className="text-xs text-purple-600">{crossStream === "science" ? "표준점수 보정으로 -7%p" : "수학 가산점으로 +17%p"}</div>
+                  <div className="text-xs text-purple-600">{crossStream === "science" ? "표준점수 보정 -7%p" : "수학 가산점 +17%p"}</div>
                 </div>
               </div>
-              <p className="mt-4 text-xs text-gray-500">* 실제 모의지원은 본인 성적·과목별 표준점수 기반으로 정밀 계산됩니다. (Mogo 점수 자동 반영 예정)</p>
             </CardContent>
           </Card>
         </div>
@@ -484,14 +472,9 @@ export default function MockPage() {
       {/* 오답·취약 분석 */}
       <section className="bg-white py-16">
         <div className="container mx-auto max-w-5xl px-6">
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900">오답·취약 분석</h2>
-              <p className="mt-2 text-gray-600">Mogo의 취약 분석 결과를 가져옵니다 — 향후 자동 동기화 예정.</p>
-            </div>
-            <a href={`${MOGO_URL}/main/weakness-analysis`} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="rounded-lg">Mogo에서 자세히 <ExternalLink className="ml-1 h-3 w-3" /></Button>
-            </a>
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">오답·취약 분석</h2>
+            <p className="mt-2 text-gray-600">응시 결과 기반 — 데이터 누적 후 자동 분석.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {WEAK_TOPICS.map((t, i) => (
@@ -517,23 +500,29 @@ export default function MockPage() {
       <section className="bg-gradient-to-br from-slate-900 to-red-950 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <h2 className="mb-4 text-3xl font-bold text-white">기출 응시는 지금, 모의문제는 6월</h2>
-          <p className="mb-8 text-lg text-red-100">Mogo에서 응시 → TS 사관에서 사관·경찰 합격선 매칭 — 한 번에 끝.</p>
-          {mockEnabled ? (
-            <a href={mogoLink} target="_blank" rel="noopener noreferrer">
+          <p className="mb-8 text-lg text-red-100">Sakwan에서 응시 → 즉시 채점 → 합격선 매칭까지 한 화면.</p>
+          {sourceEnabled ? (
+            <Link href={examLink}>
               <Button size="lg" className="rounded-lg bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
-                {pastYear}년 기출로 응시 시작 <ArrowRight className="ml-2 h-5 w-5" />
+                {pastYear}년 기출 응시 시작 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </a>
+            </Link>
           ) : (
             <Button size="lg" disabled className="rounded-lg bg-gray-400 px-8 py-6 text-lg font-bold text-white">{MOCK_OPEN_DATE} 오픈</Button>
           )}
           <ul className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-red-100">
             <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />기출 2022~2026</li>
-            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />점수 자동 동기화</li>
-            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />과거 합격선 즉시 매칭</li>
+            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />자동 채점·매칭</li>
+            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />Firestore 영구 저장</li>
           </ul>
         </div>
       </section>
+
+      {!isAuthenticated && (
+        <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-full bg-amber-50 px-4 py-2 text-xs font-bold text-amber-800 shadow-lg">
+          <AlertCircle className="mr-1 inline h-3 w-3" /> 응시 결과를 영구 저장하려면 로그인 필요
+        </div>
+      )}
     </div>
   )
 }

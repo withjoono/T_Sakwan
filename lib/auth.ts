@@ -17,7 +17,6 @@ export function getLoginUrl(redirectPath?: string): string {
 }
 
 export async function exchangeSsoCode(ssoCode: string): Promise<{ token: string; user: HubUser }> {
-  // 1. sso_code → accessToken 교환
   const res = await fetch(`${HUB_API_URL}/auth/sso/verify-code`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -27,11 +26,9 @@ export async function exchangeSsoCode(ssoCode: string): Promise<{ token: string;
   if (!res.ok) throw new Error('SSO 코드 교환 실패');
 
   const body = await res.json();
-  // Hub 응답: { success: true, data: { accessToken, refreshToken, ... } }
   const tokenData = body.data ?? body;
   const accessToken: string = tokenData.accessToken;
 
-  // 2. accessToken으로 사용자 정보 조회
   const meRes = await fetch(`${HUB_API_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });

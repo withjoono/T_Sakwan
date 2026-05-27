@@ -1,13 +1,5 @@
-/**
- * Hub SSO 인증 유틸리티
- *
- * Hub SSO Code Exchange 방식으로 로그인을 처리합니다.
- * - Hub에서 sso_code를 받아 JWT 토큰으로 교환
- * - localStorage에 토큰과 사용자 정보 저장
- */
-
 const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || 'https://tskool.kr';
-const HUB_API_URL = process.env.NEXT_PUBLIC_HUB_API_URL || 'https://api.tskool.kr';
+const HUB_API_URL = process.env.NEXT_PUBLIC_HUB_API_URL || 'https://ts-back-nest-479305.du.r.appspot.com';
 
 export interface HubUser {
   id: number;
@@ -17,72 +9,70 @@ export interface HubUser {
   domainCode?: string;
 }
 
-/**
- * Hub SSO 로그인 URL 생성
- */
 export function getLoginUrl(redirectPath?: string): string {
   const currentUrl = typeof window !== 'undefined'
     ? window.location.origin + (redirectPath || '/')
     : HUB_URL;
-  return `${HUB_URL}/login?redirect=${encodeURIComponent(currentUrl)}`;
+  return `${HUB_URL}/auth/login?redirect=${encodeURIComponent(currentUrl)}`;
 }
 
-/**
- * Hub SSO Code를 JWT 토큰으로 교환
- */
 export async function exchangeSsoCode(ssoCode: string): Promise<{ token: string; user: HubUser }> {
-  const res = await fetch(`${HUB_API_URL}/auth/sso/exchange`, {
+  // 1. sso_code → accessToken 교환
+  const res = await fetch(`${HUB_API_URL}/auth/sso/verify-code`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code: ssoCode }),
+    body: JSON.stringify({ code: ssoCode, serviceId: 'sakwan' }),
   });
 
-  if (!res.ok) {
-    throw new Error('SSO 코드 교환 실패');
-  }
+  if (!res.ok) throw new Error('SSO 코드 교환 실패');
 
-  const data = await res.json();
+  const body = await res.json();
+  // Hub 응답: { success: true, data: { accessToken, refreshToken, ... } }
+  const tokenData = body.data ?? body;
+  const accessToken: string = tokenData.accessToken;
+
+  // 2. accessToken으로 사용자 정보 조회
+  const meRes = await fetch(`${HUB_API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!meRes.ok) throw new Error('사용자 정보 조회 실패');
+
+  const meBody = await meRes.json();
+  const me = meBody.data ?? meBody;
+
   return {
-    token: data.token || data.access_token,
+    token: accessToken,
     user: {
-      id: data.user?.id,
-      userName: data.user?.userName || data.user?.name,
-      memberType: data.user?.memberType,
-      email: data.user?.email,
-      domainCode: data.user?.domainCode,
+      id: me.id,
+      userName: me.nickname ?? me.name ?? me.userName ?? '',
+      memberType: me.memberType ?? me.role ?? '',
+      email: me.email,
+      domainCode: me.domainCode,
     },
   };
 }
 
-/**
- * 로컬 스토리지에 인증 정보 저장
- */
 export function saveAuth(token: string, user: HubUser) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem('kwakiwon_token', token);
-  localStorage.setItem('kwakiwon_user', JSON.stringify(user));
+  localStorage.setItem('sakwan_token', token);
+  localStorage.setItem('sakwan_user', JSON.stringify(user));
 }
 
-/**
- * 로컬 스토리지에서 인증 정보 로드
- */
 export function loadAuth(): { token: string | null; user: HubUser | null } {
   if (typeof window === 'undefined') return { token: null, user: null };
-  const token = localStorage.getItem('kwakiwon_token');
-  const userStr = localStorage.getItem('kwakiwon_user');
+  const token = localStorage.getItem('sakwan_token');
+  const userStr = localStorage.getItem('sakwan_user');
   return {
     token,
     user: userStr ? JSON.parse(userStr) : null,
   };
 }
 
-/**
- * 로그아웃
- */
 export function clearAuth() {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem('kwakiwon_token');
-  localStorage.removeItem('kwakiwon_user');
+  localStorage.removeItem('sakwan_token');
+  localStorage.removeItem('sakwan_user');
 }
 
 export { HUB_URL, HUB_API_URL };

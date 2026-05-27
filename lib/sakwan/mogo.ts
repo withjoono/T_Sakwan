@@ -61,9 +61,6 @@ export interface MogoScoreRecord {
   koreanStandard?: number
   mathStandard?: number
   englishGrade?: number
-  inquiry1Standard?: number
-  inquiry2Standard?: number
-  historyGrade?: number
   createdAt?: string
 }
 

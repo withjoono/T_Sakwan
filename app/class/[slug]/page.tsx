@@ -43,7 +43,6 @@ const CLASSES: Record<string, ClassData> = {
       { name: "수학", detail: "이과 수학 기준 (미적분 포함)" },
       { name: "영어", detail: "수능 기조 + 사관 빈출 주제" },
       { name: "공간능력", detail: "전개도·블록·도형 회전" },
-      { name: "한국사·국사", detail: "근현대사 중심" },
     ],
     fitness: [
       { name: "1.5km 달리기", standard: "남 7'30\" 이내 / 여 8'30\" 이내" },
@@ -90,7 +89,6 @@ const CLASSES: Record<string, ClassData> = {
       { name: "수학", detail: "이과 수학 (미적분 + 기하)" },
       { name: "영어", detail: "1등급 컷 가장 높음" },
       { name: "공간능력", detail: "조종 적성 직결 — 변별력 ↑" },
-      { name: "한국사", detail: "근현대사" },
     ],
     fitness: [
       { name: "1.5km 달리기", standard: "남 6'59\" 이내 / 여 8'09\" 이내" },
@@ -142,7 +140,6 @@ const CLASSES: Record<string, ClassData> = {
       { name: "수학", detail: "이과 수학 (미적분/기하)" },
       { name: "영어", detail: "수능 기조" },
       { name: "공간능력", detail: "함정 운용 적성" },
-      { name: "한국사", detail: "해전사 빈출" },
     ],
     fitness: [
       { name: "1.5km 달리기", standard: "남 7'20\" 이내 / 여 8'20\" 이내" },
@@ -189,7 +186,6 @@ const CLASSES: Record<string, ClassData> = {
       { name: "국어", detail: "수능 기조" },
       { name: "수학", detail: "문과·이과 모두 가능" },
       { name: "영어", detail: "수능 기조" },
-      { name: "한국사", detail: "근현대사" },
     ],
     fitness: [
       { name: "1.5km 달리기", standard: "남 7'30\" 이내 / 여 8'30\" 이내" },
@@ -235,7 +231,6 @@ const CLASSES: Record<string, ClassData> = {
       { name: "국어", detail: "수능 기조 + 법치·시사" },
       { name: "수학", detail: "이과·문과 모두 가능" },
       { name: "영어", detail: "수능 기조" },
-      { name: "한국사", detail: "근현대사 + 법제사" },
     ],
     fitness: [
       { name: "50m 달리기", standard: "남 8.4초 / 여 9.7초 이내" },

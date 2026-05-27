@@ -154,7 +154,7 @@ export default function MockPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-lg">📚 기출문제</CardTitle>
-                    <CardDescription>2022~2026 회차 즉시 응시 가능</CardDescription>
+                    <CardDescription>연도별 1개 기출 — 2022·2023·2024·2025·2026</CardDescription>
                   </div>
                   <button
                     onClick={() => setSource("past")}
@@ -185,7 +185,7 @@ export default function MockPage() {
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <Clock className="h-3 w-3" />
-                  선택한 연도의 1차 필기 기출 그대로 응시
+                  연도당 시험 1회 — 국어·영어·수학 (국영수 3과목)
                 </div>
               </CardContent>
             </Card>

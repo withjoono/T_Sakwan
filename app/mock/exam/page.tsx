@@ -14,26 +14,135 @@ import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock, Eraser, Save } 
 
 type Track = "saagwan" | "police"
 
+interface ShortAnswerRange {
+  start: number
+  end: number
+}
+
 interface SectionDef {
   name: string
   count: number
   electives?: ElectiveKey[]
-  electiveStart?: number  // 사관 수학에서 선택 시작 번호
+  electiveStart?: number       // 선택과목 시작 번호 (사관 수학: 23)
+  shortAnswerRanges?: ShortAnswerRange[]  // 주관식 구간 목록
 }
 
+/** 사관학교 수학: 1-15 공통객관, 16-22 공통주관, 23-28 선택객관, 29-30 선택주관 */
 const SAAGWAN_SECTIONS: SectionDef[] = [
   { name: "국어", count: 30 },
   { name: "영어", count: 30 },
-  { name: "수학", count: 30, electives: ["확률과 통계", "미적분", "기하"], electiveStart: 23 },
+  {
+    name: "수학",
+    count: 30,
+    electives: ["확률과 통계", "미적분", "기하"],
+    electiveStart: 23,
+    shortAnswerRanges: [
+      { start: 16, end: 22 },
+      { start: 29, end: 30 },
+    ],
+  },
 ]
+
 const POLICE_SECTIONS: SectionDef[] = [
   { name: "국어", count: 45 },
   { name: "영어", count: 45 },
   { name: "수학", count: 25 },
 ]
 
+/** 수학 OMR 구간 정의 (레이블 삽입용) */
+interface MathGroup {
+  label: string
+  start: number
+  end: number
+  type: "objective" | "short"
+  elective: boolean
+  labelColor: string
+  bgColor: string
+}
+
+const SAAGWAN_MATH_GROUPS: MathGroup[] = [
+  { label: "공통  객관식", start: 1,  end: 15, type: "objective", elective: false, labelColor: "text-gray-600",   bgColor: "bg-gray-50" },
+  { label: "공통  주관식", start: 16, end: 22, type: "short",     elective: false, labelColor: "text-blue-700",   bgColor: "bg-blue-50/60" },
+  { label: "선택과목  객관식", start: 23, end: 28, type: "objective", elective: true,  labelColor: "text-purple-700", bgColor: "bg-purple-50/60" },
+  { label: "선택과목  주관식", start: 29, end: 30, type: "short",     elective: true,  labelColor: "text-purple-700", bgColor: "bg-purple-50/60" },
+]
+
+function isShortAnswer(sec: SectionDef, num: number): boolean {
+  if (!sec.shortAnswerRanges) return false
+  return sec.shortAnswerRanges.some(({ start, end }) => num >= start && num <= end)
+}
+
+function getGroupForNum(num: number): MathGroup | undefined {
+  return SAAGWAN_MATH_GROUPS.find((g) => num >= g.start && num <= g.end)
+}
+
 const STORAGE_KEY = "sakwan_omr_draft_v1"
 
+/* ── 구간 라벨 컴포넌트 ── */
+function GroupDivider({ label, color, range }: { label: string; color: string; range: string }) {
+  return (
+    <div className={`col-span-full mt-2 flex items-center gap-2 rounded-lg px-3 py-1.5 ${color}`}>
+      <span className="text-xs font-bold">{label}</span>
+      <span className="text-[10px] opacity-70">{range}</span>
+    </div>
+  )
+}
+
+/* ── 객관식 버튼 열 ── */
+function ObjButtons({
+  val,
+  onChange,
+}: {
+  val: Answer | null
+  onChange: (v: Answer) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {[1, 2, 3, 4, 5].map((c) => (
+        <button
+          key={c}
+          onClick={() => onChange(c)}
+          className={`h-7 w-7 rounded-full text-xs font-bold transition-all ${
+            val === c
+              ? "bg-red-600 text-white shadow-sm"
+              : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+          }`}
+        >
+          {c}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/* ── 주관식 입력 ── */
+function ShortInput({
+  val,
+  onChange,
+}: {
+  val: Answer | null
+  onChange: (v: Answer | null) => void
+}) {
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      maxLength={3}
+      value={val !== null ? String(val) : ""}
+      placeholder="0~999"
+      onChange={(e) => {
+        const raw = e.target.value.replace(/\D/g, "")
+        if (raw === "") { onChange(null); return }
+        const n = parseInt(raw, 10)
+        if (!isNaN(n) && n >= 0 && n <= 999) onChange(n)
+      }}
+      className="mt-1 w-full rounded-md border border-blue-300 bg-white px-2 py-1.5 text-center text-sm font-bold text-blue-800 placeholder:text-blue-300 focus:border-blue-500 focus:outline-none"
+    />
+  )
+}
+
+/* ────────────────────────────── 메인 페이지 ────────────────────────────── */
 function ExamPageInner() {
   const router = useRouter()
   const params = useSearchParams()
@@ -69,9 +178,7 @@ function ExamPageInner() {
         if (parsed.answers) setAnswers(parsed.answers)
         if (parsed.elective) setElective(parsed.elective)
         if (parsed.seconds) setSeconds(parsed.seconds)
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
     }
   }, [track, year])
 
@@ -146,7 +253,6 @@ function ExamPageInner() {
       }
       const result = gradeSubmission(submission)
       const stored = await saveScore(String(user.id), result)
-      // 결과 페이지로 이동 (id로 다시 조회)
       window.localStorage.setItem("sakwan_last_result", JSON.stringify(stored))
       window.localStorage.removeItem(`${STORAGE_KEY}_${track}_${year}`)
       router.push(`/mock/result?id=${encodeURIComponent(stored.id || "")}`)
@@ -156,6 +262,8 @@ function ExamPageInner() {
       setSubmitting(false)
     }
   }
+
+  const isMathSaagwan = track === "saagwan" && currentSection.name === "수학"
 
   if (!isAuthenticated) {
     return (
@@ -207,7 +315,6 @@ function ExamPageInner() {
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />
             <div>
               <strong>{year}년 정답표 미입력</strong> — 현재 placeholder(임시값)로 채점됩니다. 실제 점수와 다를 수 있어요.
-              정답표 입력 가이드는 README 참조.
             </div>
           </div>
         </div>
@@ -237,7 +344,7 @@ function ExamPageInner() {
           })}
         </div>
 
-        {/* 수학 선택과목 토글 (사관만) */}
+        {/* 수학 선택과목 토글 */}
         {track === "saagwan" && currentSection.name === "수학" && (
           <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-purple-200 bg-purple-50 p-3 text-sm">
             <span className="font-bold text-purple-700">선택과목:</span>
@@ -254,29 +361,80 @@ function ExamPageInner() {
                 {e}
               </button>
             ))}
-            <span className="ml-auto text-[10px] text-purple-700">23-30번이 선택과목 영역</span>
+            <span className="ml-auto text-[10px] text-purple-700">
+              23-28번 선택객관 · 29-30번 선택주관
+            </span>
           </div>
         )}
 
         {/* OMR 그리드 */}
         <Card className="border-gray-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">{currentSection.name} OMR</CardTitle>
+            <CardTitle className="flex items-center gap-3 text-base">
+              <span>{currentSection.name} OMR</span>
+              {isMathSaagwan && (
+                <div className="flex items-center gap-2 text-xs font-normal text-gray-500">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="inline-block h-3 w-3 rounded-full bg-gray-200" /> 객관식(1-5)
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="inline-block h-3 w-3 rounded bg-blue-300" /> 주관식(숫자입력)
+                  </span>
+                </div>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              {Array.from({ length: currentSection.count }, (_, i) => i + 1).map((num) => {
+              {Array.from({ length: currentSection.count }, (_, i) => i + 1).flatMap((num) => {
                 const val = answers[currentSection.name]?.[num] ?? null
-                const isElectiveStart = currentSection.electiveStart && num === currentSection.electiveStart
-                return (
+                const isSubj = isShortAnswer(currentSection, num)
+                const group = isMathSaagwan ? getGroupForNum(num) : undefined
+                const isGroupStart = isMathSaagwan && group && group.start === num
+
+                const items: React.ReactNode[] = []
+
+                /* 구간 시작에 라벨 삽입 */
+                if (isGroupStart && group) {
+                  items.push(
+                    <GroupDivider
+                      key={`label-${num}`}
+                      label={group.label}
+                      range={`${group.start}-${group.end}번`}
+                      color={
+                        group.type === "short"
+                          ? group.elective
+                            ? "border border-purple-200 bg-purple-50 text-purple-700"
+                            : "border border-blue-200 bg-blue-50 text-blue-700"
+                          : group.elective
+                          ? "border border-purple-200 bg-purple-50/40 text-purple-600"
+                          : "border border-gray-200 bg-gray-50 text-gray-600"
+                      }
+                    />,
+                  )
+                }
+
+                /* 문항 카드 */
+                const cardBg = isSubj
+                  ? "border-blue-300 bg-blue-50/50"
+                  : val !== null
+                  ? "border-red-300 bg-red-50/40"
+                  : "border-gray-200 bg-white"
+
+                items.push(
                   <div
                     key={num}
-                    className={`rounded-lg border-2 p-2 ${
-                      val !== null ? "border-red-300 bg-red-50/40" : "border-gray-200 bg-white"
-                    } ${isElectiveStart ? "ring-2 ring-purple-300" : ""}`}
+                    className={`rounded-lg border-2 p-2 transition-colors ${cardBg}`}
                   >
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-xs font-bold text-gray-700">{num}번</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-gray-700">{num}번</span>
+                        {isSubj && (
+                          <span className="rounded bg-blue-200 px-1 py-0.5 text-[9px] font-bold text-blue-800">
+                            주관
+                          </span>
+                        )}
+                      </div>
                       <button
                         onClick={() => setAnswer(currentSection.name, num, null)}
                         className="text-[10px] text-gray-400 hover:text-red-600"
@@ -285,23 +443,22 @@ function ExamPageInner() {
                         <Eraser className="h-3 w-3" />
                       </button>
                     </div>
-                    <div className="flex flex-wrap gap-1">
-                      {[1, 2, 3, 4, 5].map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setAnswer(currentSection.name, num, c)}
-                          className={`h-7 w-7 rounded-full text-xs font-bold transition-all ${
-                            val === c
-                              ? "bg-red-600 text-white"
-                              : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+
+                    {isSubj ? (
+                      <ShortInput
+                        val={val}
+                        onChange={(v) => setAnswer(currentSection.name, num, v)}
+                      />
+                    ) : (
+                      <ObjButtons
+                        val={val}
+                        onChange={(v) => setAnswer(currentSection.name, num, v)}
+                      />
+                    )}
+                  </div>,
                 )
+
+                return items
               })}
             </div>
           </CardContent>

@@ -10,6 +10,13 @@ export function useAuth() {
   const [user, setUser] = useState<HubUser | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  // 첫 렌더는 서버와 동일한 값으로 시작, mount 후 실제 origin 기반 URL로 교체
+  const [loginUrl, setLoginUrl] = useState(() => getLoginUrl(undefined, true))
+
+  // mount 후 현재 origin을 반영한 로그인 URL 설정
+  useEffect(() => {
+    setLoginUrl(getLoginUrl())
+  }, [])
 
   // 초기 로드: localStorage에서 인증 정보 복원
   useEffect(() => {
@@ -57,6 +64,6 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
     logout,
-    loginUrl: getLoginUrl(),
+    loginUrl,
   }
 }

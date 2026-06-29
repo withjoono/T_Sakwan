@@ -9,8 +9,9 @@ export interface HubUser {
   domainCode?: string;
 }
 
-export function getLoginUrl(redirectPath?: string): string {
-  const currentUrl = typeof window !== 'undefined'
+export function getLoginUrl(redirectPath?: string, forceServer = false): string {
+  // forceServer: SSR/첫 렌더에서 window 미사용 → 서버·클라 HTML 일치 (hydration mismatch 방지)
+  const currentUrl = !forceServer && typeof window !== 'undefined'
     ? window.location.origin + (redirectPath || '/')
     : HUB_URL;
   return `${HUB_URL}/auth/login?redirect=${encodeURIComponent(currentUrl)}`;

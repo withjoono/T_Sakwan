@@ -15,6 +15,7 @@ import {
   ArrowRight,
   BarChart3,
   BookOpen,
+  Calendar,
   CheckCircle,
   Clock,
   FileText,
@@ -35,6 +36,27 @@ const WEAK_TOPICS = [
   { name: "수학 미적분 — 극한", rate: 32 },
   { name: "국어 비문학 — 사회", rate: 41 },
   { name: "수학 선택 — 기하 회전체", rate: 48 },
+]
+
+// 2027 대비 모의고사 일정 (총 5회) + 전형일
+type CalEvent = { label: string; type: "mock" | "exam" }
+const JULY_EVENTS: Record<number, CalEvent> = {
+  4: { label: "1회", type: "mock" },
+  11: { label: "2회", type: "mock" },
+  18: { label: "3회", type: "mock" },
+  25: { label: "4회", type: "mock" },
+  28: { label: "5회", type: "mock" },
+}
+const AUG_EVENTS: Record<number, CalEvent> = {
+  1: { label: "전형일", type: "exam" },
+}
+const SCHEDULE_LIST = [
+  { round: "1회", date: "7/4", dow: "토", type: "mock" as const },
+  { round: "2회", date: "7/11", dow: "토", type: "mock" as const },
+  { round: "3회", date: "7/18", dow: "토", type: "mock" as const },
+  { round: "4회", date: "7/25", dow: "토", type: "mock" as const },
+  { round: "5회", date: "7/28", dow: "화", type: "mock" as const },
+  { round: "전형일", date: "8/1", dow: "토", type: "exam" as const },
 ]
 
 export default function MockPage() {
@@ -91,8 +113,59 @@ export default function MockPage() {
             </span>
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-red-100">
-            기출 2022~2026은 지금 응시 가능. 모의문제는 6월 오픈 예정.
+            기출 2022~2026은 지금 응시 가능. 2027 대비 모의고사는 7월 총 5회 시행.
           </p>
+        </div>
+      </section>
+
+      {/* 2027 모의고사 일정 — 달력 */}
+      <section className="border-b border-gray-100 bg-gradient-to-b from-white to-gray-50 py-16">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="mb-8 text-center">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-red-50 px-4 py-2">
+              <Calendar className="h-4 w-4 text-red-700" />
+              <span className="text-sm font-semibold text-red-700">2027 대비 모의고사 일정</span>
+            </div>
+            <h2 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">7월, 총 5회 시행</h2>
+            <p className="text-gray-600">
+              매주 토요일 + 7/28(화) 총 5회. 경찰대·사관학교 전형일은 <strong className="text-red-700">8월 1일(토)</strong>.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <MonthCalendar label="2026년 7월" firstDow={3} daysInMonth={31} events={JULY_EVENTS} />
+            <MonthCalendar label="2026년 8월" firstDow={6} daysInMonth={31} events={AUG_EVENTS} />
+          </div>
+
+          {/* 범례 */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-xs text-gray-600">
+            <span className="flex items-center gap-1.5">
+              <span className="h-3.5 w-3.5 rounded bg-amber-100 ring-1 ring-amber-300" /> 모의고사 (1~5회)
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3.5 w-3.5 rounded bg-red-600" /> 경찰대·사관 전형일
+            </span>
+          </div>
+
+          {/* 일정 리스트 */}
+          <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {SCHEDULE_LIST.map((s) => (
+              <div
+                key={s.round}
+                className={`rounded-xl border-2 p-4 text-center ${
+                  s.type === "exam"
+                    ? "border-red-300 bg-red-50"
+                    : "border-amber-200 bg-amber-50/60"
+                }`}
+              >
+                <div className={`text-xs font-bold ${s.type === "exam" ? "text-red-700" : "text-amber-700"}`}>
+                  {s.round}
+                </div>
+                <div className="mt-1 text-lg font-black text-gray-900">{s.date}</div>
+                <div className="text-xs text-gray-500">({s.dow})</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -200,7 +273,7 @@ export default function MockPage() {
                     <div>
                       <div className="text-sm font-bold text-amber-900">{MOCK_OPEN_DATE} 오픈 예정</div>
                       <div className="mt-1 text-xs text-amber-800">
-                        매월 신규 회차를 제작·공개합니다. 기출과 동일한 형식·난이도.
+                        7월 5회차(7/4·11·18·25·28)로 시행. 기출과 동일한 형식·난이도.
                       </div>
                     </div>
                   </div>
@@ -499,7 +572,7 @@ export default function MockPage() {
       {/* 최종 CTA */}
       <section className="bg-gradient-to-br from-slate-900 to-red-950 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
-          <h2 className="mb-4 text-3xl font-bold text-white">기출 응시는 지금, 모의문제는 6월</h2>
+          <h2 className="mb-4 text-3xl font-bold text-white">기출 응시는 지금, 모의고사는 7월 5회</h2>
           <p className="mb-8 text-lg text-red-100">Sakwan에서 응시 → 즉시 채점 → 합격선 매칭까지 한 화면.</p>
           {sourceEnabled ? (
             <Link href={examLink}>
@@ -512,8 +585,8 @@ export default function MockPage() {
           )}
           <ul className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-red-100">
             <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />기출 2022~2026</li>
+            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />모의 7월 5회</li>
             <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />자동 채점·매칭</li>
-            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />Firestore 영구 저장</li>
           </ul>
         </div>
       </section>
@@ -523,6 +596,63 @@ export default function MockPage() {
           <AlertCircle className="mr-1 inline h-3 w-3" /> 응시 결과를 영구 저장하려면 로그인 필요
         </div>
       )}
+    </div>
+  )
+}
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"]
+
+function MonthCalendar({
+  label,
+  firstDow,
+  daysInMonth,
+  events,
+}: {
+  label: string
+  firstDow: number
+  daysInMonth: number
+  events: Record<number, CalEvent>
+}) {
+  const cells: (number | null)[] = []
+  for (let i = 0; i < firstDow; i++) cells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d)
+  while (cells.length % 7 !== 0) cells.push(null)
+
+  return (
+    <div className="rounded-2xl border-2 border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 text-center text-lg font-bold text-gray-900">{label}</div>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {WEEKDAYS.map((w, i) => (
+          <div
+            key={w}
+            className={`pb-2 text-xs font-bold ${i === 0 ? "text-red-500" : i === 6 ? "text-blue-500" : "text-gray-400"}`}
+          >
+            {w}
+          </div>
+        ))}
+        {cells.map((d, i) => {
+          if (d === null) return <div key={i} className="aspect-square" />
+          const ev = events[d]
+          const dow = i % 7
+          const base = "flex aspect-square flex-col items-center justify-center rounded-lg text-sm"
+          const tone =
+            ev?.type === "exam"
+              ? "bg-red-600 font-bold text-white shadow-sm"
+              : ev?.type === "mock"
+                ? "bg-amber-100 font-bold text-amber-800 ring-1 ring-amber-300"
+                : dow === 0
+                  ? "text-red-400"
+                  : dow === 6
+                    ? "text-blue-400"
+                    : "text-gray-700"
+          return (
+            <div key={i} className={`${base} ${tone}`}>
+              <span>{d}</span>
+              {ev ? <span className="mt-0.5 text-[9px] font-bold leading-none">{ev.label}</span> : null}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

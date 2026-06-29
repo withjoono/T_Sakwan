@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2027 사관학교 · 경찰대 전형안내 | T사관</title>
+<style>
+  :root{
+    --primary:#ff6b35; --primary2:#ff9800; --deep:#e8590c;
+    --cream:#fff3e0; --bg:#fffbf7; --line:#f2e6da; --ink:#333333;
+    --muted:#8a7a6c; --soft:#fff1e3; --foot:#33271f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* Hero */
+  header.hero{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;padding:54px 0 46px;position:relative;overflow:hidden}
+  header.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border:2px solid rgba(255,255,255,.3);border-radius:50%}
+  header.hero::before{content:"";position:absolute;right:60px;bottom:-90px;width:200px;height:200px;border:2px solid rgba(255,255,255,.18);border-radius:50%}
+  .badge{display:inline-block;border:1px solid rgba(255,255,255,.7);color:#fff;font-size:13px;font-weight:600;
+    padding:5px 14px;border-radius:999px;letter-spacing:.04em;margin-bottom:16px}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+  .hero h1 span{color:var(--cream)}
+  .hero p{margin-top:14px;color:#ffe8d6;font-size:15px;max-width:640px}
+  .hero .meta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+  .hero .meta b{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);
+    padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600}
+
+  /* sticky nav */
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 8px rgba(232,89,12,.05)}
+  nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+  nav.tabs a{padding:15px 16px;font-size:14.5px;font-weight:600;color:var(--muted);white-space:nowrap;
+    border-bottom:3px solid transparent;transition:.15s}
+  nav.tabs a:hover{color:var(--primary)}
+  nav.tabs a.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+  section{padding:48px 0 8px}
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .sec-head .no{width:34px;height:34px;border-radius:9px;background:var(--primary);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+  .sec-head h2{font-size:23px;font-weight:800;letter-spacing:-.01em}
+  .sec-head .tip{margin-left:auto;font-size:12.5px;color:var(--muted)}
+
+  /* cards */
+  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 16px;text-align:center;transition:.15s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(255,107,53,.15);border-color:#f3cdab}
+  .card .nm{font-size:14px;font-weight:700;color:var(--deep)}
+  .card .tot{font-size:30px;font-weight:800;margin:8px 0 2px}
+  .card .tot small{font-size:14px;color:var(--muted);font-weight:600}
+  .card .gd{font-size:12.5px;color:var(--muted);margin-top:6px;border-top:1px dashed var(--line);padding-top:8px}
+
+  /* tables */
+  .tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;font-size:13.8px}
+  .tbl th,.tbl td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:center}
+  .tbl thead th{background:var(--primary);color:#fff;font-weight:700;font-size:13px}
+  .tbl tbody tr:nth-child(even){background:#fffaf4}
+  .tbl td.l{text-align:left}
+  .tbl .grp{background:var(--soft);font-weight:700;color:var(--deep)}
+  .scroll{overflow-x:auto;border-radius:12px}
+  .hl{color:var(--deep);font-weight:700}
+  .pill{display:inline-block;background:var(--soft);color:var(--deep);font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px}
+
+  /* timeline */
+  .tl{position:relative;margin-left:8px;padding-left:26px;border-left:2px solid var(--line)}
+  .tl .ev{position:relative;padding:0 0 22px 6px}
+  .tl .ev::before{content:"";position:absolute;left:-34px;top:3px;width:13px;height:13px;border-radius:50%;
+    background:#fff;border:3px solid var(--primary)}
+  .tl .ev .d{font-size:13px;font-weight:800;color:var(--deep)}
+  .tl .ev .t{font-weight:700;margin-top:1px}
+  .tl .ev .s{font-size:13px;color:var(--muted)}
+
+  /* faq */
+  details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+  details[open]{border-color:#f3cdab;box-shadow:0 6px 16px rgba(255,107,53,.08)}
+  summary{padding:16px 18px;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-size:15px}
+  summary::-webkit-details-marker{display:none}
+  summary .q{color:var(--primary);font-weight:800}
+  summary::after{content:"+";margin-left:auto;font-size:20px;color:var(--muted);transition:.2s}
+  details[open] summary::after{transform:rotate(45deg)}
+  details .a{padding:0 18px 18px 44px;color:#5b5048;font-size:14px;border-top:1px solid var(--line);padding-top:14px}
+
+  .note{background:#fff6ec;border:1px solid #f6dcbf;border-radius:10px;
+    padding:14px 16px;font-size:13px;color:#8a5a1e;margin-top:14px}
+  .note b{color:#6b4413}
+
+  footer{margin-top:54px;background:var(--foot);color:#d8c6b6;padding:30px 0;font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  footer b{color:#fff;font-size:15px}
+  footer a{color:var(--primary2);font-weight:600}
+
+  @media(max-width:860px){
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .hero h1{font-size:26px}
+    .sec-head .tip{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">2027학년도 입학전형</span>
+    <h1>사관학교 · 경찰대 <span>전형안내</span></h1>
+    <p>육군·해군·공군·국군간호사관학교와 경찰대학의 2027학년도(2026년 시행) 모집인원, 전형일정, 1차시험 과목, 자주 묻는 질문을 한곳에 정리했습니다.</p>
+    <div class="meta">
+      <b>원서접수 · 사관 6/19~6/29</b>
+      <b>1차시험 · 8/1(토) 동시 실시</b>
+      <b>경찰대 · 5월 접수</b>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <a href="#recruit" class="active">모집인원</a>
+    <a href="#schedule">전형일정</a>
+    <a href="#exam">1차시험</a>
+    <a href="#method">전형방법</a>
+    <a href="#faq">자주 묻는 질문</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 1. 모집인원 -->
+  <section id="recruit">
+    <div class="sec-head"><span class="no">1</span><h2>학교별 모집 인원</h2><span class="tip">2027학년도 입학전형 시행계획 기준</span></div>
+    <div class="cards">
+      <div class="card"><div class="nm">육군사관학교</div><div class="tot">330<small>명</small></div><div class="gd">남 282 · 여 48</div></div>
+      <div class="card"><div class="nm">해군사관학교</div><div class="tot">170<small>명</small></div><div class="gd">남 144 · 여 26</div></div>
+      <div class="card"><div class="nm">공군사관학교</div><div class="tot">235<small>명</small></div><div class="gd">남 199 · 여 36</div></div>
+      <div class="card"><div class="nm">국군간호사관학교</div><div class="tot">90<small>명</small></div><div class="gd">남 14 · 여 76</div></div>
+      <div class="card"><div class="nm">경찰대학</div><div class="tot">50<small>명</small></div><div class="gd">남녀 통합선발</div></div>
+    </div>
+
+    <div style="height:22px"></div>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--deep)">계열별 선발 비율 (인문 : 자연)</h3>
+    <div class="scroll">
+      <table class="tbl">
+        <thead><tr><th>구분</th><th>육군사관</th><th>해군사관</th><th>공군사관</th><th>국군간호</th><th>경찰대</th></tr></thead>
+        <tbody>
+          <tr><td class="grp">남자</td><td>45 : 55</td><td>45 : 55</td><td>30 : 70</td><td>40 : 60</td><td rowspan="2">계열 구분 없음</td></tr>
+          <tr><td class="grp">여자</td><td>60 : 40</td><td>50 : 50</td><td>45 : 55</td><td>40 : 60</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:10px">경찰대 50명 = 일반전형 44명 · 농어촌학생 특별전형 3명 · 한마음무궁화 특별전형 3명</p>
+  </section>
+
+  <!-- 2. 전형일정 -->
+  <section id="schedule">
+    <div class="sec-head"><span class="no">2</span><h2>2027학년도 전형 일정</h2><span class="tip">2026년 시행 · 학교별 상이</span></div>
+    <div class="scroll">
+      <table class="tbl">
+        <thead><tr><th>구분</th><th>육·해·공·국간사 (공통)</th><th>경찰대학</th></tr></thead>
+        <tbody>
+          <tr><td class="grp l">원서접수</td>
+            <td>6/19(금) ~ 6/29(월)</td>
+            <td>특별전형 5/4~5/14 · 일반전형 5/18~5/28</td></tr>
+          <tr><td class="grp l">1차시험 (필기)</td>
+            <td colspan="2"><span class="hl">8/1(토) 09:10 ~ 13:30</span> — 전 사관학교·경찰대 동시 실시</td></tr>
+          <tr><td class="grp l">1차 합격발표</td>
+            <td>육사 8/14 · 해사 8/13 · 공사 8/13 · 국간사 8/14</td>
+            <td>8/6</td></tr>
+          <tr><td class="grp l">2차시험<br>(신체·체력·면접)</td>
+            <td>9월 초 ~ 10월 (학교별 일정 상이)</td>
+            <td>신체·체력·면접 9월 / 인성검사 별도</td></tr>
+          <tr><td class="grp l">최종 합격발표</td>
+            <td>우선·특별 11월 초 · 종합선발 12월 중순</td>
+            <td>우선 11/6 · 종합 2027/1/4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>중복 지원 주의</b> — 1차시험일이 8/1로 모두 동일하여 <b>사관학교 4곳과 경찰대 간 중복 지원이 사실상 불가능</b>합니다. 지원 전 1순위 학교를 정하세요.</div>
+  </section>
+
+  <!-- 3. 1차시험 -->
+  <section id="exam">
+    <div class="sec-head"><span class="no">3</span><h2>1차시험 과목 · 문항 · 시간</h2><span class="tip">100점 만점 / 과목</span></div>
+    <div class="scroll">
+      <table class="tbl">
+        <thead><tr><th>구분</th><th>과목</th><th>문항</th><th>시간</th><th>출제 범위</th></tr></thead>
+        <tbody>
+          <tr><td class="grp l" rowspan="3">사관학교<br>(육·해·공·국간사)</td>
+            <td>국어</td><td>30문항</td><td>50분</td><td class="l">독서, 문학 (화법과 작문 · 언어와 매체 제외)</td></tr>
+          <tr><td>수학</td><td>30문항</td><td>100분</td><td class="l">공통(수학Ⅰ·수학Ⅱ) + 선택 (자연 : 미적분·기하 / 인문 : 확률과 통계)</td></tr>
+          <tr><td>영어</td><td>30문항</td><td>50분</td><td class="l">영어Ⅰ · 영어Ⅱ (듣기 문항 없음)</td></tr>
+          <tr><td class="grp l" rowspan="3">경찰대학</td>
+            <td>국어</td><td>45문항</td><td>60분</td><td class="l">독서, 문학, 화법과 작문, 언어와 매체</td></tr>
+          <tr><td>수학</td><td>25문항</td><td>80분</td><td class="l">공통(수학Ⅰ·수학Ⅱ) + 선택 (확률과 통계·미적분·기하 중 택1)</td></tr>
+          <tr><td>영어</td><td>45문항</td><td>60분</td><td class="l">영어Ⅰ · 영어Ⅱ (듣기 문항 없음)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>T사관 모의고사 연계</b> — T사관은 위 사관·경찰대 출제 범위에 맞춘 모의고사(모고)와 문항 유형분석을 제공합니다. 1차시험 대비는 실제 출제 유형으로 연습하는 것이 핵심입니다.</div>
+  </section>
+
+  <!-- 4. 전형방법 -->
+  <section id="method">
+    <div class="sec-head"><span class="no">4</span><h2>전형 방법 (선발 구조)</h2><span class="tip">학교별 배점은 모집요강 참고</span></div>
+    <div class="scroll">
+      <table class="tbl">
+        <thead><tr><th>단계</th><th>평가 요소</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td class="grp">1차</td><td class="l">필기시험 (국어·수학·영어)</td><td class="l">합격/불합격 판정 + 점수 반영. 모집인원의 수 배수 선발</td></tr>
+          <tr><td class="grp" rowspan="3">2차</td><td class="l">신체검사</td><td class="l">신장·체중·시력·질환 등 군 신체기준 충족 여부 (합·불)</td></tr>
+          <tr><td class="l">체력검정</td><td class="l">오래달리기·윗몸일으키기·팔굽혀펴기 등 종목별 배점</td></tr>
+          <tr><td class="l">면접 (인성·적성)</td><td class="l">개별·집단 면접, AI면접 등 학교별 상이. 배점 비중 큼</td></tr>
+          <tr><td class="grp">반영</td><td class="l">학생부 (내신) · 수능</td><td class="l">우선선발(학생부+1·2차) / 종합선발(수능 반영) 트랙으로 구분</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:10px">대표 선발 트랙: <span class="pill">우선선발</span> 학교장추천·일반우선·특별전형(독립유공·고른기회·농어촌 등) <span class="pill">종합선발</span> 수능 성적 중심. 트랙별 1차·2차·내신·수능 반영 비율은 학교마다 다릅니다.</p>
+  </section>
+
+  <!-- 5. FAQ -->
+  <section id="faq">
+    <div class="sec-head"><span class="no">5</span><h2>자주 묻는 질문</h2></div>
+
+    <details open>
+      <summary><span class="q">Q</span> 수시 6회 · 정시 3회 제한에 사관학교·경찰대 지원이 포함되나요?</summary>
+      <div class="a">아니요. 사관학교와 경찰대학은 특별법에 의해 설치된 <b>특수대학</b>으로 분류되어, 일반 대학의 수시 6회 · 정시 3회 지원 제한과 <b>무관하게</b> 추가로 지원할 수 있습니다. 다만 1차시험일(8/1)이 동일하여 사관학교 4곳·경찰대 사이에는 중복 지원이 불가능합니다.</div>
+    </details>
+
+    <details>
+      <summary><span class="q">Q</span> 사관학교와 경찰대를 동시에 지원할 수 있나요?</summary>
+      <div class="a">원서접수는 따로 할 수 있으나, <b>1차시험일이 8/1로 같아</b> 실제로는 한 곳만 응시할 수 있습니다. 1순위 목표를 정해 지원하는 것을 권합니다.</div>
+    </details>
+
+    <details>
+      <summary><span class="q">Q</span> 재수생·N수생도 지원할 수 있나요?</summary>
+      <div class="a">네. 연령 기준(대략 만 17세~21세, 경찰대는 만 17세~42세 미만)을 충족하는 고등학교 졸업(예정)·동등 학력자라면 졸업 연도와 무관하게 지원 가능합니다. 정확한 출생일 기준은 각 학교 모집요강을 확인하세요.</div>
+    </details>
+
+    <details>
+      <summary><span class="q">Q</span> 1차시험은 수능과 같은 형식인가요?</summary>
+      <div class="a">출제 범위는 수능 교육과정을 따르지만, <b>사관학교는 자체 출제</b>로 국어·영어 각 30문항(50분), 수학 30문항(100분)이며 영어 듣기가 없습니다. 경찰대는 국어·영어 45문항, 수학 25문항으로 문항 수·시간이 다릅니다. 난도와 유형이 수능과 차이가 있어 <b>기출 유형 대비</b>가 중요합니다.</div>
+    </details>
+
+    <details>
+      <summary><span class="q">Q</span> 시력이 나쁘면 불합격인가요?</summary>
+      <div class="a">2차 신체검사에 시력 기준이 있으나, 시력교정술(라식·라섹 등) 후 기준을 충족하면 합격 가능한 경우가 많습니다. 학교·병과별 기준이 다르므로 반드시 해당 학교의 신체검사 기준을 확인하세요.</div>
+    </details>
+
+    <details>
+      <summary><span class="q">Q</span> 내신(학생부)은 얼마나 중요한가요?</summary>
+      <div class="a">우선선발 트랙에서 학생부 비중이 큽니다(학교별 상이). 종합선발은 수능 비중이 높습니다. 1차 필기 → 2차(체력·면접) → 학생부·수능이 단계적으로 반영되므로, 어느 한 요소도 소홀히 할 수 없습니다.</div>
+    </details>
+  </section>
+
+  <div class="note" style="margin:30px 0 0">
+    <b>⚠ 안내</b> — 본 페이지의 모집인원·일정·전형방법은 <b>2027학년도 입학전형 시행계획</b> 및 공개 자료를 바탕으로 정리한 참고용입니다. 세부 내용은 변경될 수 있으니, 지원 전 반드시 각 학교의 <b>최종 모집요강</b>을 확인하시기 바랍니다.
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b>T사관</b> · 사관학교 · 경찰대 입시 플랫폼</div>
+    <div>전형안내 2027 · <a href="https://www.tsakwan.kr">www.tsakwan.kr</a></div>
+  </div>
+</footer>
+
+<script>
+  const links=[...document.querySelectorAll('nav.tabs a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  const onScroll=()=>{
+    const y=window.scrollY+120;let idx=0;
+    secs.forEach((s,i)=>{if(s&&s.offsetTop<=y)idx=i});
+    links.forEach((a,i)=>a.classList.toggle('active',i===idx));
+  };
+  window.addEventListener('scroll',onScroll);
+  links.forEach(a=>a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth'});
+  }));
+</script>
+</body>
+</html>

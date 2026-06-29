@@ -88,7 +88,7 @@ export default function PlannerPage() {
         <div className="container relative mx-auto max-w-7xl px-6 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
             <ClipboardList className="h-4 w-4 text-amber-100" />
-            <span className="text-sm font-semibold text-amber-100">TS 사관 플래너</span>
+            <span className="text-sm font-semibold text-amber-100">T사관 플래너</span>
           </div>
           <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
             어제 우리 반에서

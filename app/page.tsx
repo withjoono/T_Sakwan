@@ -359,7 +359,7 @@ export default function HomePage() {
           <div className="mb-16 text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-red-50 px-4 py-2">
               <Sparkles className="h-4 w-4 text-red-600" />
-              <span className="text-sm font-semibold text-red-700">TS 사관 9가지 특징</span>
+              <span className="text-sm font-semibold text-red-700">T사관 9가지 특징</span>
             </div>
             <h2 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">하나하나, 합격을 위한 기능</h2>
             <p className="mx-auto max-w-2xl text-xl text-gray-600">
@@ -465,7 +465,7 @@ export default function HomePage() {
         <div className="container mx-auto max-w-4xl px-6 text-center">
           <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">사전예약 시 파격 할인</h2>
           <p className="mb-8 text-lg text-red-100">
-            2026년 6월 4일 정식 개강. 네이버에서 <strong>TS 사관</strong> 검색.
+            2026년 6월 4일 정식 개강. 네이버에서 <strong>T사관</strong> 검색.
           </p>
           <div className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
             <input
@@ -486,10 +486,8 @@ export default function HomePage() {
           <div className="mb-12 grid gap-12 md:grid-cols-2">
             <div>
               <div className="mb-4 flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-red-600 to-red-800">
-                  <span className="text-xs font-black text-white">사관</span>
-                </div>
-                <span className="text-2xl font-bold">TS 사관</span>
+                <img src="/ts-logo.png" alt="T사관" className="h-12 w-12 rounded-lg bg-white object-contain p-1" />
+                <span className="text-2xl font-bold">T사관</span>
               </div>
               <p className="text-sm leading-relaxed text-gray-400">
                 경찰대·사관학교 수험생을 위한 전문 학습·입시 플랫폼.
@@ -513,7 +511,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-            <p>&copy; 2026 TS 사관. 모든 권리 보유.</p>
+            <p>&copy; 2026 T사관. 모든 권리 보유.</p>
           </div>
         </div>
       </footer>

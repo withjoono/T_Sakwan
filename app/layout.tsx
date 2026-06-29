@@ -11,7 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "사관학교 입시 전문 | TS 사관 - 육사·해사·공사·국간사",
+  title: "사관학교 입시 전문 | T사관 - 육사·해사·공사·국간사",
   description: "육군사관학교, 해군사관학교, 공군사관학교, 국군간호사관학교 합격을 위한 전문 입시 컨설팅 + AI 생기부 진단 플랫폼. 1차 필기, 체력검정, 면접 완벽 대비.",
 }
 

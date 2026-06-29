@@ -103,7 +103,7 @@ export default function MockPage() {
         <div className="container relative mx-auto max-w-7xl px-6 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
             <Trophy className="h-4 w-4 text-amber-200" />
-            <span className="text-sm font-semibold text-amber-100">TS 사관 모의고사</span>
+            <span className="text-sm font-semibold text-amber-100">T사관 모의고사</span>
           </div>
           <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
             사관·경찰 전용 OMR로 응시,
@@ -257,7 +257,7 @@ export default function MockPage() {
                     <CardTitle className="text-lg">
                       ✨ 모의문제 <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">곧 오픈</span>
                     </CardTitle>
-                    <CardDescription>TS 사관 자체 제작 신규 모의문제</CardDescription>
+                    <CardDescription>T사관 자체 제작 신규 모의문제</CardDescription>
                   </div>
                   <button
                     onClick={() => setSource("mock")}

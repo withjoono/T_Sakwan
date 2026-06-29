@@ -58,11 +58,9 @@ export default function Navigation() {
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between max-w-7xl">
         {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-red-700 to-red-900 rounded-lg flex items-center justify-center">
-            <span className="text-white font-black text-sm">사관</span>
-          </div>
-          <span className="text-xl font-bold text-gray-900">TS 사관</span>
+        <Link href="/" className="flex items-center space-x-2">
+          <img src="/ts-logo.png" alt="T사관" className="h-10 w-10 object-contain" />
+          <span className="text-xl font-bold text-gray-900">T사관</span>
         </Link>
 
         {/* 메인 메뉴 */}

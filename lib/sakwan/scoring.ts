@@ -4,6 +4,7 @@
 
 import {
   SAAGWAN_ANSWER_KEYS,
+  SAAGWAN_SCORE_KEYS,
   POLICE_ANSWER_KEYS,
   SCORING_RULES,
   type Answer,
@@ -57,21 +58,33 @@ function gradeSection(
   name: string,
   userAns: Record<number, Answer | null>,
   correctAns: Record<number, Answer>,
-  pointsPerQuestion?: number,
+  /**
+   * 배점 결정:
+   *  - scoreMap 제공 시 → 문항별 실배점 사용 (정답 문항의 배점 합)
+   *  - number 제공 시   → 문항당 균등 배점
+   *  - 미제공 시        → 100 / 문항수 균등 배점
+   */
+  scoring?: Record<number, number> | number,
 ): SectionResult {
   const nums = Object.keys(correctAns).map(Number).sort((a, b) => a - b)
+  const scoreMap = typeof scoring === "object" ? scoring : undefined
+  const ppq = typeof scoring === "number" ? scoring : 100 / nums.length
+
   let correct = 0
   let attempted = 0
+  let rawScore = 0
   const detail = nums.map((num) => {
     const ua = userAns[num] ?? null
     const ca = correctAns[num]
     const isCorrect = ua !== null && ua === ca
     if (ua !== null) attempted++
-    if (isCorrect) correct++
+    if (isCorrect) {
+      correct++
+      rawScore += scoreMap ? scoreMap[num] ?? 0 : ppq
+    }
     return { num, userAnswer: ua, correct: ca, isCorrect }
   })
-  const ppq = pointsPerQuestion ?? 100 / nums.length
-  const rawScore = Math.round(correct * ppq * 100) / 100
+  rawScore = Math.round(rawScore * 100) / 100
   return { name, totalQuestions: nums.length, correct, attempted, rawScore, detail }
 }
 
@@ -79,17 +92,23 @@ export function gradeSubmission(sub: Submission): GradingResult {
   if (sub.track === "saagwan") {
     const key = SAAGWAN_ANSWER_KEYS[sub.year]
     if (!key) throw new Error(`사관 ${sub.year} 정답표 없음`)
+    const scoreKey = SAAGWAN_SCORE_KEYS[sub.year]
 
     // 수학: 공통(1-22) + 선택(23-30) 합쳐서 채점
     const mathCorrect: Record<number, Answer> = {
       ...key.math.common,
       ...(key.math.electives[sub.elective] || {}),
     }
+    // 문항별 실배점 (정답표와 동일 구조)
+    const mathScore: Record<number, number> | undefined = scoreKey && {
+      ...scoreKey.math.common,
+      ...(scoreKey.math.electives[sub.elective] || {}),
+    }
 
     const sections = [
-      gradeSection("국어", sub.korean, key.korean, 100 / 30),
-      gradeSection("영어", sub.english, key.english, 100 / 30),
-      gradeSection("수학", sub.math, mathCorrect, 100 / 30),
+      gradeSection("국어", sub.korean, key.korean, scoreKey?.korean ?? 100 / 30),
+      gradeSection("영어", sub.english, key.english, scoreKey?.english ?? 100 / 30),
+      gradeSection("수학", sub.math, mathCorrect, mathScore ?? 100 / 30),
     ]
     const totalCorrect = sections.reduce((s, x) => s + x.correct, 0)
     const totalQuestions = sections.reduce((s, x) => s + x.totalQuestions, 0)

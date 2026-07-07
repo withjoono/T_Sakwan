@@ -114,22 +114,25 @@ export default function PromoPage() {
   return (
     <main>
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-background to-background">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center sm:px-12 sm:py-28">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#A5141B] via-[#C81E27] to-[#E0453E] text-white">
+        {/* 장식 원 */}
+        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-white/5" />
+        <div className="relative mx-auto max-w-5xl px-6 py-20 text-center sm:px-12 sm:py-28">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5" />
             거북스쿨 생태계 · 사관·경찰 진학 특화
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-            사관·경찰 합격, <span className="text-primary">특화 전략으로 완성</span>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+            사관·경찰 합격, <span className="text-white/85">특화 전략으로 완성</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/90 sm:text-xl">
             T 사관은 육·해·공군 사관학교, 국군간호사관학교, 경찰대 진학만을 파고드는 전문 포털입니다. 전용 모의고사·과거 합격선, 체력·2차 면접 대비, 합격생 1:1 멘토링을 한 곳에서 준비하세요.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/mock"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-primary shadow-sm transition-transform hover:-translate-y-0.5"
             >
               모의고사 무료 체험
               <ArrowRight className="h-4 w-4" />
@@ -138,7 +141,7 @@ export default function PromoPage() {
               href="https://www.tskool.kr"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center rounded-xl border bg-background px-6 py-3 text-base font-medium text-foreground transition-colors hover:bg-accent"
+              className="inline-flex items-center rounded-xl border border-white/40 bg-white/10 px-6 py-3 text-base font-medium text-white backdrop-blur transition-colors hover:bg-white/20"
             >
               Hub에서 가입
             </a>

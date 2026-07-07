@@ -1,9 +1,14 @@
 /**
  * Mogo 앱 연동 헬퍼
  *
- * Mogo 운영본은 수정하지 않고, 기존 deep-link / API만 활용합니다.
- * (설계서: Mogo_연동_설계서.md 참조)
+ * 조회(fetchMogoScores)는 Mogo 운영본을 그대로 활용합니다.
+ * 사관 응시 결과 동기화(syncSaagwanResultToMogo)는 mogo-backend에 사관 5개 회차용
+ * ExamAnswer/CORS를 추가한 뒤(2026-07-06) 취약분석 연동을 위해 새로 붙인 write 경로입니다.
+ * (설계서: Mogo_연동_설계서.md 참조 — 단, 해당 문서의 "Mogo 무수정" 원칙은 이 write 경로로 갱신됨)
  */
+
+import type { SaagwanSubmission } from "./scoring"
+import type { Answer } from "./answer-keys"
 
 export const MOGO_URL = process.env.NEXT_PUBLIC_MOGO_URL || "https://mogomogo.kr"
 export const MOGO_API_URL =
@@ -91,4 +96,106 @@ export async function fetchMogoScores(studentId: string | number): Promise<MogoS
   } catch {
     return []
   }
+}
+
+/* ───────────── 사관 응시 결과 → mogo-backend 동기화 (취약분석 연동) ───────────── */
+
+interface GradeAnswerItem {
+  questionNumber: number
+  selectedAnswer: number
+}
+
+const mockExamIdCache = new Map<number, number>()
+
+/** 사관 회차 코드: mogo-backend에 이미 등록된 형식 (H3{연도뒤2자리}07) */
+export function sakwanExamCode(year: number): string {
+  return `H3${String(year).slice(2)}07`
+}
+
+/** DB_import 시트의 수학 선택과목 라벨은 공백이 없다 ("확률과통계") — API 호출 시 정규화 필요 */
+function normalizeElectiveForMogo(elective: string): string {
+  return elective.replace(/\s+/g, "")
+}
+
+async function resolveMockExamId(year: number): Promise<number | null> {
+  const cached = mockExamIdCache.get(year)
+  if (cached != null) return cached
+  try {
+    const res = await fetch(`${MOGO_API_URL}/api/mock-exams/code/${sakwanExamCode(year)}`)
+    if (!res.ok) return null
+    const json: unknown = await res.json()
+    const id =
+      json && typeof json === "object" && "data" in json
+        ? (json as { data?: { id?: number } }).data?.id
+        : (json as { id?: number } | null)?.id
+    if (typeof id !== "number") return null
+    mockExamIdCache.set(year, id)
+    return id
+  } catch {
+    return null
+  }
+}
+
+function toGradeAnswers(
+  rec: Record<number, Answer | null>,
+  from?: number,
+  to?: number,
+): GradeAnswerItem[] {
+  return Object.entries(rec)
+    .filter(([num, value]) => {
+      if (value == null) return false
+      const n = Number(num)
+      if (from != null && n < from) return false
+      if (to != null && n > to) return false
+      return true
+    })
+    .map(([num, value]) => ({ questionNumber: Number(num), selectedAnswer: value as number }))
+}
+
+/** 실패해도 throw하지 않음 — 베스트에포트 동기화 */
+async function postGrade(
+  studentId: string,
+  mockExamId: number,
+  subjectAreaName: string,
+  subjectName: string | undefined,
+  answers: GradeAnswerItem[],
+): Promise<boolean> {
+  if (answers.length === 0) return true
+  try {
+    const res = await fetch(`${MOGO_API_URL}/api/wrong-answers/grade`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId, mockExamId, subjectAreaName, subjectName, answers }),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 사관 응시 결과를 mogo-backend StudentAnswer로 적재해 취약분석(H3YY07 MockExam)과 연동합니다.
+ *
+ * 수학은 공통(1-22, subjectName 없음)과 선택과목(23-30, subjectName=선택과목)을
+ * 반드시 별도 호출로 보내야 합니다 — mogo-backend가 subjectAreaName+subjectName을
+ * AND 조건으로 정답을 조회하므로 하나로 합치면 공통 문항이 누락됩니다.
+ *
+ * 베스트에포트: 실패해도 Sakwan 자체 채점/결과 표시에는 영향을 주지 않습니다.
+ */
+export async function syncSaagwanResultToMogo(
+  studentId: string | number,
+  submission: SaagwanSubmission,
+): Promise<void> {
+  const mockExamId = await resolveMockExamId(submission.year)
+  if (!mockExamId) return
+
+  const sid = String(studentId)
+  const elective = normalizeElectiveForMogo(submission.elective)
+
+  await Promise.allSettled([
+    postGrade(sid, mockExamId, "국어", undefined, toGradeAnswers(submission.korean)),
+    postGrade(sid, mockExamId, "영어", undefined, toGradeAnswers(submission.english)),
+    postGrade(sid, mockExamId, "수학", undefined, toGradeAnswers(submission.math, 1, 22)),
+    postGrade(sid, mockExamId, "수학", elective, toGradeAnswers(submission.math, 23, 30)),
+  ])
 }

@@ -19,10 +19,16 @@ const HUB_LINKS = {
 type NavItem = { label: string; href: string }
 
 const mainMenu: NavItem[] = [
-  { label: "사관/경찰 모의", href: "/mock" },
   { label: "플래너", href: "/planner" },
   { label: "생기부 관리", href: "/sanggibu" },
   { label: "멘토링", href: "/mentoring" },
+]
+
+// 사관/경찰 모의 하위 메뉴 (허브 + 기출 + T사관 모의)
+const mockMenu: NavItem[] = [
+  { label: "모의고사 홈", href: "/mock" },
+  { label: "📚 기출 모의고사", href: "/mock/past" },
+  { label: "✨ T사관 모의고사", href: "/mock/tsagwan" },
 ]
 
 const classMenu: NavItem[] = [
@@ -53,6 +59,7 @@ export default function Navigation() {
   }
 
   const isClassActive = pathname.startsWith("/class/")
+  const isMockActive = pathname.startsWith("/mock")
 
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -127,6 +134,33 @@ export default function Navigation() {
 
           {/* 구분선 */}
           <span className="h-5 w-px bg-gray-200" aria-hidden="true" />
+
+          {/* 사관/경찰 모의 드롭다운 */}
+          <div className="relative group">
+            <button
+              className={`transition-colors flex items-center text-sm font-medium ${
+                isMockActive ? "text-red-700" : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              사관/경찰 모의
+              <ChevronDown className="h-4 w-4 ml-1" />
+            </button>
+            <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {mockMenu.map((item, idx) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`block px-4 py-3 text-sm hover:bg-gray-50 ${
+                    isActive(item.href) && (item.href !== "/mock" || pathname === "/mock")
+                      ? "text-red-700 font-semibold"
+                      : "text-gray-600 hover:text-gray-900"
+                  } ${idx === 0 ? "rounded-t-lg" : ""} ${idx === mockMenu.length - 1 ? "rounded-b-lg" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
 
           {mainMenu.map((item) => (
             <Link

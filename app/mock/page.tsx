@@ -4,22 +4,15 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { useAuth } from "@/lib/use-auth"
 import { matchAll, matchCutoff, SCHOOL_META, type SchoolKey } from "@/lib/sakwan/cutoffs"
-import { getExamFormat } from "@/lib/sakwan/exam-format"
 import { loadScores } from "@/lib/sakwan/scores-store"
-import { ANSWER_KEY_AVAILABLE } from "@/lib/sakwan/answer-keys"
 import {
   AlertCircle,
   ArrowRight,
   BarChart3,
   BookOpen,
-  Calendar,
-  CheckCircle,
-  Clock,
-  FileText,
-  Info,
   Sparkles,
   Target,
   TrendingUp,
@@ -27,10 +20,6 @@ import {
 } from "lucide-react"
 
 type ExamTrack = "saagwan" | "police"
-type ExamSource = "past" | "mock"
-
-const PAST_YEARS = [2026, 2025, 2024, 2023, 2022] as const
-const MOCK_OPEN_DATE = "2026년 6월 중"
 
 const WEAK_TOPICS = [
   { name: "수학 미적분 — 극한", rate: 32 },
@@ -38,36 +27,12 @@ const WEAK_TOPICS = [
   { name: "수학 선택 — 기하 회전체", rate: 48 },
 ]
 
-// 2027 대비 모의고사 일정 (총 5회) + 전형일
-type CalEvent = { label: string; type: "mock" | "exam" }
-const JULY_EVENTS: Record<number, CalEvent> = {
-  4: { label: "1회", type: "mock" },
-  11: { label: "2회", type: "mock" },
-  18: { label: "3회", type: "mock" },
-  25: { label: "4회", type: "mock" },
-  28: { label: "5회", type: "mock" },
-}
-const AUG_EVENTS: Record<number, CalEvent> = {
-  1: { label: "전형일", type: "exam" },
-}
-const SCHEDULE_LIST = [
-  { round: "1회", date: "7/4", dow: "토", type: "mock" as const },
-  { round: "2회", date: "7/11", dow: "토", type: "mock" as const },
-  { round: "3회", date: "7/18", dow: "토", type: "mock" as const },
-  { round: "4회", date: "7/25", dow: "토", type: "mock" as const },
-  { round: "5회", date: "7/28", dow: "화", type: "mock" as const },
-  { round: "전형일", date: "8/1", dow: "토", type: "exam" as const },
-]
-
-export default function MockPage() {
+export default function MockHubPage() {
   const [track, setTrack] = useState<ExamTrack>("saagwan")
-  const [source, setSource] = useState<ExamSource>("past")
-  const [pastYear, setPastYear] = useState<number>(2026)
   const [crossStream, setCrossStream] = useState<"humanities" | "science">("science")
   const [manualScore, setManualScore] = useState<number>(258)
   const { user, isAuthenticated } = useAuth()
 
-  // Sakwan 자체 저장소(Firestore/localStorage)에서 최근 점수 로드
   const [latestScore, setLatestScore] = useState<number | null>(null)
   const [latestMeta, setLatestMeta] = useState<{ year: number; track: ExamTrack } | null>(null)
 
@@ -84,231 +49,96 @@ export default function MockPage() {
   const myScore = latestScore ?? manualScore
   const scoreSource = latestScore !== null ? "exam" : "manual"
 
-  const matchedSchools = matchAll(myScore)
-  const visibleSchools = matchedSchools.filter((m) =>
+  const visibleSchools = matchAll(myScore).filter((m) =>
     track === "saagwan" ? m.meta.track === "saagwan" : m.meta.track === "police",
   )
-  const examFormat = getExamFormat(track)
-
-  const examLink = `/mock/exam?track=${track}&year=${pastYear}`
-  const sourceEnabled = source === "past"
-  const keyAvailable = ANSWER_KEY_AVAILABLE[`${track}-${pastYear}`]
 
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-700 via-red-800 to-slate-900 py-20">
-        <div className="container relative mx-auto max-w-7xl px-6 text-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-red-800 via-red-900 to-slate-900 py-16">
+        <div className="container relative mx-auto max-w-5xl px-6 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
             <Trophy className="h-4 w-4 text-amber-200" />
             <span className="text-sm font-semibold text-amber-100">T사관 모의고사</span>
           </div>
           <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            사관·경찰 전용 OMR로 응시,
-            <br />
+            응시하고,{" "}
             <span className="bg-gradient-to-r from-amber-300 to-red-300 bg-clip-text text-transparent">
-              바로 합격선 매칭.
+              바로 합격선까지.
             </span>
           </h1>
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-red-100">
-            기출 2022~2026은 지금 응시 가능. 2027 대비 모의고사는 7월 총 5회 시행.
+          <p className="mx-auto max-w-2xl text-lg text-red-100">
+            실제 기출로 실전 채점하거나, T사관이 직접 만든 실전 모의로 전국 석차를 확인하세요. 어떤 걸로 시작할까요?
           </p>
         </div>
       </section>
 
-      {/* 2027 모의고사 일정 — 달력 */}
-      <section className="border-b border-gray-100 bg-gradient-to-b from-white to-gray-50 py-16">
+      {/* 두 갈래 진입 카드 */}
+      <section className="bg-white py-14">
         <div className="container mx-auto max-w-5xl px-6">
-          <div className="mb-8 text-center">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-red-50 px-4 py-2">
-              <Calendar className="h-4 w-4 text-red-700" />
-              <span className="text-sm font-semibold text-red-700">2027 대비 모의고사 일정</span>
-            </div>
-            <h2 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">7월, 총 5회 시행</h2>
-            <p className="text-gray-600">
-              매주 토요일 + 7/28(화) 총 5회. 경찰대·사관학교 전형일은 <strong className="text-red-700">8월 1일(토)</strong>.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <MonthCalendar label="2026년 7월" firstDow={3} daysInMonth={31} events={JULY_EVENTS} />
-            <MonthCalendar label="2026년 8월" firstDow={6} daysInMonth={31} events={AUG_EVENTS} />
-          </div>
-
-          {/* 범례 */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-xs text-gray-600">
-            <span className="flex items-center gap-1.5">
-              <span className="h-3.5 w-3.5 rounded bg-amber-100 ring-1 ring-amber-300" /> 모의고사 (1~5회)
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-3.5 w-3.5 rounded bg-red-600" /> 경찰대·사관 전형일
-            </span>
-          </div>
-
-          {/* 일정 리스트 */}
-          <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {SCHEDULE_LIST.map((s) => (
-              <div
-                key={s.round}
-                className={`rounded-xl border-2 p-4 text-center ${
-                  s.type === "exam"
-                    ? "border-red-300 bg-red-50"
-                    : "border-amber-200 bg-amber-50/60"
-                }`}
-              >
-                <div className={`text-xs font-bold ${s.type === "exam" ? "text-red-700" : "text-amber-700"}`}>
-                  {s.round}
+          <div className="grid gap-5 md:grid-cols-2">
+            {/* 기출 */}
+            <Link href="/mock/past" className="group">
+              <div className="relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-red-700 to-red-900 p-7 text-white transition-all group-hover:-translate-y-1 group-hover:shadow-2xl">
+                <div>
+                  <BookOpen className="mb-3 h-8 w-8 text-red-200" />
+                  <div className="text-2xl font-black">기출 모의고사</div>
+                  <p className="mt-1.5 max-w-xs text-sm text-red-100">
+                    2022–2026 사관·경찰 실제 기출을 OMR로 응시 → 자동 채점 → 작년 합격선 매칭까지 즉시.
+                  </p>
                 </div>
-                <div className="mt-1 text-lg font-black text-gray-900">{s.date}</div>
-                <div className="text-xs text-gray-500">({s.dow})</div>
+                <div className="mt-5 flex items-center justify-between">
+                  <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-100">지금 응시 가능</span>
+                  <span className="flex items-center gap-1 text-sm font-bold">응시하러 가기 <ArrowRight className="h-4 w-4" /></span>
+                </div>
               </div>
-            ))}
+            </Link>
+
+            {/* T사관 모의 */}
+            <Link href="/mock/tsagwan" className="group">
+              <div className="relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-orange-800 p-7 text-white transition-all group-hover:-translate-y-1 group-hover:shadow-2xl">
+                <div>
+                  <Sparkles className="mb-3 h-8 w-8 text-amber-200" />
+                  <div className="text-2xl font-black">T사관 모의고사</div>
+                  <p className="mt-1.5 max-w-xs text-sm text-orange-100">
+                    T사관이 직접 출제한 신유형 실전 모의. 7월 총 5회, 전국 석차·취약 리포트 제공.
+                  </p>
+                </div>
+                <div className="mt-5 flex items-center justify-between">
+                  <span className="rounded-full bg-amber-400/25 px-3 py-1 text-xs font-bold text-amber-100">D-4 · 1회 7/11</span>
+                  <span className="flex items-center gap-1 text-sm font-bold">일정·신청 보기 <ArrowRight className="h-4 w-4" /></span>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* 트랙 탭 */}
-      <section className="border-b border-gray-100 bg-white py-8">
+      <section className="border-y border-gray-100 bg-gray-50 py-8">
         <div className="container mx-auto max-w-5xl px-6">
-          <div className="mx-auto flex max-w-md rounded-xl bg-gray-100 p-1">
+          <div className="mx-auto flex max-w-md rounded-xl bg-white p-1 shadow-sm">
             <button
               onClick={() => setTrack("saagwan")}
-              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "saagwan" ? "bg-white text-red-700 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "saagwan" ? "bg-red-700 text-white shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
             >
-              사관학교 모의
+              사관학교
             </button>
             <button
               onClick={() => setTrack("police")}
-              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "police" ? "bg-white text-red-700 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "police" ? "bg-red-700 text-white shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
             >
-              경찰대 모의
+              경찰대
             </button>
           </div>
         </div>
       </section>
 
-      {/* 응시 선택 */}
-      <section className="bg-gradient-to-b from-white to-gray-50 py-12">
-        <div className="container mx-auto max-w-5xl px-6">
-          <div className="mb-6">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1">
-              <FileText className="h-4 w-4 text-red-700" />
-              <span className="text-xs font-bold text-red-700">응시할 시험 선택</span>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {track === "saagwan" ? "사관학교" : "경찰대"} — 기출 또는 모의문제
-            </h2>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* 기출문제 카드 */}
-            <Card className={`border-2 transition-all ${source === "past" ? "border-red-400 shadow-md" : "border-gray-200 hover:border-red-200"}`}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">📚 기출문제</CardTitle>
-                    <CardDescription>2022~2026 연도별 OMR 응시</CardDescription>
-                  </div>
-                  <button
-                    onClick={() => setSource("past")}
-                    className={`h-5 w-5 rounded-full border-2 transition-all ${source === "past" ? "border-red-600 bg-red-600" : "border-gray-300 bg-white"}`}
-                    aria-label="기출문제 선택"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <label className="mb-2 block text-xs font-bold text-gray-500">연도 선택</label>
-                <div className="flex flex-wrap gap-2">
-                  {PAST_YEARS.map((y) => {
-                    const available = ANSWER_KEY_AVAILABLE[`${track}-${y}`]
-                    return (
-                      <button
-                        key={y}
-                        onClick={() => {
-                          setSource("past")
-                          setPastYear(y)
-                        }}
-                        className={`flex items-center gap-1 rounded-lg border-2 px-3 py-1.5 text-sm font-bold transition-all ${
-                          source === "past" && pastYear === y
-                            ? "border-red-500 bg-red-50 text-red-700"
-                            : "border-gray-200 bg-white text-gray-600 hover:border-red-200"
-                        }`}
-                      >
-                        {y}년
-                        {!available ? <span className="text-[9px] text-amber-600">·정답 미입력</span> : null}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-                  <Clock className="h-3 w-3" />
-                  선택한 연도의 1차 기출 그대로 OMR로 응시
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 모의문제 카드 */}
-            <Card className={`border-2 transition-all ${source === "mock" ? "border-amber-400 shadow-md" : "border-gray-200"} opacity-75`}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">
-                      ✨ 모의문제 <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">곧 오픈</span>
-                    </CardTitle>
-                    <CardDescription>T사관 자체 제작 신규 모의문제</CardDescription>
-                  </div>
-                  <button
-                    onClick={() => setSource("mock")}
-                    className={`h-5 w-5 rounded-full border-2 transition-all ${source === "mock" ? "border-amber-600 bg-amber-600" : "border-gray-300 bg-white"}`}
-                    aria-label="모의문제 선택"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
-                    <div>
-                      <div className="text-sm font-bold text-amber-900">{MOCK_OPEN_DATE} 오픈 예정</div>
-                      <div className="mt-1 text-xs text-amber-800">
-                        7월 5회차(7/4·11·18·25·28)로 시행. 기출과 동일한 형식·난이도.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* CTA */}
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            {sourceEnabled ? (
-              <Link href={examLink}>
-                <Button size="lg" className="rounded-lg bg-red-700 px-8 py-6 text-lg font-bold text-white hover:bg-red-800">
-                  {pastYear}년 {track === "saagwan" ? "사관" : "경찰대"} 응시 시작 <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            ) : (
-              <Button size="lg" disabled className="rounded-lg bg-gray-300 px-8 py-6 text-lg font-bold text-gray-500">
-                {MOCK_OPEN_DATE} 오픈 예정
-              </Button>
-            )}
-            {!isAuthenticated && (
-              <span className="text-xs text-gray-500">※ 응시 결과 저장에는 로그인이 필요합니다</span>
-            )}
-          </div>
-          {sourceEnabled && !keyAvailable && (
-            <p className="mt-3 text-center text-xs text-amber-700">
-              ⚠ {pastYear}년 정답표 미입력 — 응시는 가능하나 채점은 placeholder 기준 (실제 점수와 다를 수 있음)
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* 점수 소스 카드 */}
-      <section className="bg-gray-50 py-10">
+      {/* 점수 스냅샷 */}
+      <section className="bg-white py-12">
         <div className="container mx-auto max-w-5xl px-6">
           <Card className="border-gray-200">
             <CardContent className="p-6">
@@ -320,16 +150,10 @@ export default function MockPage() {
                     <span className="text-sm font-bold text-gray-500">/ 300점</span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        scoreSource === "exam"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-amber-100 text-amber-700"
+                        scoreSource === "exam" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
                       }`}
                     >
-                      {scoreSource === "exam" ? (
-                        <>실제 응시 ({latestMeta?.year}년)</>
-                      ) : (
-                        "임시 입력값"
-                      )}
+                      {scoreSource === "exam" ? <>실제 응시 ({latestMeta?.year}년)</> : "임시 입력값"}
                     </span>
                   </div>
                   {latestMeta && (
@@ -350,7 +174,7 @@ export default function MockPage() {
                     }}
                     className="w-24 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
                   />
-                  <span className="text-xs text-gray-500">또는 실제 응시 →</span>
+                  <Link href="/mock/past" className="text-xs text-red-600 hover:underline">또는 실제 응시 →</Link>
                 </div>
               </div>
             </CardContent>
@@ -358,78 +182,8 @@ export default function MockPage() {
         </div>
       </section>
 
-      {/* 시험 형식 안내 */}
-      <section className="border-b border-gray-100 bg-white py-12">
-        <div className="container mx-auto max-w-5xl px-6">
-          <div className="mb-6">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1">
-              <BookOpen className="h-4 w-4 text-blue-700" />
-              <span className="text-xs font-bold text-blue-700">
-                {track === "saagwan" ? "사관학교" : "경찰대"} 1차 시험 형식
-              </span>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">시험 구성</h2>
-            <p className="mt-2 text-sm text-gray-500">
-              {track === "saagwan"
-                ? "수능과 다른 사관학교 전용 형식. Sakwan OMR도 이 형식 그대로 구현."
-                : "경찰대 1차 형식 (확인 중)."}
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {examFormat.sections.map((sec) => (
-              <Card key={sec.name} className="border-2 border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-baseline justify-between text-lg">
-                    <span>{sec.name}</span>
-                    <span className="text-2xl font-black text-red-700">{sec.totalQuestions}</span>
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    총 {sec.totalQuestions}문항{sec.rawMaxScore ? ` · ${sec.rawMaxScore}점` : ""}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {sec.parts.map((p, i) => (
-                      <li key={i} className="flex items-start justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs">
-                        <div>
-                          <div className="font-bold text-gray-900">{p.label}</div>
-                          {p.note ? <div className="mt-0.5 text-[10px] text-gray-500">{p.note}</div> : null}
-                        </div>
-                        <div className="text-right">
-                          <div className="font-mono text-[11px] text-gray-700">{p.range[0]}–{p.range[1]}</div>
-                          <div className="text-[10px] text-gray-500">{p.type}</div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                  {sec.electives ? (
-                    <div className="mt-3 border-t border-gray-100 pt-3">
-                      <div className="text-[10px] font-bold text-gray-500">선택과목</div>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {sec.electives.map((e) => (
-                          <span key={e} className="rounded bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">{e}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-5 flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-            <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-700" />
-            <div>
-              <strong>OMR 응시 방식:</strong> 문제지(PDF/종이)를 보면서 Sakwan에서 답안만 입력 → 자동 채점 → 합격선 매칭까지 즉시.
-              문제 본문은 별도 제공(추후 PDF 다운로드 예정).
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* 과거 합격 분석 */}
-      <section className="bg-gradient-to-b from-gray-50 to-white py-12">
+      <section className="bg-gradient-to-b from-white to-gray-50 py-12">
         <div className="container mx-auto max-w-5xl px-6">
           <div className="mb-6">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1">
@@ -442,15 +196,13 @@ export default function MockPage() {
           <Card className="border-gray-200">
             <CardContent className="space-y-6 p-8">
               {visibleSchools.map(({ key, meta, pass, diff, cut }) => {
-                const max = 300
-                const myPct = (myScore / max) * 100
-                const cutPct = (cut / max) * 100
+                const myPct = (myScore / 300) * 100
+                const cutPct = (cut / 300) * 100
                 return (
                   <div key={key}>
                     <div className="mb-2 flex items-center justify-between">
                       <span className="font-bold text-gray-900">
-                        {meta.icon} {meta.name}{" "}
-                        <span className="text-xs text-gray-400">(2025 합격컷 {cut})</span>
+                        {meta.icon} {meta.name} <span className="text-xs text-gray-400">(2025 합격컷 {cut})</span>
                       </span>
                       <span className={`rounded-full px-3 py-1 text-xs font-bold ${pass ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
                         {pass ? `✓ 합격선 +${diff}` : `✗ 합격선 ${diff}`}
@@ -459,7 +211,7 @@ export default function MockPage() {
                     <div className="relative h-8 w-full overflow-hidden rounded-lg bg-gray-100">
                       <div className={`absolute top-0 h-full ${pass ? "bg-emerald-500" : "bg-red-500"}`} style={{ width: `${myPct}%` }} />
                       <div className="absolute top-0 h-full w-[2px] bg-gray-900" style={{ left: `${cutPct}%` }} />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-700">나 {myScore}점</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white">나 {myScore}점</span>
                     </div>
                   </div>
                 )
@@ -471,7 +223,7 @@ export default function MockPage() {
 
       {/* 사관 선택 분석 */}
       {track === "saagwan" ? (
-        <section className="bg-white py-16">
+        <section className="bg-white py-14">
           <div className="container mx-auto max-w-5xl px-6">
             <div className="mb-8">
               <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1">
@@ -486,15 +238,13 @@ export default function MockPage() {
                 const prob = clamp(50 + m.diff * 3, 5, 99)
                 return (
                   <Card key={k} className="border-2 border-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="flex items-baseline justify-between">
-                        <span>{SCHOOL_META[k].icon} {SCHOOL_META[k].short}</span>
+                    <CardContent className="p-6">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-lg font-bold">{SCHOOL_META[k].icon} {SCHOOL_META[k].short}</span>
                         <span className="text-3xl font-black">{prob}<span className="text-base font-normal text-gray-500">%</span></span>
-                      </CardTitle>
-                      <CardDescription>{m.message}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100">
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">{m.message}</div>
+                      <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-gray-100">
                         <div className={`h-full ${m.pass ? "bg-emerald-500" : "bg-amber-500"}`} style={{ width: `${prob}%` }} />
                       </div>
                     </CardContent>
@@ -507,7 +257,7 @@ export default function MockPage() {
       ) : null}
 
       {/* 교차지원 분석 */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-gray-50 py-14">
         <div className="container mx-auto max-w-5xl px-6">
           <div className="mb-8">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-purple-50 px-3 py-1">
@@ -543,7 +293,7 @@ export default function MockPage() {
       </section>
 
       {/* 오답·취약 분석 */}
-      <section className="bg-white py-16">
+      <section className="bg-white py-14">
         <div className="container mx-auto max-w-5xl px-6">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900">오답·취약 분석</h2>
@@ -574,20 +324,18 @@ export default function MockPage() {
         <div className="container mx-auto max-w-3xl px-6">
           <h2 className="mb-4 text-3xl font-bold text-white">기출 응시는 지금, 모의고사는 7월 5회</h2>
           <p className="mb-8 text-lg text-red-100">Sakwan에서 응시 → 즉시 채점 → 합격선 매칭까지 한 화면.</p>
-          {sourceEnabled ? (
-            <Link href={examLink}>
-              <Button size="lg" className="rounded-lg bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
-                {pastYear}년 기출 응시 시작 <ArrowRight className="ml-2 h-5 w-5" />
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link href="/mock/past">
+              <Button size="lg" className="rounded-lg bg-red-600 px-8 py-6 text-lg font-bold text-white hover:bg-red-700">
+                기출 응시 시작 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-          ) : (
-            <Button size="lg" disabled className="rounded-lg bg-gray-400 px-8 py-6 text-lg font-bold text-white">{MOCK_OPEN_DATE} 오픈</Button>
-          )}
-          <ul className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-red-100">
-            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />기출 2022~2026</li>
-            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />모의 7월 5회</li>
-            <li className="flex items-center gap-1"><CheckCircle className="h-4 w-4" />자동 채점·매칭</li>
-          </ul>
+            <Link href="/mock/tsagwan">
+              <Button size="lg" className="rounded-lg bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
+                T사관 모의 일정 보기 <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -596,63 +344,6 @@ export default function MockPage() {
           <AlertCircle className="mr-1 inline h-3 w-3" /> 응시 결과를 영구 저장하려면 로그인 필요
         </div>
       )}
-    </div>
-  )
-}
-
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"]
-
-function MonthCalendar({
-  label,
-  firstDow,
-  daysInMonth,
-  events,
-}: {
-  label: string
-  firstDow: number
-  daysInMonth: number
-  events: Record<number, CalEvent>
-}) {
-  const cells: (number | null)[] = []
-  for (let i = 0; i < firstDow; i++) cells.push(null)
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d)
-  while (cells.length % 7 !== 0) cells.push(null)
-
-  return (
-    <div className="rounded-2xl border-2 border-gray-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 text-center text-lg font-bold text-gray-900">{label}</div>
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {WEEKDAYS.map((w, i) => (
-          <div
-            key={w}
-            className={`pb-2 text-xs font-bold ${i === 0 ? "text-red-500" : i === 6 ? "text-blue-500" : "text-gray-400"}`}
-          >
-            {w}
-          </div>
-        ))}
-        {cells.map((d, i) => {
-          if (d === null) return <div key={i} className="aspect-square" />
-          const ev = events[d]
-          const dow = i % 7
-          const base = "flex aspect-square flex-col items-center justify-center rounded-lg text-sm"
-          const tone =
-            ev?.type === "exam"
-              ? "bg-red-600 font-bold text-white shadow-sm"
-              : ev?.type === "mock"
-                ? "bg-amber-100 font-bold text-amber-800 ring-1 ring-amber-300"
-                : dow === 0
-                  ? "text-red-400"
-                  : dow === 6
-                    ? "text-blue-400"
-                    : "text-gray-700"
-          return (
-            <div key={i} className={`${base} ${tone}`}>
-              <span>{d}</span>
-              {ev ? <span className="mt-0.5 text-[9px] font-bold leading-none">{ev.label}</span> : null}
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }

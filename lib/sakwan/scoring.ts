@@ -88,6 +88,47 @@ function gradeSection(
   return { name, totalQuestions: nums.length, correct, attempted, rawScore, detail }
 }
 
+export type SubjectName = "국어" | "영어" | "수학"
+
+/**
+ * 과목 1개만 채점 — 페이지별(과목별) 자가채점용.
+ *
+ * gradeSubmission이 사용하는 것과 **동일한** gradeSection 로직·정답키·배점을 그대로
+ * 재사용하므로, 과목별 채점 결과를 합치면 전체 채점(gradeSubmission)과 정확히 일치합니다.
+ * (즉 모고앱 연동 채점과도 동일한 정답/배점 기준을 사용)
+ */
+export function gradeSubject(
+  track: Track,
+  year: number,
+  subject: SubjectName,
+  answers: Record<number, Answer | null>,
+  elective?: ElectiveKey,
+): SectionResult {
+  if (track === "saagwan") {
+    const key = SAAGWAN_ANSWER_KEYS[year]
+    if (!key) throw new Error(`사관 ${year} 정답표 없음`)
+    const scoreKey = SAAGWAN_SCORE_KEYS[year]
+    if (subject === "국어") return gradeSection("국어", answers, key.korean, scoreKey?.korean ?? 100 / 30)
+    if (subject === "영어") return gradeSection("영어", answers, key.english, scoreKey?.english ?? 100 / 30)
+    // 수학: 공통(1-22) + 선택(23-30) 합쳐서 채점
+    const el = elective ?? "미적분"
+    const mathCorrect: Record<number, Answer> = {
+      ...key.math.common,
+      ...(key.math.electives[el] || {}),
+    }
+    const mathScore: Record<number, number> | undefined = scoreKey && {
+      ...scoreKey.math.common,
+      ...(scoreKey.math.electives[el] || {}),
+    }
+    return gradeSection("수학", answers, mathCorrect, mathScore ?? 100 / 30)
+  }
+  const key = POLICE_ANSWER_KEYS[year]
+  if (!key) throw new Error(`경찰대 ${year} 정답표 없음`)
+  if (subject === "국어") return gradeSection("국어", answers, key.korean, 100 / 45)
+  if (subject === "영어") return gradeSection("영어", answers, key.english, 100 / 45)
+  return gradeSection("수학", answers, key.math, 100 / 25)
+}
+
 export function gradeSubmission(sub: Submission): GradingResult {
   if (sub.track === "saagwan") {
     const key = SAAGWAN_ANSWER_KEYS[sub.year]

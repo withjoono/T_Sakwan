@@ -145,7 +145,7 @@ export default function PromoBlogPage() {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-background p-10">
+          <div className="flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#FDECEC] to-background p-10">
             <Newspaper className="h-16 w-16 text-primary/40" />
           </div>
         </Link>

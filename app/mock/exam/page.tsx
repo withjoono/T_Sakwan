@@ -8,9 +8,27 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/use-auth"
 import { ANSWER_KEY_AVAILABLE, type Answer, type ElectiveKey } from "@/lib/sakwan/answer-keys"
-import { gradeSubmission, type Submission } from "@/lib/sakwan/scoring"
+import {
+  gradeSubject,
+  gradeSubmission,
+  type SectionResult,
+  type SubjectName,
+  type Submission,
+} from "@/lib/sakwan/scoring"
 import { saveScore } from "@/lib/sakwan/scores-store"
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock, Eraser, Save } from "lucide-react"
+import { syncSaagwanResultToMogo } from "@/lib/sakwan/mogo"
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Eraser,
+  Pencil,
+  Save,
+  Trash2,
+  XCircle,
+} from "lucide-react"
 
 type Track = "saagwan" | "police"
 
@@ -78,6 +96,14 @@ function getGroupForNum(num: number): MathGroup | undefined {
 
 const STORAGE_KEY = "sakwan_omr_draft_v1"
 
+/** 채점 결과에서 문항번호→상세 로 빠르게 접근하기 위한 맵 */
+type GradeMap = Record<number, { correct: Answer; isCorrect: boolean }>
+function toGradeMap(sec: SectionResult): GradeMap {
+  const m: GradeMap = {}
+  sec.detail.forEach((d) => { m[d.num] = { correct: d.correct, isCorrect: d.isCorrect } })
+  return m
+}
+
 /* ── 구간 라벨 컴포넌트 ── */
 function GroupDivider({ label, color, range }: { label: string; color: string; range: string }) {
   return (
@@ -92,25 +118,44 @@ function GroupDivider({ label, color, range }: { label: string; color: string; r
 function ObjButtons({
   val,
   onChange,
+  graded,
 }: {
   val: Answer | null
   onChange: (v: Answer) => void
+  graded?: { correct: Answer; isCorrect: boolean }
 }) {
   return (
     <div className="flex flex-wrap gap-1">
-      {[1, 2, 3, 4, 5].map((c) => (
-        <button
-          key={c}
-          onClick={() => onChange(c)}
-          className={`h-7 w-7 rounded-full text-xs font-bold transition-all ${
-            val === c
-              ? "bg-red-600 text-white shadow-sm"
-              : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-          }`}
-        >
-          {c}
-        </button>
-      ))}
+      {[1, 2, 3, 4, 5].map((c) => {
+        let cls: string
+        if (graded) {
+          const isAns = graded.correct === c
+          const isPick = val === c
+          if (isAns) {
+            // 정답 — 항상 초록으로 강조
+            cls = "bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300"
+          } else if (isPick) {
+            // 내가 고른 오답 — 빨강
+            cls = "bg-red-600 text-white shadow-sm"
+          } else {
+            cls = "bg-gray-100 text-gray-400"
+          }
+        } else {
+          cls = val === c
+            ? "bg-red-600 text-white shadow-sm"
+            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+        }
+        return (
+          <button
+            key={c}
+            disabled={!!graded}
+            onClick={() => onChange(c)}
+            className={`h-7 w-7 rounded-full text-xs font-bold transition-all ${graded ? "cursor-default" : ""} ${cls}`}
+          >
+            {c}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -119,10 +164,28 @@ function ObjButtons({
 function ShortInput({
   val,
   onChange,
+  graded,
 }: {
   val: Answer | null
   onChange: (v: Answer | null) => void
+  graded?: { correct: Answer; isCorrect: boolean }
 }) {
+  if (graded) {
+    const ok = graded.isCorrect
+    return (
+      <div
+        className={`mt-1 flex items-center justify-between gap-1 rounded-md border px-2 py-1.5 text-sm font-bold ${
+          ok ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-red-300 bg-red-50 text-red-800"
+        }`}
+      >
+        <span className="flex items-center gap-1">
+          {ok ? <CheckCircle className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+          {val !== null ? val : <span className="text-gray-400">미표기</span>}
+        </span>
+        {!ok && <span className="text-[11px] font-bold text-emerald-700">정답 {graded.correct}</span>}
+      </div>
+    )
+  }
   return (
     <input
       type="text"
@@ -166,7 +229,13 @@ function ExamPageInner() {
     return init
   })
   const [seconds, setSeconds] = useState(0)
-  const [submitting, setSubmitting] = useState(false)
+
+  /** 과목별 채점 결과 (null = 미채점) */
+  const [graded, setGraded] = useState<Record<string, SectionResult | null>>({})
+  /** 저장(확정)된 과목 결과 — 3과목 모두 채워지면 전체 저장 */
+  const [savedNames, setSavedNames] = useState<string[]>([])
+  const [finalSavedId, setFinalSavedId] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   /* ─── localStorage 임시저장 / 복원 ─── */
   useEffect(() => {
@@ -178,6 +247,8 @@ function ExamPageInner() {
         if (parsed.answers) setAnswers(parsed.answers)
         if (parsed.elective) setElective(parsed.elective)
         if (parsed.seconds) setSeconds(parsed.seconds)
+        if (parsed.graded) setGraded(parsed.graded)
+        if (parsed.savedNames) setSavedNames(parsed.savedNames)
       } catch { /* ignore */ }
     }
   }, [track, year])
@@ -186,9 +257,9 @@ function ExamPageInner() {
     if (typeof window === "undefined") return
     window.localStorage.setItem(
       `${STORAGE_KEY}_${track}_${year}`,
-      JSON.stringify({ answers, elective, seconds }),
+      JSON.stringify({ answers, elective, seconds, graded, savedNames }),
     )
-  }, [answers, elective, seconds, track, year])
+  }, [answers, elective, seconds, graded, savedNames, track, year])
 
   /* ─── 타이머 ─── */
   useEffect(() => {
@@ -217,53 +288,105 @@ function ExamPageInner() {
     return { total, done, pct: Math.round((done / total) * 100) }
   }, [answers, sections])
 
-  const handleSubmit = async () => {
+  const currentName = currentSection.name
+  const currentGraded = graded[currentName] ?? null
+  const currentGradeMap = useMemo(
+    () => (currentGraded ? toGradeMap(currentGraded) : null),
+    [currentGraded],
+  )
+  const isSaved = savedNames.includes(currentName)
+
+  /* ─── 현재 과목 채점 ─── */
+  const handleGrade = () => {
+    try {
+      const res = gradeSubject(
+        track,
+        year,
+        currentName as SubjectName,
+        answers[currentName],
+        elective,
+      )
+      setGraded((prev) => ({ ...prev, [currentName]: res }))
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : "채점 실패")
+    }
+  }
+
+  /* ─── 수정: 채점 해제 → 다시 마킹 가능 ─── */
+  const handleEdit = () => {
+    setGraded((prev) => ({ ...prev, [currentName]: null }))
+    setSavedNames((prev) => prev.filter((n) => n !== currentName))
+    setFinalSavedId(null)
+  }
+
+  /* ─── 전체 취소: 현재 과목 답안 전부 초기화 ─── */
+  const handleClearAll = () => {
+    if (!window.confirm(`${currentName} 과목의 마킹을 모두 지울까요?`)) return
+    setAnswers((prev) => ({
+      ...prev,
+      [currentName]: Object.fromEntries(
+        Array.from({ length: currentSection.count }, (_, i) => [i + 1, null]),
+      ),
+    }))
+    setGraded((prev) => ({ ...prev, [currentName]: null }))
+    setSavedNames((prev) => prev.filter((n) => n !== currentName))
+    setFinalSavedId(null)
+  }
+
+  /* ─── 3과목 모두 저장되면 전체 결과 확정 저장 + 모고앱 동기화 ─── */
+  const finalizeSave = async () => {
+    if (!user) return
+    let submission: Submission
+    if (track === "saagwan") {
+      submission = { track: "saagwan", year, elective, korean: answers["국어"], english: answers["영어"], math: answers["수학"] }
+    } else {
+      submission = { track: "police", year, korean: answers["국어"], english: answers["영어"], math: answers["수학"] }
+    }
+    const result = gradeSubmission(submission)
+    const stored = await saveScore(String(user.id), result)
+    window.localStorage.setItem("sakwan_last_result", JSON.stringify(stored))
+    if (submission.track === "saagwan") {
+      // 취약분석(모고앱) 연동용 베스트에포트 동기화 — 실패해도 결과 표시를 막지 않음
+      syncSaagwanResultToMogo(user.id, submission).catch(() => {})
+    }
+    setFinalSavedId(stored.id || "")
+  }
+
+  /* ─── 현재 과목 결과 저장 ─── */
+  const handleSave = async () => {
     if (!user) {
-      window.alert("로그인이 필요합니다.")
+      window.alert("저장하려면 로그인이 필요합니다.")
       window.location.href = loginUrl
       return
     }
-    if (!ANSWER_KEY_AVAILABLE[`${track}-${year}`]) {
-      const ok = window.confirm(
-        `${year}년 정답표가 아직 입력되지 않았습니다 (placeholder만 있음).\n그래도 제출해서 채점 결과를 확인하시겠어요? (실제 점수와 다를 수 있음)`,
-      )
-      if (!ok) return
-    }
-
-    setSubmitting(true)
+    if (!currentGraded) return
+    setBusy(true)
     try {
-      let submission: Submission
-      if (track === "saagwan") {
-        submission = {
-          track: "saagwan",
-          year,
-          elective,
-          korean: answers["국어"],
-          english: answers["영어"],
-          math: answers["수학"],
-        }
-      } else {
-        submission = {
-          track: "police",
-          year,
-          korean: answers["국어"],
-          english: answers["영어"],
-          math: answers["수학"],
-        }
-      }
-      const result = gradeSubmission(submission)
-      const stored = await saveScore(String(user.id), result)
-      window.localStorage.setItem("sakwan_last_result", JSON.stringify(stored))
-      window.localStorage.removeItem(`${STORAGE_KEY}_${track}_${year}`)
-      router.push(`/mock/result?id=${encodeURIComponent(stored.id || "")}`)
+      const nextSaved = savedNames.includes(currentName) ? savedNames : [...savedNames, currentName]
+      setSavedNames(nextSaved)
+      // 3과목 모두 저장되면 전체 결과를 Firestore/모고앱에 확정 반영
+      const allSaved = sections.every((s) => nextSaved.includes(s.name))
+      if (allSaved) await finalizeSave()
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "채점 실패"
-      window.alert(msg)
-      setSubmitting(false)
+      window.alert(e instanceof Error ? e.message : "저장 실패")
+    } finally {
+      setBusy(false)
     }
   }
 
   const isMathSaagwan = track === "saagwan" && currentSection.name === "수학"
+  const allSaved = sections.every((s) => savedNames.includes(s.name))
+
+  /* 채점 요약 수치 */
+  const summary = currentGraded
+    ? {
+        correct: currentGraded.correct,
+        wrong: currentGraded.attempted - currentGraded.correct,
+        blank: currentGraded.totalQuestions - currentGraded.attempted,
+        total: currentGraded.totalQuestions,
+        score: Math.round(currentGraded.rawScore),
+      }
+    : null
 
   if (!isAuthenticated) {
     return (
@@ -296,7 +419,7 @@ function ExamPageInner() {
               <span className="font-bold text-gray-900">
                 {track === "saagwan" ? "🎖 사관" : "👮 경찰대"} {year}년 기출
               </span>
-              <span className="text-xs text-gray-500">{progress.done} / {progress.total} 풀이</span>
+              <span className="text-xs text-gray-500">{progress.done} / {progress.total} 마킹</span>
             </div>
             <div className="flex items-center gap-1 text-sm font-bold text-red-700">
               <Clock className="h-4 w-4" /> {timer}
@@ -320,11 +443,30 @@ function ExamPageInner() {
         </div>
       )}
 
+      {/* 전체 저장 완료 배너 */}
+      {allSaved && finalSavedId !== null && (
+        <div className="container mx-auto max-w-5xl px-4 pt-4">
+          <div className="flex flex-col items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-emerald-700" />
+              <span><strong>3과목 채점·저장 완료</strong> — 결과가 저장되고 취약분석(모고앱)에 동기화됐어요.</span>
+            </div>
+            <Link href={`/mock/result?id=${encodeURIComponent(finalSavedId)}`}>
+              <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
+                전체 결과·합격선 분석 보기 <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       <main className="container mx-auto max-w-5xl px-4 py-6">
         {/* 과목 탭 */}
         <div className="mb-5 flex flex-wrap gap-2 border-b border-gray-200">
           {sections.map((s, i) => {
             const done = Object.values(answers[s.name] || {}).filter((v) => v !== null).length
+            const sGraded = !!graded[s.name]
+            const sSaved = savedNames.includes(s.name)
             return (
               <button
                 key={s.name}
@@ -336,23 +478,30 @@ function ExamPageInner() {
                 }`}
               >
                 {s.name}
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-700">
-                  {done}/{s.count}
-                </span>
+                {sSaved ? (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">저장됨</span>
+                ) : sGraded ? (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">채점됨</span>
+                ) : (
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-700">
+                    {done}/{s.count}
+                  </span>
+                )}
               </button>
             )
           })}
         </div>
 
-        {/* 수학 선택과목 토글 */}
+        {/* 수학 선택과목 토글 (채점 전에만 변경 가능) */}
         {track === "saagwan" && currentSection.name === "수학" && (
           <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-purple-200 bg-purple-50 p-3 text-sm">
             <span className="font-bold text-purple-700">선택과목:</span>
             {(["확률과 통계", "미적분", "기하"] as ElectiveKey[]).map((e) => (
               <button
                 key={e}
+                disabled={!!currentGraded}
                 onClick={() => setElective(e)}
-                className={`rounded-lg border-2 px-3 py-1 text-xs font-bold transition-all ${
+                className={`rounded-lg border-2 px-3 py-1 text-xs font-bold transition-all disabled:opacity-50 ${
                   elective === e
                     ? "border-purple-500 bg-white text-purple-700"
                     : "border-transparent bg-white/60 text-gray-600 hover:border-purple-200"
@@ -372,13 +521,28 @@ function ExamPageInner() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-base">
               <span>{currentSection.name} OMR</span>
-              {isMathSaagwan && (
+              {currentGraded && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                  <CheckCircle className="h-3 w-3" /> 채점 완료
+                </span>
+              )}
+              {isMathSaagwan && !currentGraded && (
                 <div className="flex items-center gap-2 text-xs font-normal text-gray-500">
                   <span className="inline-flex items-center gap-1">
                     <span className="inline-block h-3 w-3 rounded-full bg-gray-200" /> 객관식(1-5)
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <span className="inline-block h-3 w-3 rounded bg-blue-300" /> 주관식(숫자입력)
+                  </span>
+                </div>
+              )}
+              {currentGraded && (
+                <div className="flex items-center gap-2 text-xs font-normal text-gray-500">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="inline-block h-3 w-3 rounded-full bg-emerald-600" /> 정답
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="inline-block h-3 w-3 rounded-full bg-red-600" /> 내 오답
                   </span>
                 </div>
               )}
@@ -391,6 +555,7 @@ function ExamPageInner() {
                 const isSubj = isShortAnswer(currentSection, num)
                 const group = isMathSaagwan ? getGroupForNum(num) : undefined
                 const isGroupStart = isMathSaagwan && group && group.start === num
+                const g = currentGradeMap ? currentGradeMap[num] : undefined
 
                 const items: React.ReactNode[] = []
 
@@ -414,8 +579,12 @@ function ExamPageInner() {
                   )
                 }
 
-                /* 문항 카드 */
-                const cardBg = isSubj
+                /* 문항 카드 배경 — 채점되면 정/오답 색상 우선 */
+                const cardBg = g
+                  ? g.isCorrect
+                    ? "border-emerald-300 bg-emerald-50/50"
+                    : "border-red-300 bg-red-50/50"
+                  : isSubj
                   ? "border-blue-300 bg-blue-50/50"
                   : val !== null
                   ? "border-red-300 bg-red-50/40"
@@ -429,29 +598,38 @@ function ExamPageInner() {
                     <div className="mb-1 flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-bold text-gray-700">{num}번</span>
-                        {isSubj && (
+                        {isSubj && !g && (
                           <span className="rounded bg-blue-200 px-1 py-0.5 text-[9px] font-bold text-blue-800">
                             주관
                           </span>
                         )}
+                        {g && (
+                          g.isCorrect
+                            ? <CheckCircle className="h-3.5 w-3.5 text-emerald-600" />
+                            : <XCircle className="h-3.5 w-3.5 text-red-600" />
+                        )}
                       </div>
-                      <button
-                        onClick={() => setAnswer(currentSection.name, num, null)}
-                        className="text-[10px] text-gray-400 hover:text-red-600"
-                        title="지우기"
-                      >
-                        <Eraser className="h-3 w-3" />
-                      </button>
+                      {!currentGraded && (
+                        <button
+                          onClick={() => setAnswer(currentSection.name, num, null)}
+                          className="text-[10px] text-gray-400 hover:text-red-600"
+                          title="지우기"
+                        >
+                          <Eraser className="h-3 w-3" />
+                        </button>
+                      )}
                     </div>
 
                     {isSubj ? (
                       <ShortInput
                         val={val}
+                        graded={g}
                         onChange={(v) => setAnswer(currentSection.name, num, v)}
                       />
                     ) : (
                       <ObjButtons
                         val={val}
+                        graded={g}
                         onChange={(v) => setAnswer(currentSection.name, num, v)}
                       />
                     )}
@@ -464,32 +642,89 @@ function ExamPageInner() {
           </CardContent>
         </Card>
 
+        {/* 채점 요약 — OMR 바로 아래 */}
+        {summary && (
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center">
+              <div className="text-2xl font-black text-emerald-700">{summary.correct}</div>
+              <div className="text-xs font-medium text-emerald-800">맞은 개수</div>
+            </div>
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-center">
+              <div className="text-2xl font-black text-red-700">{summary.wrong}</div>
+              <div className="text-xs font-medium text-red-800">틀린 개수</div>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+              <div className="text-2xl font-black text-gray-500">{summary.blank}</div>
+              <div className="text-xs font-medium text-gray-600">미표기</div>
+            </div>
+            <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-center">
+              <div className="text-2xl font-black text-amber-700">
+                {summary.score}
+                <span className="ml-0.5 text-sm font-bold text-amber-500">점</span>
+              </div>
+              <div className="text-xs font-medium text-amber-800">
+                {currentName} 점수 · {summary.correct}/{summary.total}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 하단 액션 */}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xs text-gray-500">
-            <Save className="mr-1 inline h-3 w-3" /> 답안은 자동 임시저장됩니다.
-          </div>
-          <div className="flex gap-2">
-            {sectionIdx > 0 && (
-              <Button variant="outline" onClick={() => setSectionIdx(sectionIdx - 1)}>
-                <ArrowLeft className="mr-1 h-4 w-4" /> 이전 과목
-              </Button>
-            )}
-            {sectionIdx < sections.length - 1 ? (
-              <Button className="bg-red-700 text-white hover:bg-red-800" onClick={() => setSectionIdx(sectionIdx + 1)}>
-                다음 과목 <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            ) : (
+          {!currentGraded ? (
+            <>
+              <div className="text-xs text-gray-500">
+                <Save className="mr-1 inline h-3 w-3" /> 답안은 자동 임시저장됩니다.
+              </div>
               <Button
-                className="bg-amber-500 text-white hover:bg-amber-600"
-                onClick={handleSubmit}
-                disabled={submitting}
+                className="bg-red-700 text-white hover:bg-red-800"
+                onClick={handleGrade}
               >
-                <CheckCircle className="mr-1 h-4 w-4" />
-                {submitting ? "채점 중..." : "제출하고 채점"}
+                <CheckCircle className="mr-1 h-4 w-4" /> {currentName} 채점하기
               </Button>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              {/* 좌측: 저장 / 수정 / 전체 취소 */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  className="bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+                  onClick={handleSave}
+                  disabled={busy || isSaved}
+                >
+                  <Save className="mr-1 h-4 w-4" /> {isSaved ? "저장됨" : busy ? "저장 중..." : "저장"}
+                </Button>
+                <Button variant="outline" onClick={handleEdit}>
+                  <Pencil className="mr-1 h-4 w-4" /> 수정
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-red-200 text-red-600 hover:bg-red-50"
+                  onClick={handleClearAll}
+                >
+                  <Trash2 className="mr-1 h-4 w-4" /> 전체 취소
+                </Button>
+              </div>
+
+              {/* 우측: 다른 과목 채점 화살표 */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setSectionIdx((i) => Math.max(0, i - 1))}
+                  disabled={sectionIdx === 0}
+                >
+                  <ArrowLeft className="mr-1 h-4 w-4" /> 이전 과목
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setSectionIdx((i) => Math.min(sections.length - 1, i + 1))}
+                  disabled={sectionIdx === sections.length - 1}
+                >
+                  다음 과목 <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>

@@ -18,10 +18,16 @@ export default function PromoLayout({
       className="min-h-screen bg-background"
       style={
         {
-          // T 사관(사관·경찰) 브랜드: 딥 네이비 계열로 promo 페이지에만 스코프.
+          // T 사관(사관·경찰) 시그니처 컬러: 크림슨 레드.
+          // T Skool 허브가 사관 앱에 부여한 고유색(과기원=teal, Medi=cyan 와 겹치지 않음).
           // Sakwan globals.css 는 색상을 공백 구분 RGB 채널로 정의하므로 동일 포맷 사용.
-          "--primary": "30 58 95",
+          "--primary": "200 30 39",
           "--primary-foreground": "255 255 255",
+          // 레드 테마에 맞춰 섹션 배경·호버·링 색을 재스코프 (기본 오렌지 accent 와 겹치지 않게).
+          "--secondary": "254 242 242",
+          "--accent": "254 226 226",
+          "--accent-foreground": "51 51 51",
+          "--ring": "200 30 39",
         } as React.CSSProperties
       }
     >

@@ -30,7 +30,7 @@ const mockMenu: NavItem[] = [
   { label: "📚 기출 모의고사", href: "/mock/past" },
   { label: "✨ T사관 모의고사", href: "/mock/tsagwan" },
   { label: "📥 문제집 다운로드", href: "/mock/tsagwan/download" },
-  { label: "✍️ 채점하기", href: "/mock/exam" },
+  { label: "✍️ 채점하기", href: "/mock/grade" },
 ]
 
 // 모의고사 분석 하위 메뉴 (모고 앱에서 이식한 분석 기능)

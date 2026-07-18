@@ -117,6 +117,7 @@ export const PAST_EXAM_LINKS: PastExamLink[] = [
  */
 export const GRANTED_EMAILS: string[] = [
   "hhtae0423@gmail.com",
+  "s@test.com",
 ]
 
 export function isGrantedEmail(email?: string | null): boolean {

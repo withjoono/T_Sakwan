@@ -11,6 +11,7 @@ import {
   Award,
   BarChart3,
   Calendar,
+  Download,
   FlaskConical,
   Sparkles,
   Trophy,
@@ -125,7 +126,8 @@ export default function TsagwanMockPage() {
             <Calendar className="h-4 w-4 text-amber-700" />
             <span className="text-xs font-bold text-amber-700">회차별 신청</span>
           </div>
-          <h2 className="mb-6 text-2xl font-bold text-gray-900">응시할 회차를 선택하세요</h2>
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">응시할 회차를 선택하세요</h2>
+          <p className="mb-6 text-sm text-gray-500">회차를 누르면 문제집 다운로드·채점·답지/해설 페이지로 이동합니다.</p>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {ROUNDS.map((r, i) => {
@@ -134,23 +136,27 @@ export default function TsagwanMockPage() {
                 <Link
                   key={r.round}
                   href={`/mock/tsagwan/round/${i + 1}`}
-                  className={`rounded-2xl border-2 p-4 text-center transition-all hover:shadow-sm ${
-                    isOpen ? "border-amber-300 bg-amber-50 hover:border-amber-400" : "border-gray-200 bg-white hover:border-amber-200"
+                  className={`group flex flex-col rounded-2xl border-2 p-4 text-center transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                    isOpen ? "border-amber-300 bg-amber-50" : "border-gray-200 bg-white"
                   }`}
                 >
                   <div className={`text-xs font-bold ${isOpen ? "text-amber-700" : "text-gray-500"}`}>{r.round}</div>
                   <div className="mt-0.5 text-xl font-black text-gray-900">{r.date}</div>
                   <div className="text-xs text-gray-500">({r.dow})</div>
-                  <span
-                    className={`mt-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      isOpen ? "bg-amber-200 text-amber-800" : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {isOpen ? "바로가기" : "예정"}
+                  <span className="mt-3 inline-flex items-center justify-center gap-1 rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-white transition-colors group-hover:bg-amber-600">
+                    바로가기 <ArrowRight className="h-3.5 w-3.5" />
                   </span>
                 </Link>
               )
             })}
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <Link href="/mock/tsagwan/download">
+              <Button variant="outline" size="lg" className="border-amber-300 px-6 font-bold text-amber-700 hover:bg-amber-50">
+                <Download className="mr-2 h-5 w-5" /> 전체 회차 다운로드 센터
+              </Button>
+            </Link>
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-3">

@@ -5,6 +5,7 @@ import {
   BarChart3,
   CheckCircle,
   Crosshair,
+  Download,
   Flame,
   MessagesSquare,
   Shuffle,
@@ -311,6 +312,14 @@ export default function HomePage() {
               <strong className="text-white">스터디플래너 · 모고 · 생기북</strong> 앱 하나로 전부.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
+              <Link href="/mock/tsagwan/download">
+                <Button
+                  size="lg"
+                  className="rounded-lg bg-amber-500 px-8 py-6 text-lg font-semibold text-white shadow-lg shadow-amber-500/25 hover:bg-amber-600"
+                >
+                  <Download className="mr-2 h-5 w-5" /> 모의고사 문제집 다운로드
+                </Button>
+              </Link>
               <Link href="/mock">
                 <Button
                   size="lg"

@@ -112,7 +112,7 @@ export default function DownloadPage() {
 
               <div className="grid gap-4">
                 {MOCK_ROUNDS.map((r) => (
-                  <RoundCard key={r.round} round={r} unlocked={unlocked.has(r.round)} granted={granted} />
+                  <RoundCard key={r.round} round={r} unlocked={unlocked.has(r.round)} />
                 ))}
               </div>
 
@@ -169,7 +169,7 @@ export default function DownloadPage() {
 }
 
 /* ───────────── 회차 카드 (문제지 → 채점 안내 → 점수 입력 → 답지·해설) ───────────── */
-function RoundCard({ round, unlocked, granted }: { round: MockRound; unlocked: boolean; granted: boolean }) {
+function RoundCard({ round, unlocked }: { round: MockRound; unlocked: boolean }) {
   const hasFiles = round.questions.length > 0
   // 채점 완료 여부 — 플랫폼 OMR 채점(/mock/exam) 완료 시 저장되는 회차 점수로 판정
   const [scored, setScored] = useState<{ korean: number; math: number; english: number } | null>(null)
@@ -182,8 +182,8 @@ function RoundCard({ round, unlocked, granted }: { round: MockRound; unlocked: b
     if (saved) setScored({ korean: saved.korean, math: saved.math, english: saved.english })
   }, [round])
 
-  // 오픈일 이전: 날짜 잠금 (전체개방 계정은 통과)
-  if (!open && !granted) {
+  // 오픈일 이전: 날짜 잠금 (결제·전체개방과 무관하게 모두에게 적용)
+  if (!open) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const d = Math.round((new Date(round.openIso + "T00:00:00").getTime() - today.getTime()) / 86400000)

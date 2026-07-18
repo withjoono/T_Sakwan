@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   MOCK_ROUNDS,
   PAST_EXAM_LINKS,
+  isRoundOpen,
   loadPaid,
   loadRoundScore,
   type MockRound,
@@ -18,6 +19,7 @@ import {
   ArrowLeft,
   BarChart3,
   BookOpen,
+  CalendarClock,
   CheckCircle2,
   ClipboardCheck,
   Download,
@@ -165,11 +167,39 @@ function RoundCard({ round, unlocked }: { round: MockRound; unlocked: boolean })
   const hasFiles = round.questions.length > 0
   // 채점 완료 여부 — 플랫폼 OMR 채점(/mock/exam) 완료 시 저장되는 회차 점수로 판정
   const [scored, setScored] = useState<{ korean: number; math: number; english: number } | null>(null)
+  // 오픈 여부 — 지정 날짜(openIso) 이후부터 다운로드 개방. 마운트 후 클라이언트 시각으로 판정.
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
+    setOpen(isRoundOpen(round))
     const saved = loadRoundScore(round.round)
     if (saved) setScored({ korean: saved.korean, math: saved.math, english: saved.english })
-  }, [round.round])
+  }, [round])
+
+  // 오픈일 이전: 날짜 잠금 (결제 여부와 무관)
+  if (!open) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const d = Math.round((new Date(round.openIso + "T00:00:00").getTime() - today.getTime()) / 86400000)
+    return (
+      <Card className="border-2 border-gray-200">
+        <CardContent className="flex items-center justify-between gap-4 p-5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
+              <FileText className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="font-bold text-gray-900">T사관 모의고사 {round.label}</div>
+              <div className="text-sm text-gray-500">{round.date}({round.dow}) 시행 · 국어·수학·영어</div>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-700">
+            <CalendarClock className="h-4 w-4" /> {round.openIso.replace(/-/g, ".")} 오픈{d > 0 ? ` · D-${d}` : ""}
+          </span>
+        </CardContent>
+      </Card>
+    )
+  }
 
   // 결제 전: 신청 유도
   if (!unlocked) {

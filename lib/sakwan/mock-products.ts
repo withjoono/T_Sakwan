@@ -123,11 +123,11 @@ export function isGrantedEmail(email?: string | null): boolean {
   return !!email && GRANTED_EMAILS.includes(email.trim().toLowerCase())
 }
 
-/* ───────── 결제 게이트 토글 (임시) ─────────
+/* ───────── 결제 게이트 토글 ─────────
+ * true  = 결제창 활성화: 미결제 사용자에게 결제 유도(GRANTED_EMAILS 계정은 결제 완료로 처리).
  * false = 결제창을 걷어냄: 모든 사용자가 결제 없이 다운로드 가능(오픈일·채점 게이트는 유지).
- * 다시 결제를 받으려면 true 로 되돌린다.  ← 여유 있을 때 이 값만 true 로 변경
  */
-export const PAYMENT_ENABLED = false
+export const PAYMENT_ENABLED = true
 
 /* ───────── 결제 상태(localStorage) ───────── */
 const PAID_KEY = "tsagwan_paid_v1"

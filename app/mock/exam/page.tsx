@@ -18,6 +18,12 @@ import {
 import { saveScore } from "@/lib/sakwan/scores-store"
 import { syncSaagwanResultToMogo } from "@/lib/sakwan/mogo"
 import {
+  gradeTsagwanSubject,
+  syncTsagwanWrongAnswers,
+  type Elective,
+} from "@/lib/sakwan/tsagwan-grade"
+import { saveRoundScore } from "@/lib/sakwan/mock-products"
+import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
@@ -214,6 +220,12 @@ function ExamPageInner() {
   const track = (params.get("track") || "saagwan") as Track
   const year = Number(params.get("year") || new Date().getFullYear())
 
+  // T사관 모의고사 채점 모드 — 정답이 Mogo 백엔드에 있으므로 채점을 API로 위임한다.
+  const tsagwanRound = Number(params.get("round") || 0)
+  const isTsagwan = params.get("type") === "tsagwan" && tsagwanRound >= 1 && tsagwanRound <= 5
+  // 임시저장 키 — T사관 모의는 회차로 분리(같은 연도 기출과 충돌 방지)
+  const draftKey = isTsagwan ? `${STORAGE_KEY}_tsagwan_${tsagwanRound}` : `${STORAGE_KEY}_${track}_${year}`
+
   const sections = track === "saagwan" ? SAAGWAN_SECTIONS : POLICE_SECTIONS
   const [sectionIdx, setSectionIdx] = useState(0)
   const currentSection = sections[sectionIdx]
@@ -240,7 +252,7 @@ function ExamPageInner() {
   /* ─── localStorage 임시저장 / 복원 ─── */
   useEffect(() => {
     if (typeof window === "undefined") return
-    const raw = window.localStorage.getItem(`${STORAGE_KEY}_${track}_${year}`)
+    const raw = window.localStorage.getItem(draftKey)
     if (raw) {
       try {
         const parsed = JSON.parse(raw)
@@ -251,15 +263,15 @@ function ExamPageInner() {
         if (parsed.savedNames) setSavedNames(parsed.savedNames)
       } catch { /* ignore */ }
     }
-  }, [track, year])
+  }, [draftKey])
 
   useEffect(() => {
     if (typeof window === "undefined") return
     window.localStorage.setItem(
-      `${STORAGE_KEY}_${track}_${year}`,
+      draftKey,
       JSON.stringify({ answers, elective, seconds, graded, savedNames }),
     )
-  }, [answers, elective, seconds, graded, savedNames, track, year])
+  }, [answers, elective, seconds, graded, savedNames, draftKey])
 
   /* ─── 타이머 ─── */
   useEffect(() => {
@@ -297,8 +309,24 @@ function ExamPageInner() {
   const isSaved = savedNames.includes(currentName)
 
   /* ─── 현재 과목 채점 ─── */
-  const handleGrade = () => {
+  const handleGrade = async () => {
     try {
+      if (isTsagwan) {
+        // T사관 모의 — Mogo 백엔드로 채점 (정답 DB가 백엔드에 있음)
+        setBusy(true)
+        const res = await gradeTsagwanSubject(
+          tsagwanRound,
+          currentName as "국어" | "영어" | "수학",
+          answers[currentName],
+          elective as Elective,
+        )
+        if (!res) {
+          window.alert("채점 서버에 연결할 수 없습니다. 로그인/네트워크 상태를 확인해 주세요.")
+          return
+        }
+        setGraded((prev) => ({ ...prev, [currentName]: res as SectionResult }))
+        return
+      }
       const res = gradeSubject(
         track,
         year,
@@ -309,6 +337,8 @@ function ExamPageInner() {
       setGraded((prev) => ({ ...prev, [currentName]: res }))
     } catch (e) {
       window.alert(e instanceof Error ? e.message : "채점 실패")
+    } finally {
+      if (isTsagwan) setBusy(false)
     }
   }
 
@@ -336,6 +366,43 @@ function ExamPageInner() {
   /* ─── 3과목 모두 저장되면 전체 결과 확정 저장 + 모고앱 동기화 ─── */
   const finalizeSave = async () => {
     if (!user) return
+
+    if (isTsagwan) {
+      // T사관 모의 — 채점은 이미 Mogo API로 완료(graded)됨. 그 결과로 최종 결과를 조립·저장한다.
+      const secs = sections
+        .map((s) => graded[s.name])
+        .filter((r): r is SectionResult => !!r)
+      const totalScore = Math.round(secs.reduce((a, r) => a + r.rawScore, 0))
+      const result = {
+        track: "saagwan" as const,
+        year,
+        elective,
+        sections: secs,
+        totalCorrect: secs.reduce((a, r) => a + r.correct, 0),
+        totalQuestions: secs.reduce((a, r) => a + r.totalQuestions, 0),
+        totalScore,
+        gradedAt: new Date().toISOString(),
+      }
+      const stored = await saveScore(String(user.id), result)
+      window.localStorage.setItem("sakwan_last_result", JSON.stringify(stored))
+      // 다운로드 페이지 STEP 3(답지·해설) 해제용 회차 점수 저장
+      saveRoundScore(tsagwanRound, {
+        korean: Math.round(graded["국어"]?.rawScore ?? 0),
+        math: Math.round(graded["수학"]?.rawScore ?? 0),
+        english: Math.round(graded["영어"]?.rawScore ?? 0),
+      })
+      // 취약분석(모고앱) 적재 — 베스트에포트
+      syncTsagwanWrongAnswers(user.id, {
+        round: tsagwanRound,
+        elective: elective as Elective,
+        korean: answers["국어"],
+        english: answers["영어"],
+        math: answers["수학"],
+      }).catch(() => {})
+      setFinalSavedId(stored.id || "")
+      return
+    }
+
     let submission: Submission
     if (track === "saagwan") {
       submission = { track: "saagwan", year, elective, korean: answers["국어"], english: answers["영어"], math: answers["수학"] }
@@ -417,7 +484,9 @@ function ExamPageInner() {
             </Link>
             <div className="flex items-baseline gap-3">
               <span className="font-bold text-gray-900">
-                {track === "saagwan" ? "🎖 사관" : "👮 경찰대"} {year}년 기출
+                {isTsagwan
+                  ? `✨ T사관 모의 ${tsagwanRound}회`
+                  : `${track === "saagwan" ? "🎖 사관" : "👮 경찰대"} ${year}년 기출`}
               </span>
               <span className="text-xs text-gray-500">{progress.done} / {progress.total} 마킹</span>
             </div>
@@ -431,8 +500,8 @@ function ExamPageInner() {
         </div>
       </div>
 
-      {/* placeholder 경고 */}
-      {!ANSWER_KEY_AVAILABLE[`${track}-${year}`] && (
+      {/* placeholder 경고 (T사관 모의는 Mogo 백엔드 실채점이라 해당 없음) */}
+      {!isTsagwan && !ANSWER_KEY_AVAILABLE[`${track}-${year}`] && (
         <div className="container mx-auto max-w-5xl px-4 pt-4">
           <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />

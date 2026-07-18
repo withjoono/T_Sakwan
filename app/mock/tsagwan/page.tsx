@@ -128,13 +128,14 @@ export default function TsagwanMockPage() {
           <h2 className="mb-6 text-2xl font-bold text-gray-900">응시할 회차를 선택하세요</h2>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {ROUNDS.map((r) => {
+            {ROUNDS.map((r, i) => {
               const isOpen = r.status === "open"
               return (
-                <div
+                <Link
                   key={r.round}
-                  className={`rounded-2xl border-2 p-4 text-center ${
-                    isOpen ? "border-amber-300 bg-amber-50" : "border-gray-200 bg-white"
+                  href={`/mock/tsagwan/round/${i + 1}`}
+                  className={`rounded-2xl border-2 p-4 text-center transition-all hover:shadow-sm ${
+                    isOpen ? "border-amber-300 bg-amber-50 hover:border-amber-400" : "border-gray-200 bg-white hover:border-amber-200"
                   }`}
                 >
                   <div className={`text-xs font-bold ${isOpen ? "text-amber-700" : "text-gray-500"}`}>{r.round}</div>
@@ -145,17 +146,23 @@ export default function TsagwanMockPage() {
                       isOpen ? "bg-amber-200 text-amber-800" : "bg-gray-100 text-gray-500"
                     }`}
                   >
-                    {isOpen ? "신청 가능" : "예정"}
+                    {isOpen ? "바로가기" : "예정"}
                   </span>
-                </div>
+                </Link>
               )
             })}
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-3">
-            <Button size="lg" className="bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
-              {upcoming.round}({upcoming.date}) 응시 신청 <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Link href="/mock/tsagwan/checkout?plan=package">
+              <Button size="lg" className="bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
+                7월 5회 패키지 신청 <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <p className="max-w-md text-center text-sm text-gray-500">
+              5회 패키지 하나로 <strong className="text-amber-700">기출까지 풀며 현재 위치를 파악</strong>하고,
+              회차마다 취약 유형까지 분석받을 수 있어요.
+            </p>
             {!isAuthenticated && <span className="text-xs text-gray-500">※ 신청·결과 저장에는 로그인이 필요합니다</span>}
           </div>
         </div>
@@ -231,9 +238,11 @@ export default function TsagwanMockPage() {
           </Card>
 
           <div className="mt-8 text-center">
-            <Button size="lg" className="bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
-              7월 5회 패키지 신청 <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Link href="/mock/tsagwan/checkout?plan=package">
+              <Button size="lg" className="bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
+                7월 5회 패키지 신청 <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

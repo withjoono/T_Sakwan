@@ -1,0 +1,177 @@
+"use client"
+
+import { Suspense, useMemo, useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import Navigation from "@/components/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { useAuth } from "@/lib/use-auth"
+import { PLANS, KRW, savePaid } from "@/lib/sakwan/mock-products"
+import { ArrowLeft, CheckCircle2, CreditCard, Loader2, Lock, ShieldCheck } from "lucide-react"
+
+const PAY_METHODS = [
+  { id: "card", label: "신용/체크카드", icon: "💳" },
+  { id: "kakao", label: "카카오페이", icon: "🟡" },
+  { id: "naver", label: "네이버페이", icon: "🟢" },
+  { id: "trans", label: "계좌이체", icon: "🏦" },
+] as const
+
+function CheckoutInner() {
+  const router = useRouter()
+  const { isAuthenticated } = useAuth()
+
+  const plan = PLANS.package
+  const rounds = useMemo(() => [1, 2, 3, 4, 5], [])
+
+  const [method, setMethod] = useState<(typeof PAY_METHODS)[number]["id"]>("card")
+  const [agree, setAgree] = useState(false)
+  const [paying, setPaying] = useState(false)
+
+  const handlePay = () => {
+    if (!agree || paying) return
+    setPaying(true)
+    // TODO: 실제 PG(토스페이먼츠/포트원 등) 연동 지점.
+    // 현재는 결제 완료를 시뮬레이션한 뒤 다운로드 페이지로 이동한다.
+    setTimeout(() => {
+      savePaid({ plan: "package", rounds, at: Date.now() })
+      router.push("/mock/tsagwan/download")
+    }, 1200)
+  }
+
+  const displayName = plan.name
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-slate-900 to-orange-900 py-10">
+        <div className="container mx-auto max-w-3xl px-6">
+          <Link href="/mock/tsagwan" className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-orange-200 hover:text-white">
+            <ArrowLeft className="h-4 w-4" /> T사관 모의고사
+          </Link>
+          <h1 className="text-2xl font-bold text-white md:text-3xl">신청 · 결제</h1>
+          <p className="mt-1 text-sm text-orange-100">결제 완료 후 회차별 문제지를 바로 다운로드할 수 있어요.</p>
+        </div>
+      </section>
+
+      <section className="py-10">
+        <div className="container mx-auto grid max-w-3xl gap-6 px-6">
+          {/* 주문 요약 */}
+          <Card className="border-gray-200">
+            <CardContent className="p-6">
+              <div className="mb-4 text-xs font-bold text-amber-700">주문 상품</div>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-lg font-bold text-gray-900">{displayName}</div>
+                  <p className="mt-1 text-sm text-gray-500">{plan.desc}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {rounds.map((r) => (
+                      <span key={r} className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                        {r}회 문제지 포함
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="whitespace-nowrap text-xl font-black text-gray-900">{KRW(plan.price)}</div>
+              </div>
+
+              <ul className="mt-4 space-y-2 border-t border-gray-100 pt-4">
+                {plan.benefits.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* 결제 수단 */}
+          <Card className="border-gray-200">
+            <CardContent className="p-6">
+              <div className="mb-4 text-xs font-bold text-amber-700">결제 수단</div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {PAY_METHODS.map((m) => {
+                  const on = method === m.id
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => setMethod(m.id)}
+                      className={`rounded-xl border-2 p-3 text-center text-sm font-bold transition-all ${
+                        on ? "border-amber-400 bg-amber-50 text-amber-800" : "border-gray-200 bg-white text-gray-600 hover:border-amber-200"
+                      }`}
+                    >
+                      <div className="text-xl">{m.icon}</div>
+                      <div className="mt-1">{m.label}</div>
+                    </button>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 결제 금액 + 동의 + 버튼 */}
+          <Card className="border-2 border-amber-200 bg-amber-50/40">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between border-b border-amber-200 pb-4">
+                <span className="text-sm font-bold text-gray-700">총 결제 금액</span>
+                <span className="text-2xl font-black text-amber-700">{KRW(plan.price)}</span>
+              </div>
+
+              <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={agree}
+                  onChange={(e) => setAgree(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-amber-500"
+                />
+                <span>주문 내용을 확인했으며, 결제 및 환불 규정에 동의합니다. (디지털 콘텐츠 특성상 다운로드 후 환불 제한)</span>
+              </label>
+
+              {!isAuthenticated && (
+                <p className="mt-3 flex items-center gap-1.5 text-xs text-gray-500">
+                  <Lock className="h-3.5 w-3.5" /> 로그인하면 결제·다운로드 내역이 계정에 저장됩니다.
+                </p>
+              )}
+
+              <Button
+                onClick={handlePay}
+                disabled={!agree || paying}
+                size="lg"
+                className="mt-4 w-full bg-amber-500 py-6 text-lg font-bold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {paying ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 결제 진행 중…
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mr-2 h-5 w-5" /> {KRW(plan.price)} 결제하기
+                  </>
+                )}
+              </Button>
+
+              <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
+                <ShieldCheck className="h-3.5 w-3.5" /> 안전한 결제 · 결제 완료 시 문제지 다운로드 페이지로 이동합니다
+              </div>
+            </CardContent>
+          </Card>
+
+          <p className="flex items-center justify-center gap-1.5 text-center text-xs text-gray-400">
+            <CheckCircle2 className="h-3.5 w-3.5" /> 결제 후 언제든 다운로드 페이지에서 문제지를 다시 받을 수 있어요.
+          </p>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-gray-500">로딩 중...</div>}>
+      <CheckoutInner />
+    </Suspense>
+  )
+}

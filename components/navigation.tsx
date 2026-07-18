@@ -31,6 +31,15 @@ const mockMenu: NavItem[] = [
   { label: "✨ T사관 모의고사", href: "/mock/tsagwan" },
 ]
 
+// 모의고사 분석 하위 메뉴 (모고 앱에서 이식한 분석 기능)
+const mockAnalysisMenu: NavItem[] = [
+  { label: "📊 성적분석", href: "/mock/score-analysis" },
+  { label: "🎯 학교별 예측", href: "/mock/prediction" },
+  { label: "📈 누적분석", href: "/mock/statistics" },
+  { label: "🔍 취약분석", href: "/mock/weakness" },
+  { label: "📝 오답노트", href: "/mock/wrong-answers" },
+]
+
 const classMenu: NavItem[] = [
   { label: "🟢 육사반", href: "/class/army" },
   { label: "🔷 공사반", href: "/class/airforce" },
@@ -59,7 +68,8 @@ export default function Navigation() {
   }
 
   const isClassActive = pathname.startsWith("/class/")
-  const isMockActive = pathname.startsWith("/mock")
+  const isAnalysisActive = mockAnalysisMenu.some((m) => pathname.startsWith(m.href))
+  const isMockActive = pathname.startsWith("/mock") && !isAnalysisActive
 
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -145,16 +155,58 @@ export default function Navigation() {
               사관/경찰 모의
               <ChevronDown className="h-4 w-4 ml-1" />
             </button>
-            <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div className="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                응시
+              </div>
               {mockMenu.map((item, idx) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-4 py-3 text-sm hover:bg-gray-50 ${
+                  className={`block px-4 py-2.5 text-sm hover:bg-gray-50 ${
                     isActive(item.href) && (item.href !== "/mock" || pathname === "/mock")
                       ? "text-red-700 font-semibold"
                       : "text-gray-600 hover:text-gray-900"
-                  } ${idx === 0 ? "rounded-t-lg" : ""} ${idx === mockMenu.length - 1 ? "rounded-b-lg" : ""}`}
+                  } ${idx === 0 ? "rounded-t-lg" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="mt-1 border-t border-gray-100 px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                모의고사 분석
+              </div>
+              {mockAnalysisMenu.map((item, idx) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`block px-4 py-2.5 text-sm hover:bg-gray-50 ${
+                    isActive(item.href) ? "text-red-700 font-semibold" : "text-gray-600 hover:text-gray-900"
+                  } ${idx === mockAnalysisMenu.length - 1 ? "rounded-b-lg" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 모의고사 분석 드롭다운 */}
+          <div className="relative group">
+            <button
+              className={`transition-colors flex items-center text-sm font-medium ${
+                isAnalysisActive ? "text-red-700" : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              분석
+              <ChevronDown className="h-4 w-4 ml-1" />
+            </button>
+            <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {mockAnalysisMenu.map((item, idx) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`block px-4 py-3 text-sm hover:bg-gray-50 ${
+                    isActive(item.href) ? "text-red-700 font-semibold" : "text-gray-600 hover:text-gray-900"
+                  } ${idx === 0 ? "rounded-t-lg" : ""} ${idx === mockAnalysisMenu.length - 1 ? "rounded-b-lg" : ""}`}
                 >
                   {item.label}
                 </Link>

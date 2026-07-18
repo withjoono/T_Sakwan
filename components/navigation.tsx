@@ -24,11 +24,12 @@ const mainMenu: NavItem[] = [
   { label: "멘토링", href: "/mentoring" },
 ]
 
-// 사관/경찰 모의 하위 메뉴 (허브 + 기출 + T사관 모의)
+// 사관/경찰 모의 하위 메뉴 (응시 관련만 — 분석은 별도 '분석' 드롭다운)
 const mockMenu: NavItem[] = [
   { label: "모의고사 홈", href: "/mock" },
   { label: "📚 기출 모의고사", href: "/mock/past" },
   { label: "✨ T사관 모의고사", href: "/mock/tsagwan" },
+  { label: "📥 문제집 다운로드", href: "/mock/tsagwan/download" },
 ]
 
 // 모의고사 분석 하위 메뉴 (모고 앱에서 이식한 분석 기능)
@@ -155,33 +156,16 @@ export default function Navigation() {
               사관/경찰 모의
               <ChevronDown className="h-4 w-4 ml-1" />
             </button>
-            <div className="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                응시
-              </div>
+            <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               {mockMenu.map((item, idx) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-4 py-2.5 text-sm hover:bg-gray-50 ${
+                  className={`block px-4 py-3 text-sm hover:bg-gray-50 ${
                     isActive(item.href) && (item.href !== "/mock" || pathname === "/mock")
                       ? "text-red-700 font-semibold"
                       : "text-gray-600 hover:text-gray-900"
-                  } ${idx === 0 ? "rounded-t-lg" : ""}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="mt-1 border-t border-gray-100 px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                모의고사 분석
-              </div>
-              {mockAnalysisMenu.map((item, idx) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block px-4 py-2.5 text-sm hover:bg-gray-50 ${
-                    isActive(item.href) ? "text-red-700 font-semibold" : "text-gray-600 hover:text-gray-900"
-                  } ${idx === mockAnalysisMenu.length - 1 ? "rounded-b-lg" : ""}`}
+                  } ${idx === 0 ? "rounded-t-lg" : ""} ${idx === mockMenu.length - 1 ? "rounded-b-lg" : ""}`}
                 >
                   {item.label}
                 </Link>

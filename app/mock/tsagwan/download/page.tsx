@@ -8,12 +8,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   MOCK_ROUNDS,
   PAST_EXAM_LINKS,
+  PAYMENT_ENABLED,
+  isGrantedEmail,
   isRoundOpen,
   loadPaid,
   loadRoundScore,
   type MockRound,
   type PaidState,
 } from "@/lib/sakwan/mock-products"
+import { useAuth } from "@/lib/use-auth"
 import {
   AlertTriangle,
   ArrowLeft,
@@ -32,6 +35,9 @@ import {
 type Tab = "mock" | "past"
 
 export default function DownloadPage() {
+  const { user } = useAuth()
+  const granted = isGrantedEmail(user?.email)
+
   const [tab, setTab] = useState<Tab>("mock")
   const [paid, setPaid] = useState<PaidState | null>(null)
   const [ready, setReady] = useState(false)
@@ -41,7 +47,7 @@ export default function DownloadPage() {
     setReady(true)
   }, [])
 
-  const unlocked = new Set(paid?.rounds ?? [])
+  const unlocked = !PAYMENT_ENABLED || granted ? new Set([1, 2, 3, 4, 5]) : new Set(paid?.rounds ?? [])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -106,7 +112,7 @@ export default function DownloadPage() {
 
               <div className="grid gap-4">
                 {MOCK_ROUNDS.map((r) => (
-                  <RoundCard key={r.round} round={r} unlocked={unlocked.has(r.round)} />
+                  <RoundCard key={r.round} round={r} unlocked={unlocked.has(r.round)} granted={granted} />
                 ))}
               </div>
 
@@ -163,7 +169,7 @@ export default function DownloadPage() {
 }
 
 /* ───────────── 회차 카드 (문제지 → 채점 안내 → 점수 입력 → 답지·해설) ───────────── */
-function RoundCard({ round, unlocked }: { round: MockRound; unlocked: boolean }) {
+function RoundCard({ round, unlocked, granted }: { round: MockRound; unlocked: boolean; granted: boolean }) {
   const hasFiles = round.questions.length > 0
   // 채점 완료 여부 — 플랫폼 OMR 채점(/mock/exam) 완료 시 저장되는 회차 점수로 판정
   const [scored, setScored] = useState<{ korean: number; math: number; english: number } | null>(null)
@@ -176,8 +182,8 @@ function RoundCard({ round, unlocked }: { round: MockRound; unlocked: boolean })
     if (saved) setScored({ korean: saved.korean, math: saved.math, english: saved.english })
   }, [round])
 
-  // 오픈일 이전: 날짜 잠금 (결제 여부와 무관)
-  if (!open) {
+  // 오픈일 이전: 날짜 잠금 (전체개방 계정은 통과)
+  if (!open && !granted) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const d = Math.round((new Date(round.openIso + "T00:00:00").getTime() - today.getTime()) / 86400000)

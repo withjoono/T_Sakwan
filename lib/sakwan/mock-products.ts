@@ -110,6 +110,25 @@ export const PAST_EXAM_LINKS: PastExamLink[] = [
   },
 ]
 
+/* ───────── 수동 전체개방 계정(결제 확인 후 부여) ─────────
+ * 실제 결제 백엔드 연동 전까지, 결제가 확인된 계정을 이메일로 등록하면
+ * 로그인 시 전 회차(결제·오픈일 게이트 모두 통과)를 이용할 수 있다.
+ * 이메일은 소문자로 등록.
+ */
+export const GRANTED_EMAILS: string[] = [
+  "hhtae0423@gmail.com",
+]
+
+export function isGrantedEmail(email?: string | null): boolean {
+  return !!email && GRANTED_EMAILS.includes(email.trim().toLowerCase())
+}
+
+/* ───────── 결제 게이트 토글 (임시) ─────────
+ * false = 결제창을 걷어냄: 모든 사용자가 결제 없이 다운로드 가능(오픈일·채점 게이트는 유지).
+ * 다시 결제를 받으려면 true 로 되돌린다.  ← 여유 있을 때 이 값만 true 로 변경
+ */
+export const PAYMENT_ENABLED = false
+
 /* ───────── 결제 상태(localStorage) ───────── */
 const PAID_KEY = "tsagwan_paid_v1"
 

@@ -5,8 +5,11 @@ import Link from "next/link"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useAuth } from "@/lib/use-auth"
 import {
   MOCK_ROUNDS,
+  PAYMENT_ENABLED,
+  isGrantedEmail,
   isRoundOpen,
   loadPaid,
   loadRoundScore,
@@ -39,14 +42,17 @@ function dday(iso: string): number {
 export default function RoundDetail({ round }: { round: number }) {
   const r: MockRound | undefined = MOCK_ROUNDS.find((x) => x.round === round)
 
+  const { user } = useAuth()
+  const granted = isGrantedEmail(user?.email)
+
   const [ready, setReady] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [dateOpen, setDateOpen] = useState(false)
   const [paid, setPaid] = useState<PaidState | null>(null)
   const [scored, setScored] = useState(false)
 
   useEffect(() => {
     if (!r) return
-    setOpen(isRoundOpen(r))
+    setDateOpen(isRoundOpen(r))
     setPaid(loadPaid())
     setScored(!!loadRoundScore(r.round))
     setReady(true)
@@ -61,7 +67,9 @@ export default function RoundDetail({ round }: { round: number }) {
     )
   }
 
-  const isPaid = !!paid?.rounds?.includes(r.round)
+  // 전체개방 계정(granted)은 결제·오픈일 게이트를 모두 통과
+  const open = dateOpen || granted
+  const isPaid = !PAYMENT_ENABLED || granted || !!paid?.rounds?.includes(r.round)
   const d = dday(r.openIso)
   const prev = MOCK_ROUNDS.find((x) => x.round === r.round - 1)
   const next = MOCK_ROUNDS.find((x) => x.round === r.round + 1)

@@ -292,6 +292,28 @@ export default function ScoreAnalysisPage() {
         </div>
       ) : (
         <>
+          {/* 예시(미입력) 안내 — 실제 성적이 없을 때 오인 방지 */}
+          {isExample && (
+            <section className="border-b border-amber-200 bg-amber-50 py-6">
+              <div className="container mx-auto max-w-5xl px-6">
+                <div className="flex items-start gap-3 rounded-xl border-2 border-amber-300 bg-white p-5">
+                  <span className="text-2xl leading-none">⚠️</span>
+                  <div>
+                    <div className="text-base font-bold text-amber-800">
+                      아직 입력된 정답(응시 성적)이 없습니다
+                    </div>
+                    <p className="mt-1 text-sm text-amber-700">
+                      아래 화면은 실제 성적이 아니라 <strong>예시 데이터</strong>입니다.
+                      {isAuthenticated
+                        ? " 모의고사에 응시하고 정답을 제출하면 내 실제 성적으로 분석돼요."
+                        : " 로그인 후 모의고사에 응시하면 내 실제 성적으로 분석돼요."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* 종합 성적 */}
           <section className="border-b border-gray-100 bg-white py-14">
             <div className="container mx-auto max-w-5xl px-6">

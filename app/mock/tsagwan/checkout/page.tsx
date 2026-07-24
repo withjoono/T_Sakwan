@@ -2,13 +2,17 @@
 
 import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth } from "@/lib/use-auth"
-import { PLANS, KRW, savePaid } from "@/lib/sakwan/mock-products"
+import { PLANS, KRW } from "@/lib/sakwan/mock-products"
 import { ArrowLeft, CheckCircle2, CreditCard, Loader2, Lock, ShieldCheck } from "lucide-react"
+
+// 허브(tskool.kr) — 실제 결제는 허브 주문 페이지의 검증된 Iamport 플로우로 진행.
+const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || "https://tskool.kr"
+// 사관 "7월 5회 패키지"에 해당하는 허브 상품 id. 미설정 시 이용권 목록(/products)으로 이동.
+const HUB_PRODUCT_ID = process.env.NEXT_PUBLIC_SAKWAN_MOCK_PRODUCT_ID
 
 const PAY_METHODS = [
   { id: "card", label: "신용/체크카드", icon: "💳" },
@@ -18,7 +22,6 @@ const PAY_METHODS = [
 ] as const
 
 function CheckoutInner() {
-  const router = useRouter()
   const { isAuthenticated } = useAuth()
 
   const plan = PLANS.package
@@ -31,12 +34,13 @@ function CheckoutInner() {
   const handlePay = () => {
     if (!agree || paying) return
     setPaying(true)
-    // TODO: 실제 PG(토스페이먼츠/포트원 등) 연동 지점.
-    // 현재는 결제 완료를 시뮬레이션한 뒤 다운로드 페이지로 이동한다.
-    setTimeout(() => {
-      savePaid({ plan: "package", rounds, at: Date.now() })
-      router.push("/mock/tsagwan/download")
-    }, 1200)
+    // 실제 결제는 허브 주문 페이지(Iamport 결제창)에서 진행.
+    // 결제 완료 시 허브가 앱 라이선스(hub_app_subscriptions: mock.all)를 부여하고,
+    // 다운로드 페이지가 허브 라이선스를 조회해 회차 잠금을 해제한다.
+    const target = HUB_PRODUCT_ID
+      ? `${HUB_URL}/order/${HUB_PRODUCT_ID}`
+      : `${HUB_URL}/products`
+    window.location.href = target
   }
 
   const displayName = plan.name

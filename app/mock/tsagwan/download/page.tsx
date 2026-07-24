@@ -16,6 +16,7 @@ import {
   type MockRound,
   type PaidState,
 } from "@/lib/sakwan/mock-products"
+import { fetchOwnedRounds } from "@/lib/sakwan/licensed-download"
 import { useAuth } from "@/lib/use-auth"
 import {
   AlertTriangle,
@@ -40,14 +41,22 @@ export default function DownloadPage() {
 
   const [tab, setTab] = useState<Tab>("mock")
   const [paid, setPaid] = useState<PaidState | null>(null)
+  const [hubOwned, setHubOwned] = useState<Set<number> | null>(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
     setPaid(loadPaid())
-    setReady(true)
+    // 허브 라이선스(실결제) 조회 — 조회 실패/미로그인 시 null → 로컬 게이트로 폴백
+    fetchOwnedRounds()
+      .then(setHubOwned)
+      .finally(() => setReady(true))
   }, [])
 
-  const unlocked = !PAYMENT_ENABLED || granted ? new Set([1, 2, 3, 4, 5]) : new Set(paid?.rounds ?? [])
+  // 로컬 게이트(전체개방 플래그/허용 이메일/localStorage) + 허브 라이선스(실결제)를 합집합으로 개방
+  const localUnlocked = !PAYMENT_ENABLED || granted ? new Set([1, 2, 3, 4, 5]) : new Set(paid?.rounds ?? [])
+  const unlocked = new Set<number>([...localUnlocked, ...(hubOwned ?? [])])
+  // 결제 유도 배너: 로컬·허브 어디에도 개방 회차가 없을 때만 노출
+  const hasAnyAccess = unlocked.size > 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,7 +100,7 @@ export default function DownloadPage() {
           {/* ───────── T사관 모의고사 탭 ───────── */}
           {tab === "mock" && (
             <div className="mt-6">
-              {ready && !paid && (
+              {ready && !hasAnyAccess && (
                 <div className="mb-5 flex flex-col items-start justify-between gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center">
                   <div className="flex items-start gap-2 text-sm text-amber-900">
                     <Lock className="mt-0.5 h-4 w-4 flex-shrink-0" />

@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { DomainRedirect } from "./domain-redirect"
+import { SiteFooter } from "@/components/site-footer"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,6 +47,7 @@ export default function RootLayout({
       <body className="font-sans">
         <DomainRedirect />
         {children}
+        <SiteFooter />
       </body>
     </html>
   )

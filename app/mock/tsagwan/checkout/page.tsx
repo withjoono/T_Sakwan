@@ -160,26 +160,99 @@ function CheckoutInner() {
                 </p>
               )}
 
-              <Button
-                onClick={handlePay}
-                disabled={!agree || paying}
-                size="lg"
-                className="mt-4 w-full bg-amber-500 py-6 text-lg font-bold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {paying ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 결제 진행 중…
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="mr-2 h-5 w-5" /> {KRW(plan.price)} 결제하기
-                  </>
-                )}
-              </Button>
+              {!isManual ? (
+                <>
+                  <Button
+                    onClick={handlePay}
+                    disabled={!agree || paying}
+                    size="lg"
+                    className="mt-4 w-full bg-amber-500 py-6 text-lg font-bold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {paying ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 결제 진행 중…
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="mr-2 h-5 w-5" /> {KRW(plan.price)} 결제하기
+                      </>
+                    )}
+                  </Button>
+                  <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
+                    <ShieldCheck className="h-3.5 w-3.5" /> 안전한 결제 · 결제 완료 시 문제지 다운로드 페이지로 이동합니다
+                  </div>
+                </>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {/* 입금 대상 (계좌 / 카카오페이) */}
+                  {method === "trans" ? (
+                    <div className="rounded-xl border-2 border-amber-200 bg-white p-4">
+                      <div className="mb-1 text-xs font-bold text-amber-700">입금 계좌</div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {BANK.name} {BANK.account}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        예금주 {BANK.holder} · 입금액 {KRW(plan.price)}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border-2 border-amber-200 bg-white p-4">
+                      <div className="mb-1 text-xs font-bold text-amber-700">카카오페이 송금</div>
+                      <div className="text-lg font-bold text-gray-900">{CONTACT_PHONE}</div>
+                      <div className="text-sm text-gray-500">
+                        카카오톡 검색: {KATALK_ID} · 송금액 {KRW(plan.price)}
+                      </div>
+                    </div>
+                  )}
 
-              <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
-                <ShieldCheck className="h-3.5 w-3.5" /> 안전한 결제 · 결제 완료 시 문제지 다운로드 페이지로 이동합니다
-              </div>
+                  {/* 입금 후 안내 메시지 */}
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <p className="text-sm text-gray-700">
+                      {method === "trans" ? (
+                        <>
+                          입금 후 <b className="text-gray-900">{CONTACT_PHONE}</b> 로 아래 내용을 <b>문자</b>로 보내주세요.
+                        </>
+                      ) : (
+                        <>
+                          송금 후 <b className="text-gray-900">카카오톡</b>으로 아래 내용을 보내주세요.
+                        </>
+                      )}{" "}
+                      확인 후 이용권을 활성화해 드립니다.
+                    </p>
+                    <div className="mt-2 rounded-lg border border-gray-200 bg-white p-3 text-sm leading-relaxed text-gray-900">
+                      {depositMsg}
+                    </div>
+                    <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                      {method === "trans" && (
+                        <a
+                          href={smsHref}
+                          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-amber-600"
+                        >
+                          <MessageSquare className="h-4 w-4" /> 입금 확인 문자 보내기
+                        </a>
+                      )}
+                      <button
+                        onClick={copyMsg}
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-amber-300 bg-white px-4 py-3 text-sm font-bold text-amber-700 transition-colors hover:bg-amber-50"
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4" /> 복사됨
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4" /> 메시지 복사
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-center text-[11px] text-gray-400">
+                    * 메시지의 학교·학생명·현금영수증 번호를 채워 보내주세요.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

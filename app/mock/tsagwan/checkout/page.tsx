@@ -7,18 +7,22 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth } from "@/lib/use-auth"
 import { PLANS, KRW } from "@/lib/sakwan/mock-products"
-import { ArrowLeft, CheckCircle2, CreditCard, Loader2, Lock, ShieldCheck } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Check, Copy, CreditCard, Loader2, Lock, MessageSquare, ShieldCheck } from "lucide-react"
 
-// 허브(tskool.kr) — 실제 결제는 허브 주문 페이지의 검증된 Iamport 플로우로 진행.
+// 허브(tskool.kr) — 카드 결제는 허브 주문 페이지의 검증된 Iamport 플로우로 진행.
 const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || "https://tskool.kr"
 // 사관 "7월 5회 패키지"에 해당하는 허브 상품 id. 미설정 시 이용권 목록(/products)으로 이동.
 const HUB_PRODUCT_ID = process.env.NEXT_PUBLIC_SAKWAN_MOCK_PRODUCT_ID
 
+// 수동 결제(계좌이체 · 카톡송금) 안내 정보
+const BANK = { name: "하나은행", account: "208-91000-2233-08", holder: "강준호" }
+const CONTACT_PHONE = "010-2518-7139"
+const KATALK_ID = "withjuno"
+
 const PAY_METHODS = [
   { id: "card", label: "신용/체크카드", icon: "💳" },
-  { id: "kakao", label: "카카오페이", icon: "🟡" },
-  { id: "naver", label: "네이버페이", icon: "🟢" },
   { id: "trans", label: "계좌이체", icon: "🏦" },
+  { id: "katalk", label: "카카오페이 송금", icon: "💬" },
 ] as const
 
 function CheckoutInner() {
@@ -30,6 +34,22 @@ function CheckoutInner() {
   const [method, setMethod] = useState<(typeof PAY_METHODS)[number]["id"]>("card")
   const [agree, setAgree] = useState(false)
   const [paying, setPaying] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const isManual = method === "trans" || method === "katalk"
+  // 입금 확인 메시지 — 학교·학생명·현금영수증 번호만 채워 보내면 됩니다.
+  const depositMsg = `○○고등학교 ○○○(학생명) ${plan.name} 이용권 ${KRW(plan.price)} 입금했습니다. 현금영수증은 ○○○-○○○○-○○○○ 번호로 발행해주세요.`
+  const smsHref = `sms:${CONTACT_PHONE}?body=${encodeURIComponent(depositMsg)}`
+
+  const copyMsg = async () => {
+    try {
+      await navigator.clipboard.writeText(depositMsg)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1600)
+    } catch {
+      /* clipboard 불가 시 무시 */
+    }
+  }
 
   const handlePay = () => {
     if (!agree || paying) return

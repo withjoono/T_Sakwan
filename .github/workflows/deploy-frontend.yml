@@ -19,6 +19,11 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      # @withjoono/geobuk-shared 는 GitHub Packages 비공개 패키지 → 토큰 없으면 401.
+      # pnpm 10 은 프로젝트 .npmrc 의 registry 자격증명을 확장하지 않으므로 user-level 에 기록한다.
+      - name: Authenticate to GitHub Packages
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" >> ~/.npmrc
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

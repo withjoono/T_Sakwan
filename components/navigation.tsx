@@ -3,17 +3,18 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/use-auth"
-import { Bell, ChevronDown, Compass, CreditCard, Home, LayoutGrid, Users } from "lucide-react"
+import { EcosystemHeader } from "geobuk-shared/ui"
+import { ChevronDown, Compass, Home } from "lucide-react"
 
 const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || "https://tskool.kr"
 
-// 허브(tskool.kr) 기능 — 최종 경로는 허브 작업장에서 연결.
-// geobuk-shared 아이콘 세트로 교체 시 아래 아이콘만 바꾸면 됩니다.
-const HUB_LINKS = {
-  allApps: HUB_URL,
-  payment: `${HUB_URL}/payment`,
+// 1단(허브 공유 유틸 바)의 링크 — tsusi.kr 과 동일한 Hub 경로 규칙을 따른다.
+const HUB_UTILITY_URLS = {
+  products: `${HUB_URL}/products`,
   notifications: `${HUB_URL}/notifications`,
-  accountShare: `${HUB_URL}/account/share`,
+  accountLinkage: `${HUB_URL}/account-linkage`,
+  profile: `${HUB_URL}/users/profile`,
+  payment: `${HUB_URL}/users/payment`,
 }
 
 type NavItem = { label: string; href: string }
@@ -74,7 +75,24 @@ export default function Navigation() {
   const isMockActive = pathname.startsWith("/mock") && !isAnalysisActive
 
   return (
-    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <EcosystemHeader
+      hubUrl={HUB_URL}
+      utility={{
+        // 1단(허브 공유 바) — 로그인/유저 드롭다운은 tsusi.kr 과 동일한 UtilityNav 가 담당.
+        // 인증 로직은 기존 Sakwan Hub SSO(useAuth)를 그대로 사용.
+        isLoggedIn: isAuthenticated,
+        user: user ? { nickname: user.userName } : undefined,
+        onLogout: () => {
+          logout()
+          window.location.href = HUB_URL
+        },
+        urls: {
+          ...HUB_UTILITY_URLS,
+          login: loginUrl,
+        },
+      }}
+    >
+      {/* ━━━ 2단: T사관 앱 고유 네비게이션 ━━━ */}
       <div className="container mx-auto px-6 py-4 flex items-center justify-between max-w-7xl">
         {/* 로고 */}
         <Link href="/" className="flex items-center space-x-2">
@@ -84,16 +102,6 @@ export default function Navigation() {
 
         {/* 메인 메뉴 */}
         <nav className="hidden lg:flex items-center space-x-5">
-          {/* T스쿨 전체 앱 */}
-          <a
-            href={HUB_LINKS.allApps}
-            title="T스쿨 전체 앱"
-            aria-label="T스쿨 전체 앱"
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            <LayoutGrid className="h-5 w-5" />
-          </a>
-
           {/* 인트로 — 사관 전체 프로모 페이지 드롭다운 */}
           <div className="relative group">
             <button
@@ -244,62 +252,8 @@ export default function Navigation() {
           >
             2차면접
           </Link>
-
-          {/* 구분선 */}
-          <span className="h-5 w-px bg-gray-200" aria-hidden="true" />
-
-          {/* 허브 기능 — 결제 / 알림 / 계정공유 */}
-          <a
-            href={HUB_LINKS.payment}
-            title="결제"
-            aria-label="결제"
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            <CreditCard className="h-5 w-5" />
-          </a>
-          <a
-            href={HUB_LINKS.notifications}
-            title="알림"
-            aria-label="알림"
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            <Bell className="h-5 w-5" />
-          </a>
-          <a
-            href={HUB_LINKS.accountShare}
-            title="계정공유"
-            aria-label="계정공유"
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            <Users className="h-5 w-5" />
-          </a>
         </nav>
-
-        {/* 로그인/로그아웃 */}
-        <div className="flex items-center gap-3">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700 hidden sm:inline">{user.userName}님</span>
-              <button
-                onClick={() => {
-                  logout()
-                  window.location.href = HUB_URL
-                }}
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                로그아웃
-              </button>
-            </div>
-          ) : (
-            <a
-              href={loginUrl}
-              className="bg-red-700 hover:bg-red-800 text-white px-5 py-2 text-sm font-semibold rounded-lg transition-colors"
-            >
-              로그인
-            </a>
-          )}
-        </div>
       </div>
-    </header>
+    </EcosystemHeader>
   )
 }

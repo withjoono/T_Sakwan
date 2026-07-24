@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { DomainRedirect } from "./domain-redirect"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,8 +12,28 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "사관학교 입시 전문 | T사관 - 육사·해사·공사·국간사",
-  description: "육군사관학교, 해군사관학교, 공군사관학교, 국군간호사관학교 합격을 위한 전문 입시 컨설팅 + AI 생기부 진단 플랫폼. 1차 필기, 체력검정, 면접 완벽 대비.",
+  metadataBase: new URL("https://tsakwan.kr"),
+  title: "T사관",
+  description: "사관/경찰대 준비 AI 플랫폼",
+  icons: {
+    icon: "/ts-logo.png",
+    apple: "/ts-logo.png",
+  },
+  // URL 공유 시(카톡·슬랙 등) 뜨는 미리보기 — 로고 이미지를 og:image 로 지정
+  openGraph: {
+    type: "website",
+    siteName: "T사관",
+    title: "T사관",
+    description: "사관/경찰대 준비 AI 플랫폼",
+    url: "https://tsakwan.kr",
+    images: [{ url: "/ts-logo.png", alt: "T사관" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "T사관",
+    description: "사관/경찰대 준비 AI 플랫폼",
+    images: ["/ts-logo.png"],
+  },
 }
 
 export default function RootLayout({
@@ -22,7 +43,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${inter.variable} antialiased`}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        <DomainRedirect />
+        {children}
+      </body>
     </html>
   )
 }

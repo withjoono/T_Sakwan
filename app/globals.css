@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* 공유 헤더(geobuk-shared) dist 안에서 쓰이는 유틸 클래스가 purge 되지 않도록 스캔 대상에 포함 */
+@source "../node_modules/geobuk-shared/dist";
+
 @custom-variant dark (&:is(.dark *));
 
 /* Updated to warm, inviting color scheme with orange/coral primary */

@@ -9,8 +9,8 @@ const HUB = "https://www.tskool.kr"
 // geobuk-shared 공용 Footer 에서 좌측 "로고" 열은 빼고, 중간(사업자정보+정책) + 우측(소셜)만 옮긴 푸터.
 export function SiteFooter() {
   const pathname = usePathname()
-  // 홈(/)·프로모(/promo)는 자체 푸터가 있으므로 전역 푸터를 생략(중복 방지).
-  if (pathname === "/" || pathname.startsWith("/promo")) return null
+  // 프로모(/promo)는 자체 푸터가 있으므로 전역 푸터를 생략(중복 방지).
+  if (pathname.startsWith("/promo")) return null
 
   return (
     <footer className="border-t border-gray-200 bg-gray-50 py-6 sm:py-8">
@@ -26,7 +26,7 @@ export function SiteFooter() {
           <div className="flex flex-col gap-3 text-center sm:text-left">
             <div className="flex flex-col gap-1 text-xs text-gray-500 sm:text-sm">
               <span>사업체명 (주)거북스쿨 | 대표 강준호</span>
-              <span>사업자등록번호 772-87-02782 | 연락처 042-484-3356</span>
+              <span>사업자등록번호 772-87-02782 | 연락처 010-2518-7139 / 042-484-3356</span>
               <span>서울시 성북구 화랑로 211 성북구 기술창업센터 105호</span>
             </div>
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 pt-1 text-sm font-medium sm:justify-start">

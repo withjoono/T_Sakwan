@@ -489,41 +489,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 py-16 text-white">
-        <div className="container mx-auto max-w-7xl px-6">
-          <div className="mb-12 grid gap-12 md:grid-cols-2">
-            <div>
-              <div className="mb-4 flex items-center space-x-3">
-                <img src="/ts-logo.png" alt="T사관" className="h-12 w-12 rounded-lg bg-white object-contain p-1" />
-                <span className="text-2xl font-bold">T사관</span>
-              </div>
-              <p className="text-sm leading-relaxed text-gray-400">
-                경찰대·사관학교 수험생을 위한 전문 학습·입시 플랫폼.
-                <br />
-                모의고사·플래너·생기부·멘토링·클래스·2차면접까지 한 곳에서.
-              </p>
-            </div>
-            <div className="grid gap-8 text-xs text-gray-400 md:grid-cols-2">
-              <div>
-                <h5 className="mb-3 font-semibold text-gray-300">거북스쿨</h5>
-                <p>대표: 강준호</p>
-                <p>사업자등록번호: 772-87-02782</p>
-                <p>소재지: 서울 성북구 화랑로 211 벤처창업센터 105</p>
-              </div>
-              <div>
-                <h5 className="mb-3 font-semibold text-gray-300">부설학원 (TS학원)</h5>
-                <p>대전지점: 대전 서구 월평동 286, 6층</p>
-                <p>연락처: 042-484-3356 / 010-2518-7139</p>
-                <p>이메일: withjuno@naver.com</p>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-            <p>&copy; 2026 T사관. 모든 권리 보유.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

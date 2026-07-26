@@ -117,6 +117,7 @@ export const PAST_EXAM_LINKS: PastExamLink[] = [
  */
 export const GRANTED_EMAILS: string[] = [
   "hhtae0423@gmail.com",
+  "alexheo1221@naver.com",
   "s@test.com",
 ]
 

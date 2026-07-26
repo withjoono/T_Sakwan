@@ -46,6 +46,8 @@ export interface SectionResult {
 export interface GradingResult {
   track: Track
   year: number
+  /** T사관 모의고사 회차(1~5). 기출 응시엔 없음 — 회차 내 등수 산출에 사용 */
+  round?: number
   elective?: ElectiveKey
   sections: SectionResult[]
   totalCorrect: number

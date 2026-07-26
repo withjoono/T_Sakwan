@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
 import Navigation from "@/components/navigation"
+import CohortPosition from "@/components/cohort-position"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/use-auth"
@@ -166,6 +167,15 @@ function ResultPageInner() {
           </div>
         </div>
       </section>
+
+      {/* 회차 내 내 위치 — T사관 모의고사 응시(회차 기록이 있는 결과)에만 노출 */}
+      {result.round ? (
+        <section className="bg-gray-50 pt-12">
+          <div className="container mx-auto max-w-5xl px-6">
+            <CohortPosition round={result.round} score={result.totalScore} />
+          </div>
+        </section>
+      ) : null}
 
       {/* 합격선 매칭 */}
       <section className="bg-gray-50 py-12">

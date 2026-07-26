@@ -376,6 +376,7 @@ function ExamPageInner() {
       const result = {
         track: "saagwan" as const,
         year,
+        round: tsagwanRound,
         elective,
         sections: secs,
         totalCorrect: secs.reduce((a, r) => a + r.correct, 0),

@@ -36,6 +36,7 @@ const mockMenu: NavItem[] = [
 
 // 모의고사 분석 하위 메뉴 (모고 앱에서 이식한 분석 기능)
 const mockAnalysisMenu: NavItem[] = [
+  { label: "🎖 1차 합불예측", href: "/1cha" },
   { label: "📊 성적분석", href: "/mock/score-analysis" },
   { label: "🎯 학교별 예측", href: "/mock/prediction" },
   { label: "📈 누적분석", href: "/mock/statistics" },
@@ -251,6 +252,18 @@ export default function Navigation() {
             }`}
           >
             2차면접
+          </Link>
+
+          {/* 캠페인 강조 링크 — 8/1 사관 1차 합불 예측 */}
+          <Link
+            href="/1cha"
+            className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
+              isActive("/1cha")
+                ? "bg-red-800 text-white"
+                : "bg-red-700 text-white hover:bg-red-800"
+            }`}
+          >
+            🎖 1차 합불예측
           </Link>
         </nav>
       </div>

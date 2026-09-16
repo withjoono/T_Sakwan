@@ -1,3 +1,9 @@
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  alternates: { canonical: "https://tsakwan.kr/" },
+}
+
 import { Button } from "@/components/ui/button"
 import {
   ArrowRight,

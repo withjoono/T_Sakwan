@@ -24,7 +24,7 @@
 
 워크플로는 `Sakwan`과 `Music_College`를 같은 상위 폴더에 체크아웃해 로컬 상대경로를 재현한다. Firebase 대상은 `hosting:sakwan-front`를 유지한다.
 
-**확인 시점에 공통 패키지는 Music_College에서 미커밋 상태다. 원본 패키지를 먼저 해당 원격 저장소에 커밋·푸시해야 CI가 동작한다.** 이 작업에서는 다른 저장소를 커밋하거나 푸시하지 않았다.
+공통 패키지를 Music_College의 `8b245ee0532f5a2474983feb0cc7f38b463b7a1b` 커밋으로 게시했으며, CI도 이 커밋으로 고정한다.
 
 비공개 원본 저장소를 읽는 `SATELLITE_HEADER_TOKEN`을 사용하며, 미설정이면 기존 `NODE_AUTH_TOKEN`을 사용한다. 어느 쪽이든 Music_College 저장소 읽기 권한이 필요하다. 토큰 값은 코드에 넣지 않는다. 원격 체크아웃과 실제 배포는 실행하지 않았다.
 

@@ -1,11 +1,21 @@
+import type { Metadata } from "next"
+import JsonLd from "@/components/json-ld"
+import { abs, breadcrumb, graph } from "@/lib/seo"
 import Link from "next/link";
 import { Newspaper, ArrowRight, Calendar, Tag } from "lucide-react";
 import { PromoHero, PromoSection, FinalCTA } from "../_components";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "블로그 · 사관·경찰 입시 인사이트 — T 사관",
   description:
     "육·해·공사·국간사·경찰대 진학을 위한 1차 필기·2차 면접·체력·생기부 전략 인사이트. 사관·경찰 준비에 바로 쓰는 정보를 정리해 전합니다.",
+  alternates: { canonical: abs("/promo/blog") },
+  openGraph: {
+    url: abs("/promo/blog"),
+    title: "블로그 · 사관·경찰 입시 인사이트 — T 사관",
+    description:
+      "육·해·공사·국간사·경찰대 진학을 위한 1차 필기·2차 면접·체력·생기부 전략 인사이트. 사관·경찰 준비에 바로 쓰는 정보를 정리해 전합니다.",
+  },
 };
 
 interface BlogPost {
@@ -88,6 +98,8 @@ export default function PromoBlogPage() {
   const rest = POSTS.filter((p) => p !== featured);
 
   return (
+    <>
+      <JsonLd data={graph(breadcrumb([["홈", "/"], ["T 사관 소개", "/promo"], ["블로그", "/promo/blog"]]))} />
     <main>
       <PromoHero
         badge="블로그 · 사관·경찰 입시 인사이트"
@@ -192,5 +204,6 @@ export default function PromoBlogPage() {
         primaryLabel="모의고사 체험하기"
       />
     </main>
+    </>
   );
 }

@@ -1,3 +1,6 @@
+import type { Metadata } from "next"
+import JsonLd from "@/components/json-ld"
+import { abs, breadcrumb, graph } from "@/lib/seo"
 import Link from "next/link";
 import {
   ArrowRight,
@@ -16,10 +19,17 @@ import {
   Rocket,
 } from "lucide-react";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "T 사관 — 사관학교·경찰대 진학 전문 포털",
   description:
     "육·해·공군 사관학교, 국군간호사관학교, 경찰대 합격을 위한 특화 플랫폼. 전용 모의고사·과거 합격선, 체력·2차 면접 대비, 합격생 1:1 멘토링, 생기부 진단까지 한 곳에서.",
+  alternates: { canonical: abs("/promo") },
+  openGraph: {
+    url: abs("/promo"),
+    title: "T 사관 — 사관학교·경찰대 진학 전문 포털",
+    description:
+      "육·해·공군 사관학교, 국군간호사관학교, 경찰대 합격을 위한 특화 플랫폼. 전용 모의고사·과거 합격선, 체력·2차 면접 대비, 합격생 1:1 멘토링, 생기부 진단까지 한 곳에서.",
+  },
 };
 
 const VALUE_PROPS = [
@@ -112,6 +122,8 @@ const READY = [
 
 export default function PromoPage() {
   return (
+    <>
+      <JsonLd data={graph(breadcrumb([["홈", "/"], ["T 사관 소개", "/promo"]]))} />
     <main>
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#A5141B] via-[#C81E27] to-[#E0453E] text-white">
@@ -323,5 +335,6 @@ export default function PromoPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

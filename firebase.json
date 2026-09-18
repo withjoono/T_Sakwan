@@ -1,9 +1,13 @@
 {
   "hosting": {
-    "site": "sakwan-front",
     "public": "out",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "cleanUrls": true,
-    "trailingSlash": false
+    "trailingSlash": false,
+    "target": "sakwan-front"
   }
 }

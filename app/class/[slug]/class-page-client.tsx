@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
+import Link from "next/link"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, ChevronDown, Dumbbell, MessagesSquare, ScrollText, Trophy, Users } from "lucide-react"
+import { Calendar, Dumbbell, MessagesSquare, ScrollText, Trophy, Users } from "lucide-react"
 import type { ClassData } from "./page"
 
 const accentMap: Record<string, { bg: string; text: string; border: string; btn: string; soft: string }> = {
@@ -17,9 +18,14 @@ const accentMap: Record<string, { bg: string; text: string; border: string; btn:
 
 type TabKey = "schedule" | "subject" | "fitness" | "interview" | "physical"
 
-export default function ClassPageClient({ data }: { data: ClassData }) {
+export default function ClassPageClient({ data, panels, sourceDoc, updated, uncertain }: {
+  data: ClassData
+  panels: Record<TabKey, ReactNode>
+  sourceDoc: string
+  updated: string
+  uncertain: string[]
+}) {
   const [tab, setTab] = useState<TabKey>("schedule")
-  const [openIdx, setOpenIdx] = useState<number | null>(0)
   const c = accentMap[data.accentColor]
 
   const tabs: { key: TabKey; label: string; icon: typeof Calendar }[] = [
@@ -28,11 +34,7 @@ export default function ClassPageClient({ data }: { data: ClassData }) {
     { key: "fitness", label: "체력검정", icon: Dumbbell },
     { key: "interview", label: "면접", icon: Users },
   ]
-  if (data.physical) tabs.push({ key: "physical", label: "신체 기준", icon: Trophy })
-
-  const maxCut = Math.max(...data.cutoffs.map((c) => c.cut))
-  const minCut = Math.min(...data.cutoffs.map((c) => c.cut))
-  const range = maxCut - minCut || 1
+  tabs.push({ key: "physical", label: "신체 기준", icon: Trophy })
 
   return (
     <div className="min-h-screen bg-white">
@@ -88,109 +90,24 @@ export default function ClassPageClient({ data }: { data: ClassData }) {
             ))}
           </div>
 
-          {/* 탭 내용 */}
-          {tab === "schedule" && (
-            <div className="space-y-3">
-              {data.schedule.map((s, i) => (
-                <div key={s.phase} className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className={`flex h-8 w-8 items-center justify-center rounded-full ${c.bg} text-sm font-black text-white`}>
-                      {i + 1}
-                    </span>
-                    <span className="font-bold text-gray-900">{s.phase}</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-700">{s.date}</span>
-                </div>
-              ))}
+          {/* 서버에서 생성한 표를 전달받아 모든 탭의 본문을 정적 HTML에 포함한다. */}
+          {tabs.map((item) => (
+            <div key={item.key} hidden={tab !== item.key} className="space-y-4 text-sm leading-relaxed">
+              {panels[item.key]}
             </div>
+          ))}
+          {uncertain.length > 0 && (
+            <aside className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+              <h3 className="font-bold">요강 확인이 필요한 사항</h3>
+              <ul className="mt-2 list-disc space-y-2 pl-5">
+                {uncertain.map((note) => <li key={note}>{note}</li>)}
+              </ul>
+            </aside>
           )}
-
-          {tab === "subject" && (
-            <div className="grid gap-3 md:grid-cols-2">
-              {data.subjects.map((s) => (
-                <Card key={s.name} className="border-gray-200">
-                  <CardHeader className="pb-2">
-                    <CardTitle className={`text-base ${c.text}`}>{s.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-700">{s.detail}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {tab === "fitness" && (
-            <div className="space-y-3">
-              {data.fitness.map((f) => (
-                <div key={f.name} className={`rounded-xl border-2 ${c.border} ${c.soft} p-4`}>
-                  <div className="font-bold text-gray-900">{f.name}</div>
-                  <div className="mt-1 text-sm text-gray-700">{f.standard}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {tab === "interview" && (
-            <div className="space-y-3">
-              {data.interview.map((i, idx) => {
-                const open = openIdx === idx
-                return (
-                  <div key={i.name} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                    <button
-                      onClick={() => setOpenIdx(open ? null : idx)}
-                      className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-gray-50"
-                    >
-                      <span className="font-bold text-gray-900">{i.name}</span>
-                      <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
-                    </button>
-                    {open && (
-                      <div className="border-t border-gray-100 bg-gray-50/50 px-5 py-4 text-sm text-gray-700">{i.detail}</div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {tab === "physical" && data.physical && (
-            <div className="space-y-3">
-              {data.physical.map((p) => (
-                <div key={p.name} className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                  <div className="font-bold text-gray-900">{p.name}</div>
-                  <div className="mt-1 text-sm text-gray-700">{p.detail}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 합격 컷 추이 */}
-      <section className="bg-gradient-to-b from-white to-gray-50 py-16">
-        <div className="container mx-auto max-w-5xl px-6">
-          <h2 className="mb-2 text-2xl font-bold text-gray-900">합격선 추이 (최근 5년)</h2>
-          <p className="mb-6 text-sm text-gray-500">예시 데이터 — 실제 합격선은 모집요강 기준.</p>
-
-          <Card>
-            <CardContent className="p-8">
-              <div className="flex h-56 items-end gap-3">
-                {data.cutoffs.map((cut) => {
-                  const h = ((cut.cut - minCut) / range) * 70 + 30
-                  return (
-                    <div key={cut.year} className="flex flex-1 flex-col items-center gap-2">
-                      <div className="text-xs font-bold text-gray-700">{cut.cut}</div>
-                      <div
-                        className={`w-full rounded-t-lg ${c.bg} transition-all`}
-                        style={{ height: `${h}%` }}
-                      />
-                      <div className="text-xs text-gray-500">{cut.year}</div>
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <p className="mt-6 text-sm text-gray-600">출처: {sourceDoc} · 자료 확인일 {updated}</p>
+          <Link href={`/admission/${data.slug}`} className="mt-2 inline-block text-sm font-semibold underline">
+            {data.name} 모집인원·배점·요강 전체 안내 보기
+          </Link>
         </div>
       </section>
 

@@ -1,272 +1,51 @@
 "use client"
 
-import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { SatelliteHeader, type HeaderLinkProps, type HeaderGroup } from "@tskool/satellite-header"
 import { useAuth } from "@/lib/use-auth"
-import { EcosystemHeader } from "geobuk-shared/ui"
-import { ChevronDown, Compass, Home } from "lucide-react"
+import { contentNav, preparationGroups } from "@/lib/header-navigation"
 
 const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || "https://tskool.kr"
 
-// 1단(허브 공유 유틸 바)의 링크 — tsusi.kr 과 동일한 Hub 경로 규칙을 따른다.
-const HUB_UTILITY_URLS = {
-  products: `${HUB_URL}/products`,
-  notifications: `${HUB_URL}/notifications`,
-  accountLinkage: `${HUB_URL}/account-linkage`,
-  profile: `${HUB_URL}/users/profile`,
-  payment: `${HUB_URL}/users/payment`,
-}
-
-type NavItem = { label: string; href: string }
-
-const mainMenu: NavItem[] = [
-  { label: "플래너", href: "/planner" },
-  { label: "생기부 관리", href: "/sanggibu" },
-  { label: "멘토링", href: "/mentoring" },
-]
-
-// 사관/경찰 모의 하위 메뉴 (응시 관련만 — 분석은 별도 '분석' 드롭다운)
-const mockMenu: NavItem[] = [
-  { label: "모의고사 홈", href: "/mock" },
-  { label: "📚 기출 모의고사", href: "/mock/past" },
-  { label: "✨ T사관 모의고사", href: "/mock/tsagwan" },
-  { label: "📥 문제집 다운로드", href: "/mock/tsagwan/download" },
-  { label: "✍️ 채점하기", href: "/mock/grade" },
-]
-
-// 모의고사 분석 하위 메뉴 (모고 앱에서 이식한 분석 기능)
-const mockAnalysisMenu: NavItem[] = [
-  { label: "🎖 1차 합불예측", href: "/1cha" },
-  { label: "📊 성적분석", href: "/mock/score-analysis" },
-  { label: "🎯 학교별 예측", href: "/mock/prediction" },
-  { label: "📈 누적분석", href: "/mock/statistics" },
-  { label: "🔍 취약분석", href: "/mock/weakness" },
-  { label: "📝 오답노트", href: "/mock/wrong-answers" },
-]
-
-const classMenu: NavItem[] = [
-  { label: "🟢 육사반", href: "/class/army" },
-  { label: "🔷 공사반", href: "/class/airforce" },
-  { label: "🔵 해사반", href: "/class/navy" },
-  { label: "🏥 국간사반", href: "/class/nursing" },
-  { label: "👮 경찰대반", href: "/class/police" },
-]
-
-// 인트로 = 사관 전체 프로모 페이지 모음
-const promoCore: NavItem[] = [
-  { label: "메인", href: "/" },
-  { label: "사관/경찰 모의", href: "/mock" },
-  { label: "플래너", href: "/planner" },
-  { label: "생기부 관리", href: "/sanggibu" },
-  { label: "멘토링", href: "/mentoring" },
-  { label: "2차면접", href: "/interview" },
-]
-
 export default function Navigation() {
   const pathname = usePathname()
-  const { user, isAuthenticated, logout, loginUrl } = useAuth()
-
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/"
-    return pathname.startsWith(href)
+  const { user, isAuthenticated, isLoading, logout, loginUrl } = useAuth()
+  const accountGroup: HeaderGroup = {
+    id: "account", label: "사용자별", title: isAuthenticated ? `${user?.userName || "회원"}님의 T사관` : "학생·학부모·선생님과 함께 준비",
+    description: "T스쿨 공통 계정으로 로그인하고 준비 상황을 함께 확인하세요.",
+    guide: { label: isAuthenticated ? "내 프로필" : "T스쿨 로그인", href: isAuthenticated ? `${HUB_URL}/users/profile` : loginUrl },
+    tools: [
+      { title: "수험생 학습", description: "나의 학습 계획을 관리합니다.", app: "T사관", url: "/planner" },
+      { title: "학부모·선생님 계정연동", description: "T스쿨에서 학생 계정과 연결합니다.", app: "T스쿨", url: `${HUB_URL}/account-linkage` },
+      { title: "내 프로필", description: "공통 계정 정보를 확인합니다.", app: "T스쿨", url: `${HUB_URL}/users/profile` },
+      { title: "결제 내역", description: "구매한 이용권과 결제 내역을 확인합니다.", app: "T스쿨", url: `${HUB_URL}/users/payment` },
+    ],
   }
-
-  const isClassActive = pathname.startsWith("/class/")
-  const isAnalysisActive = mockAnalysisMenu.some((m) => pathname.startsWith(m.href))
-  const isMockActive = pathname.startsWith("/mock") && !isAnalysisActive
-
-  return (
-    <EcosystemHeader
-      hubUrl={HUB_URL}
-      utility={{
-        // 1단(허브 공유 바) — 로그인/유저 드롭다운은 tsusi.kr 과 동일한 UtilityNav 가 담당.
-        // 인증 로직은 기존 Sakwan Hub SSO(useAuth)를 그대로 사용.
-        isLoggedIn: isAuthenticated,
-        user: user ? { nickname: user.userName } : undefined,
-        onLogout: () => {
-          logout()
-          window.location.href = HUB_URL
-        },
-        urls: {
-          ...HUB_UTILITY_URLS,
-          login: loginUrl,
-        },
-      }}
-    >
-      {/* ━━━ 2단: T사관 앱 고유 네비게이션 ━━━ */}
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between max-w-7xl">
-        {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-2">
-          <img src="/ts-logo.png" alt="T사관" className="h-10 w-10 object-contain" />
-          <span className="text-xl font-bold text-gray-900">T사관</span>
-        </Link>
-
-        {/* 메인 메뉴 */}
-        <nav className="hidden lg:flex items-center space-x-5">
-          {/* 인트로 — 사관 전체 프로모 페이지 드롭다운 */}
-          <div className="relative group">
-            <button
-              title="인트로 — 전체 프로모"
-              aria-label="인트로 — 전체 프로모 페이지"
-              className="flex items-center text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              <Compass className="h-5 w-5" />
-              <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
-            </button>
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                사관 프로모
-              </div>
-              {promoCore.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="mt-1 border-t border-gray-100 px-4 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                클래스
-              </div>
-              {classMenu.map((item, idx) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 ${
-                    idx === classMenu.length - 1 ? "rounded-b-lg" : ""
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* 홈 (기존 메인) */}
-          <Link
-            href="/"
-            title="홈"
-            aria-label="홈"
-            className={`transition-colors ${isActive("/") ? "text-red-700" : "text-gray-500 hover:text-gray-900"}`}
-          >
-            <Home className="h-5 w-5" />
-          </Link>
-
-          {/* 구분선 */}
-          <span className="h-5 w-px bg-gray-200" aria-hidden="true" />
-
-          {/* 사관/경찰 모의 드롭다운 */}
-          <div className="relative group">
-            <button
-              className={`transition-colors flex items-center text-sm font-medium ${
-                isMockActive ? "text-red-700" : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              사관/경찰 모의
-              <ChevronDown className="h-4 w-4 ml-1" />
-            </button>
-            <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              {mockMenu.map((item, idx) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block px-4 py-3 text-sm hover:bg-gray-50 ${
-                    isActive(item.href) && (item.href !== "/mock" || pathname === "/mock")
-                      ? "text-red-700 font-semibold"
-                      : "text-gray-600 hover:text-gray-900"
-                  } ${idx === 0 ? "rounded-t-lg" : ""} ${idx === mockMenu.length - 1 ? "rounded-b-lg" : ""}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* 모의고사 분석 드롭다운 */}
-          <div className="relative group">
-            <button
-              className={`transition-colors flex items-center text-sm font-medium ${
-                isAnalysisActive ? "text-red-700" : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              분석
-              <ChevronDown className="h-4 w-4 ml-1" />
-            </button>
-            <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              {mockAnalysisMenu.map((item, idx) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block px-4 py-3 text-sm hover:bg-gray-50 ${
-                    isActive(item.href) ? "text-red-700 font-semibold" : "text-gray-600 hover:text-gray-900"
-                  } ${idx === 0 ? "rounded-t-lg" : ""} ${idx === mockAnalysisMenu.length - 1 ? "rounded-b-lg" : ""}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {mainMenu.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`transition-colors text-sm font-medium ${
-                isActive(item.href) ? "text-red-700" : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-
-          {/* 클래스 드롭다운 */}
-          <div className="relative group">
-            <button
-              className={`transition-colors flex items-center text-sm font-medium ${
-                isClassActive ? "text-red-700" : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              클래스
-              <ChevronDown className="h-4 w-4 ml-1" />
-            </button>
-            <div className="absolute top-full left-0 mt-2 w-44 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              {classMenu.map((item, idx) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block px-4 py-3 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 ${
-                    idx === 0 ? "rounded-t-lg" : ""
-                  } ${idx === classMenu.length - 1 ? "rounded-b-lg" : ""}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <Link
-            href="/interview"
-            className={`transition-colors text-sm font-medium ${
-              isActive("/interview") ? "text-red-700" : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            2차면접
-          </Link>
-
-          {/* 캠페인 강조 링크 — 8/1 사관 1차 합불 예측 */}
-          <Link
-            href="/1cha"
-            className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
-              isActive("/1cha")
-                ? "bg-red-800 text-white"
-                : "bg-red-700 text-white hover:bg-red-800"
-            }`}
-          >
-            🎖 1차 합불예측
-          </Link>
-        </nav>
-      </div>
-    </EcosystemHeader>
-  )
+  // 패키지의 링크 어댑터에서 기존 SSO 로그아웃 동작을 연결한다.
+  function HeaderLink({ href, onClick, children, ...props }: HeaderLinkProps) {
+    if (href === "#sakwan-logout") return <a {...props} href={href} onClick={event => {
+      event.preventDefault()
+      onClick?.(event)
+      logout()
+      window.location.assign(HUB_URL)
+    }}>{children}</a>
+    if (/^https?:\/\//.test(href)) return <a {...props} href={href} onClick={onClick}>{children}</a>
+    return <Link {...props} href={href} onClick={onClick}>{children}</Link>
+  }
+  return <SatelliteHeader
+    brand={{ name: "T사관", suffix: "사관", caption: "사관학교·경찰대 입시 준비", logoSrc: "/logo.png?v=2" }}
+    pathname={pathname}
+    LinkComponent={HeaderLink}
+    groups={[...preparationGroups, accountGroup]}
+    nav={[...contentNav, { label: isLoading ? "계정 확인 중" : isAuthenticated ? "로그아웃" : "로그인", href: isAuthenticated ? "#sakwan-logout" : loginUrl }]}
+    utilities={{
+      productsUrl: `${HUB_URL}/products`,
+      loginUrl,
+      accountLinkageUrl: `${HUB_URL}/account-linkage`,
+      notifications: <><p>T스쿨에 로그인한 뒤 상단 알림 메뉴에서 개인 알림을 확인하세요.</p><a className="utility-action" href={HUB_URL} target="_blank" rel="noopener noreferrer">T스쿨로 이동 (새 탭)</a></>,
+      shareTitle: "사관학교·경찰대 준비, 함께 보기",
+      shareDescription: "현재 입시 정보를 공유하거나 학부모·선생님 계정과 연결하세요.",
+    }}
+  />
 }

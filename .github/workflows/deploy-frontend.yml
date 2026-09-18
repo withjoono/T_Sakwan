@@ -4,11 +4,34 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Sakwan
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: Sakwan
+
+      # 로컬 link:../Music_College/packages/satellite-header와 같은 디렉터리 구조.
+      # 공통 패키지는 Music_College 원격 저장소에 먼저 커밋·푸시해야 한다.
+      - name: Checkout shared satellite header
+        uses: actions/checkout@v4
+        with:
+          repository: withjoono/Music_College
+          ref: 8b245ee0532f5a2474983feb0cc7f38b463b7a1b
+          path: Music_College
+          token: ${{ secrets.SATELLITE_HEADER_TOKEN || secrets.NODE_AUTH_TOKEN }}
+          sparse-checkout: packages/satellite-header
+
+      - name: Verify shared header source
+        run: test -f ../Music_College/packages/satellite-header/package.json
 
       - uses: pnpm/action-setup@v4
         with:
@@ -18,17 +41,22 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+          cache-dependency-path: Sakwan/pnpm-lock.yaml
 
       # @withjoono/geobuk-shared 는 GitHub Packages 비공개 패키지 → 토큰 없으면 401.
       # pnpm 10 은 프로젝트 .npmrc 의 registry 자격증명을 확장하지 않으므로 user-level 에 기록한다.
       - name: Authenticate to GitHub Packages
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" >> ~/.npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        env:
+          # 공개 HTML 메타 태그 값. 저장소 Actions Variables에 등록한다.
+          NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          NEXT_PUBLIC_NAVER_SITE_VERIFICATION: ${{ vars.NEXT_PUBLIC_NAVER_SITE_VERIFICATION }}
         run: pnpm build
 
       - name: Deploy to Firebase Hosting
-        run: npx firebase-tools deploy --only hosting --project=ts-front-479305 --token "${{ secrets.FIREBASE_TOKEN }}"
+        run: npx firebase-tools deploy --only hosting:sakwan-front --project=ts-front-479305 --token "${{ secrets.FIREBASE_TOKEN }}"

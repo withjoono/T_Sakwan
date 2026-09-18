@@ -16,6 +16,21 @@ import {
 } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Link from "next/link"
+import type { Metadata } from "next"
+import { abs } from "@/lib/seo"
+
+export const metadata: Metadata = {
+  title: "T사관 — 사관학교·경찰대 입시 플랫폼 | 모의고사·플래너·생기부",
+  description:
+    "육·해·공군 사관학교, 국군간호사관학교, 경찰대 수험생 전문 플랫폼. 전용 OMR로 응시하면 즉시 채점되고 과거 합격자 성적 DB와 바로 비교됩니다. 스터디플래너·모고·생기북 3개 앱으로 매일 학습량을 경쟁하고, 합격생 멘토가 주 1회 화상으로 관리합니다.",
+  alternates: { canonical: abs("/") },
+  openGraph: {
+    url: abs("/"),
+    title: "T사관 — 사관학교·경찰대 입시 플랫폼",
+    description:
+      "전용 OMR 모의고사·과거 합격선 매칭, 반별 학습량 경쟁 플래너, 생기부 AI 진단, 합격생 1:1 멘토링.",
+  },
+}
 
 type Tone = {
   tint: string

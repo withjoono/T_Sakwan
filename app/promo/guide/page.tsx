@@ -1,3 +1,6 @@
+import type { Metadata } from "next"
+import JsonLd from "@/components/json-ld"
+import { abs, breadcrumb, graph } from "@/lib/seo"
 import Link from "next/link";
 import {
   BookOpen,
@@ -21,10 +24,17 @@ import {
   FinalCTA,
 } from "../_components";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "사용법 가이드 — T 사관",
   description:
     "가입 → 목표 학교 선택 → 1차 필기·생기부 준비 → 2차 면접·체력 대비 → 멘토링·모의고사 활용까지. 사관·경찰 진학 준비를 순서대로 안내합니다.",
+  alternates: { canonical: abs("/promo/guide") },
+  openGraph: {
+    url: abs("/promo/guide"),
+    title: "사용법 가이드 — T 사관",
+    description:
+      "가입 → 목표 학교 선택 → 1차 필기·생기부 준비 → 2차 면접·체력 대비 → 멘토링·모의고사 활용까지. 사관·경찰 진학 준비를 순서대로 안내합니다.",
+  },
 };
 
 /** 빠른 시작 단계 */
@@ -115,6 +125,8 @@ const FAQ = [
 
 export default function PromoGuidePage() {
   return (
+    <>
+      <JsonLd data={graph(breadcrumb([["홈", "/"], ["T 사관 소개", "/promo"], ["사용법 가이드", "/promo/guide"]]))} />
     <main>
       <PromoHero
         badge="사용법 가이드"
@@ -201,5 +213,6 @@ export default function PromoGuidePage() {
         primaryLabel="모의고사 체험하기"
       />
     </main>
+    </>
   );
 }

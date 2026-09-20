@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -121,43 +122,11 @@ export default function MentoringPage() {
   const filtered = filter === "all" ? MENTORS : MENTORS.filter((m) => m.cls === filter)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-teal-800 to-slate-900 py-20">
-        <div className="container relative mx-auto max-w-7xl px-6 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-400/20 px-4 py-2">
-            <MessagesSquare className="h-4 w-4 text-emerald-100" />
-            <span className="text-sm font-semibold text-emerald-100">사관 멘토링</span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            사관에 합격한 롤모델 선배가,
-            <br />
-            <span className="bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent">
-              매주 직접 관리합니다.
-            </span>
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-emerald-100">
-            T스쿨 스터디플래너·모고·생기북 앱으로, 합격생 멘토가 학습부터 체력·상담까지 한 명의 수험생을 책임지고 끌고 갑니다.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <a href="#pricing">
-              <Button className="rounded-lg bg-amber-500 px-8 py-6 text-lg font-bold text-white hover:bg-amber-600">
-                멘토링 신청하기
-              </Button>
-            </a>
-            <a href="#program">
-              <Button
-                variant="outline"
-                className="rounded-lg border-2 border-white/20 bg-transparent px-8 py-6 text-lg font-semibold text-white hover:bg-white/10"
-              >
-                관리 프로그램 보기
-              </Button>
-            </a>
-          </div>
-        </div>
-      </section>
+      <PageIntro eyebrow="TOGETHER, FORWARD" title="준비의 방향을 함께 찾습니다." description="목표 학교와 나의 상황에 맞는 학습·입시 준비를 상담하세요." />
 
       {/* 멘토란 */}
       <section className="border-b border-gray-100 bg-white py-16">
@@ -413,7 +382,7 @@ export default function MentoringPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-emerald-700 to-slate-900 py-16 text-center">
+      <section className="feature-cta bg-gradient-to-br from-emerald-700 to-slate-900 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <h2 className="mb-4 text-3xl font-bold text-white">합격생 멘토가 직접 관리합니다</h2>
           <p className="mb-8 text-lg text-emerald-100">

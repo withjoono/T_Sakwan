@@ -1,3 +1,4 @@
+import { GuideToc } from "./guide-toc"
 import type { Metadata } from "next"
 import Link from "next/link"
 import JsonLd from "@/components/json-ld"
@@ -85,13 +86,14 @@ export default function AdmissionHubPage() {
 
       <AdmissionHero
         badge={`${SITE_NAME} 입시 총정리`}
-        title="2027 사관학교·경찰대 전형 안내, 요강 원문 그대로"
+        title="목표는 선명하게, 준비는 정확하게."
         lead="육군·해군·공군사관학교, 국군간호사관학교, 경찰대학의 2027학년도 전형을 대학별로 정리했습니다. 이 페이지의 모든 숫자는 각 학교가 공표한 모집요강 원문에서 직접 가져왔습니다."
         updated={ADMISSION_UPDATED}
       />
 
       <SchoolSwitcher />
 
+      <div className="guide-layout"><aside className="guide-rail"><GuideToc items={TOC} /></aside><div className="guide-body">
       <Section id="same-day" title="먼저 알아야 할 것 — 8월 1일, 다섯 곳이 같은 날 시험을 봅니다">
         <AlertBox tone="warn" title={SIMULTANEOUS_EXAM.headline}>
           <p>{SIMULTANEOUS_EXAM.detail}</p>
@@ -104,7 +106,7 @@ export default function AdmissionHubPage() {
             합니다.
           </p>
         </AlertBox>
-        <Toc items={TOC} />
+
       </Section>
 
       <Section
@@ -118,10 +120,10 @@ export default function AdmissionHubPage() {
             <Link
               key={s.slug}
               href={`/admission/${s.slug}`}
-              className="group rounded-2xl border bg-card p-5 transition-colors hover:border-primary"
+              className="admission-school-card group"
             >
               <div className="flex items-baseline gap-2">
-                <span aria-hidden="true">{s.icon}</span>
+                <span className="school-code">{s.short}</span>
                 <h3 className="text-lg font-bold text-foreground group-hover:text-primary">{s.name}</h3>
                 <span className="text-xs text-muted-foreground">{s.cohort}</span>
               </div>
@@ -215,6 +217,7 @@ export default function AdmissionHubPage() {
 
       <SchoolSwitcher />
 
+      </div></div>
       <SourceNote sourceDoc={SOURCE_LINE.replace("출처: ", "")} updated={ADMISSION_UPDATED} disclaimer={DISCLAIMER} />
     </>
   )

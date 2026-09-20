@@ -13,12 +13,12 @@ export function SiteFooter() {
   if (pathname.startsWith("/promo")) return null
 
   return (
-    <footer className="border-t border-gray-200 bg-gray-50 py-6 sm:py-8">
+    <footer className="site-footer border-t border-border bg-background py-10 sm:py-12">
       <div className="mx-auto w-full max-w-5xl px-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-10">
           {/* 좌측: 헤더 메뉴와 동일한 로고 + T사관 */}
           <Link href="/" className="flex items-center justify-center gap-2 sm:justify-start">
-            <img src="/ts-logo.png" alt="T사관" className="h-10 w-10 object-contain" />
+            <img src="/logo.png?v=2" alt="T사관" className="h-10 w-10 object-contain" />
             <span className="text-lg font-bold text-gray-900">T사관</span>
           </Link>
 

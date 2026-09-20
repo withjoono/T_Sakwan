@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -54,27 +55,11 @@ export default function MockHubPage() {
   )
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-800 via-red-900 to-slate-900 py-16">
-        <div className="container relative mx-auto max-w-5xl px-6 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
-            <Trophy className="h-4 w-4 text-amber-200" />
-            <span className="text-sm font-semibold text-amber-100">T사관 모의고사</span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            응시하고,{" "}
-            <span className="bg-gradient-to-r from-amber-300 to-red-300 bg-clip-text text-transparent">
-              바로 합격선까지.
-            </span>
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-red-100">
-            실제 기출로 실전 채점하거나, T사관이 직접 만든 실전 모의로 전국 석차를 확인하세요. 어떤 걸로 시작할까요?
-          </p>
-        </div>
-      </section>
+      <PageIntro eyebrow="PRACTICE & REVIEW" title="실전에 가까워지는 한 회차." description="기출과 T사관 모의고사로 응시하고, 채점부터 오답까지 한 흐름으로 확인하세요." />
 
       {/* 두 갈래 진입 카드 */}
       <section className="bg-white py-14">
@@ -82,11 +67,11 @@ export default function MockHubPage() {
           <div className="grid gap-5 md:grid-cols-2">
             {/* 기출 */}
             <Link href="/mock/past" className="group">
-              <div className="relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-red-700 to-red-900 p-7 text-white transition-all group-hover:-translate-y-1 group-hover:shadow-2xl">
+              <div className="relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-2xl bg-[#203b55] p-7 text-white transition-all group-hover:-translate-y-1 group-hover:shadow-lg">
                 <div>
-                  <BookOpen className="mb-3 h-8 w-8 text-red-200" />
+                  <BookOpen className="mb-3 h-8 w-8 text-slate-200" />
                   <div className="text-2xl font-black">기출 모의고사</div>
-                  <p className="mt-1.5 max-w-xs text-sm text-red-100">
+                  <p className="mt-1.5 max-w-xs text-sm text-slate-200">
                     2022–2026 사관·경찰 실제 기출을 OMR로 응시 → 자동 채점 → 작년 합격선 매칭까지 즉시.
                   </p>
                 </div>
@@ -99,16 +84,16 @@ export default function MockHubPage() {
 
             {/* T사관 모의 */}
             <Link href="/mock/tsagwan" className="group">
-              <div className="relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-orange-800 p-7 text-white transition-all group-hover:-translate-y-1 group-hover:shadow-2xl">
+              <div className="relative flex h-full min-h-[210px] flex-col justify-between overflow-hidden rounded-2xl bg-[#3d514d] p-7 text-white transition-all group-hover:-translate-y-1 group-hover:shadow-lg">
                 <div>
                   <Sparkles className="mb-3 h-8 w-8 text-amber-200" />
                   <div className="text-2xl font-black">T사관 모의고사</div>
-                  <p className="mt-1.5 max-w-xs text-sm text-orange-100">
-                    T사관이 직접 출제한 신유형 실전 모의. 7월 총 5회, 전국 석차·취약 리포트 제공.
+                  <p className="mt-1.5 max-w-xs text-sm text-stone-200">
+                    T사관이 직접 출제한 실전 모의고사. 회차별 문제와 채점·분석을 한곳에서 확인하세요.
                   </p>
                 </div>
                 <div className="mt-5 flex items-center justify-between">
-                  <span className="rounded-full bg-amber-400/25 px-3 py-1 text-xs font-bold text-amber-100">D-4 · 1회 7/11</span>
+                  <span className="rounded-full bg-amber-400/25 px-3 py-1 text-xs font-bold text-amber-100">회차별 모의고사</span>
                   <span className="flex items-center gap-1 text-sm font-bold">일정·신청 보기 <ArrowRight className="h-4 w-4" /></span>
                 </div>
               </div>
@@ -123,13 +108,13 @@ export default function MockHubPage() {
           <div className="mx-auto flex max-w-md rounded-xl bg-white p-1 shadow-sm">
             <button
               onClick={() => setTrack("saagwan")}
-              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "saagwan" ? "bg-red-700 text-white shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "saagwan" ? "bg-[#203b55] text-white shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
             >
               사관학교
             </button>
             <button
               onClick={() => setTrack("police")}
-              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "police" ? "bg-red-700 text-white shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+              className={`flex-1 rounded-lg px-6 py-3 text-sm font-bold transition-all ${track === "police" ? "bg-[#203b55] text-white shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
             >
               경찰대
             </button>
@@ -320,7 +305,7 @@ export default function MockHubPage() {
       </section>
 
       {/* 최종 CTA */}
-      <section className="bg-gradient-to-br from-slate-900 to-red-950 py-16 text-center">
+      <section className="feature-cta bg-gradient-to-br from-slate-900 to-red-950 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <h2 className="mb-4 text-3xl font-bold text-white">기출 응시는 지금, 모의고사는 7월 5회</h2>
           <p className="mb-8 text-lg text-red-100">Sakwan에서 응시 → 즉시 채점 → 합격선 매칭까지 한 화면.</p>

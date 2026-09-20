@@ -24,12 +24,6 @@ export default function Navigation() {
   }
   // 패키지의 링크 어댑터에서 기존 SSO 로그아웃 동작을 연결한다.
   function HeaderLink({ href, onClick, children, ...props }: HeaderLinkProps) {
-    if (href === "#sakwan-logout") return <a {...props} href={href} onClick={event => {
-      event.preventDefault()
-      onClick?.(event)
-      logout()
-      window.location.assign(HUB_URL)
-    }}>{children}</a>
     if (/^https?:\/\//.test(href)) return <a {...props} href={href} onClick={onClick}>{children}</a>
     return <Link {...props} href={href} onClick={onClick}>{children}</Link>
   }
@@ -38,7 +32,8 @@ export default function Navigation() {
     pathname={pathname}
     LinkComponent={HeaderLink}
     groups={[...preparationGroups, accountGroup]}
-    nav={[...contentNav, { label: isLoading ? "계정 확인 중" : isAuthenticated ? "로그아웃" : "로그인", href: isAuthenticated ? "#sakwan-logout" : loginUrl }]}
+    nav={contentNav}
+    account={{ isAuthenticated, isLoading, userName: user?.userName, loginUrl, onLogout: () => { logout(); window.location.assign(HUB_URL); } }}
     utilities={{
       productsUrl: `${HUB_URL}/products`,
       loginUrl,

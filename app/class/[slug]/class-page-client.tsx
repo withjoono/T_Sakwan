@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import Link from "next/link"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -37,36 +38,11 @@ export default function ClassPageClient({ data, panels, sourceDoc, updated, unce
   tabs.push({ key: "physical", label: "신체 기준", icon: Trophy })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className={`relative overflow-hidden bg-gradient-to-br ${data.heroGradient} py-20`}>
-        <div className="container relative mx-auto max-w-7xl px-6">
-          <div className="flex items-center gap-2 mb-4">
-            <span className={`rounded-full ${c.bg} px-3 py-1 text-xs font-bold text-white`}>{data.badge}</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-6xl">{data.icon}</span>
-            <div>
-              <h1 className="text-4xl font-bold text-white md:text-5xl">{data.name}</h1>
-              <p className="mt-2 text-lg text-white/80">{data.shortName} · {data.tagline}</p>
-            </div>
-          </div>
-          <p className="mt-6 max-w-2xl text-base text-white/90">{data.message}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button className={`rounded-lg ${c.btn} px-6 py-5 text-base font-bold text-white`}>
-              이 반에 합류하기
-            </Button>
-            <Button
-              variant="outline"
-              className="rounded-lg border-2 border-white/30 bg-transparent px-6 py-5 text-base font-bold text-white hover:bg-white/10"
-            >
-              합격생 멘토 보기
-            </Button>
-          </div>
-        </div>
-      </section>
+      <PageIntro eyebrow={`${data.shortName} · SCHOOL CLASS`} title={`${data.name}, 함께 준비하는 길.`} description={data.message} />
 
       {/* 핵심 시험 정보 — 탭 */}
       <section className="border-b border-gray-100 bg-white py-12">

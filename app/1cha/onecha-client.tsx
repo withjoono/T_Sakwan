@@ -14,6 +14,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -156,31 +157,11 @@ export default function OneChaPage() {
   const maxCount = Math.max(...bins.map((b) => b.count), 1)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-slate-900 py-16">
-        <div className="container relative mx-auto max-w-5xl px-6">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
-            <Target className="h-4 w-4 text-amber-200" />
-            <span className="text-sm font-semibold text-amber-100">
-              {THIS_YEAR} 사관 1차 합불 예측
-              {dday !== null && dday > 0 ? ` · 시험 D-${dday}` : dday === 0 ? " · 오늘 시험" : " · 채점 중"}
-            </span>
-          </div>
-          <h1 className="mb-3 text-4xl font-bold text-white md:text-5xl">
-            내 점수로,{" "}
-            <span className="bg-gradient-to-r from-amber-300 to-red-300 bg-clip-text text-transparent">
-              올해 합격할 수 있을까?
-            </span>
-          </h1>
-          <p className="max-w-2xl text-lg text-red-100">
-            1차 합격은 원점수가 아니라 <b className="text-white">환산점수(표준점수)</b>로 갈립니다. 가채점 원점수를
-            넣으면 모집요강 산식 그대로 환산해, 지원 모집단위의 예상 합격선까지 몇 점 남았는지 알려드립니다.
-          </p>
-        </div>
-      </section>
+      <PageIntro eyebrow="FIRST ROUND PREDICTION" title="내 성적에서, 다음 가능성까지." description="학교와 성적을 입력하고 1차 예측 결과를 확인하세요. 예측은 지원 판단을 위한 참고 자료입니다." />
 
       {/* STEP 1 · 입력 */}
       <section className="border-b border-gray-100 bg-gray-50 py-12">

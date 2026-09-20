@@ -60,7 +60,7 @@ export default function PastExamPage() {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-slate-900 py-16">
+      <section className="workspace-hero relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-slate-900 py-16">
         <div className="container relative mx-auto max-w-5xl px-6">
           <Link href="/mock" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-red-200 hover:text-white">
             <ArrowLeft className="h-4 w-4" /> 모의고사 홈

@@ -90,7 +90,7 @@ function ResultPageInner() {
       <Navigation />
 
       {/* Hero — 총점 */}
-      <section className="bg-gradient-to-br from-red-700 via-red-800 to-slate-900 py-16 text-center">
+      <section className="workspace-hero bg-gradient-to-br from-red-700 via-red-800 to-slate-900 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-1.5">
             <Award className="h-4 w-4 text-amber-200" />

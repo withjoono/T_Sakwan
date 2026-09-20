@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import "@tskool/satellite-header/styles.css"
+import "./design-system.css"
 import { DomainRedirect } from "./domain-redirect"
 import { SiteFooter } from "@/components/site-footer"
 import JsonLd from "@/components/json-ld"
@@ -78,7 +79,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${inter.variable} antialiased`}>
-      <body className="font-sans">
+      <body className="font-sans sakwan-app">
         <JsonLd data={graph(ORGANIZATION, WEBSITE)} />
         <DomainRedirect />
         {children}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -93,28 +94,11 @@ export default function InterviewPage() {
   const [checkDay, setCheckDay] = useState<boolean[]>(CHECKLIST.day.map(() => false))
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-amber-900 to-red-900 py-20">
-        <div className="container relative mx-auto max-w-7xl px-6 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
-            <Users className="h-4 w-4 text-amber-200" />
-            <span className="text-sm font-semibold text-amber-100">2차 면접 대비</span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            1차 합격은 시작입니다.
-            <br />
-            <span className="bg-gradient-to-r from-amber-300 to-red-300 bg-clip-text text-transparent">
-              면접에서 갈립니다.
-            </span>
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-amber-100">
-            4단계 면접 구조 + 학교별 비교표 + 빈출 질문 100선 + 합격생 모의면접까지.
-          </p>
-        </div>
-      </section>
+      <PageIntro eyebrow="INTERVIEW PREPARATION" title="나의 이야기가 답변이 되도록." description="지원 동기와 학교생활, 국가관까지. 2차 면접을 차근차근 준비하세요." />
 
       {/* 4단계 타임라인 */}
       <section className="bg-gradient-to-b from-white to-gray-50 py-16">
@@ -298,7 +282,7 @@ export default function InterviewPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-amber-700 to-red-900 py-16 text-center">
+      <section className="feature-cta bg-gradient-to-br from-amber-700 to-red-900 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <h2 className="mb-4 text-3xl font-bold text-white">면접, 합격생과 함께 준비하세요</h2>
           <p className="mb-8 text-lg text-amber-100">합격생 모의면접 1회 무료. 사전 신청자 우선.</p>

@@ -70,7 +70,7 @@ function CheckoutInner() {
       <Navigation />
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-slate-900 to-orange-900 py-10">
+      <section className="workspace-hero bg-gradient-to-br from-slate-900 to-orange-900 py-10">
         <div className="container mx-auto max-w-3xl px-6">
           <Link href="/mock/tsagwan" className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-orange-200 hover:text-white">
             <ArrowLeft className="h-4 w-4" /> T사관 모의고사

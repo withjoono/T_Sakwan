@@ -1,3 +1,4 @@
+import { GuideToc } from "../guide-toc"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -119,15 +120,16 @@ export default async function SchoolAdmissionPage({
       />
 
       <AdmissionHero
-        badge={`${s.icon} ${s.name} · ${s.cohort}`}
-        title={`2027학년도 ${s.name} 전형 안내`}
+        badge={`2027학년도 · ${s.cohort}`}
+        title={`${s.name} 전형안내`}
         lead={s.headline}
-        gradient={s.heroGradient}
+        school={s}
         updated={ADMISSION_UPDATED}
       />
 
       <SchoolSwitcher current={s.slug} />
 
+      <div className="guide-layout"><aside className="guide-rail"><GuideToc items={toc(s)} /></aside><div className="guide-body">
       <Section id="summary" title="한눈에 보기" lead={s.distinctive}>
         <FactGrid items={s.keyFacts} />
         <AlertBox tone="warn" title={SIMULTANEOUS_EXAM.headline}>
@@ -138,7 +140,7 @@ export default async function SchoolAdmissionPage({
             </Link>
           </p>
         </AlertBox>
-        <Toc items={toc(s)} />
+
       </Section>
 
       <Section
@@ -290,7 +292,7 @@ export default async function SchoolAdmissionPage({
         </div>
       </Section>
 
-      <SchoolSwitcher current={s.slug} />
+      </div></div>
 
       <SourceNote
         sourceDoc={s.sourceDoc}

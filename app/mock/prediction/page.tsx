@@ -142,7 +142,7 @@ export default function PredictionPage() {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-slate-900 py-16">
+      <section className="workspace-hero relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-slate-900 py-16">
         <div className="container relative mx-auto max-w-5xl px-6">
           <Link
             href="/mock"

@@ -65,7 +65,7 @@ export default function TsagwanMockPage() {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-orange-900 py-16">
+      <section className="workspace-hero relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-orange-900 py-16">
         <div className="container relative mx-auto max-w-5xl px-6">
           <Link href="/mock" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-orange-200 hover:text-white">
             <ArrowLeft className="h-4 w-4" /> 모의고사 홈

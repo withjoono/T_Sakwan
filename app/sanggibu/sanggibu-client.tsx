@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -64,28 +65,11 @@ export default function SanggibuPage() {
   const [inputText, setInputText] = useState("")
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900 py-20">
-        <div className="container relative mx-auto max-w-7xl px-6 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-300/30 bg-blue-400/20 px-4 py-2">
-            <Shield className="h-4 w-4 text-blue-200" />
-            <span className="text-sm font-semibold text-blue-100">생기부 사관·경찰 AI 진단</span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            면접관이 보는 키워드로
-            <br />
-            <span className="bg-gradient-to-r from-blue-300 to-emerald-300 bg-clip-text text-transparent">
-              내 생기부를 분석합니다
-            </span>
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-blue-100">
-            일반 대학과 완전히 다른 사관·경찰대 평가 기준. 리더십·국가관·체력·법치의식까지 자동 분류.
-          </p>
-        </div>
-      </section>
+      <PageIntro eyebrow="SCHOOL RECORD" title="학교생활의 흐름을 진로로." description="사관학교·경찰대 진학을 향한 활동과 배움을 정리하세요." />
 
       {/* 트랙 토글 */}
       <section className="border-b border-gray-100 bg-white py-8">
@@ -212,7 +196,7 @@ export default function SanggibuPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-blue-700 to-slate-900 py-16 text-center">
+      <section className="feature-cta bg-gradient-to-br from-blue-700 to-slate-900 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <h2 className="mb-4 text-3xl font-bold text-white">AI 진단 1회 무료</h2>
           <p className="mb-8 text-lg text-blue-100">생기부 PDF 업로드 → 평가축 점수·키워드 추출·활동 가이드까지.</p>

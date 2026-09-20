@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { PageIntro } from "@/components/page-intro"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -80,29 +81,11 @@ export default function PlannerPage() {
   const progress = Math.round((doneCount / plan.length) * 100)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="feature-page min-h-screen bg-background">
       <Navigation />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-600 via-orange-700 to-red-800 py-20">
-        <div className="container relative mx-auto max-w-7xl px-6 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-400/20 px-4 py-2">
-            <ClipboardList className="h-4 w-4 text-amber-100" />
-            <span className="text-sm font-semibold text-amber-100">T사관 플래너</span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
-            어제 우리 반에서
-            <br />
-            <span className="bg-gradient-to-r from-amber-200 to-yellow-300 bg-clip-text text-transparent">누가 제일 열심히 했나?</span>
-          </h1>
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-amber-50">
-            같은 목표 친구들과 매일 비교되는 플래너. 학습량·운동량·플래너 검사까지 한 곳에서.
-          </p>
-          <Button size="lg" className="rounded-lg bg-white px-8 py-6 text-lg font-bold text-orange-700 hover:bg-amber-50">
-            오늘 플래너 작성
-          </Button>
-        </div>
-      </section>
+      <PageIntro eyebrow="YOUR DAILY ROUTINE" title="목표를 향한 오늘의 계획." description="공부와 체력 준비를 계획하고, 매일의 작은 실천을 쌓아가세요." />
 
       {/* 오늘의 일정 데모 + 진행률 */}
       <section className="bg-gradient-to-b from-white to-gray-50 py-16">
@@ -290,7 +273,7 @@ export default function PlannerPage() {
       </section>
 
       {/* 체력 가이드 박스 */}
-      <section className="bg-gradient-to-br from-red-700 to-red-900 py-16 text-center">
+      <section className="feature-cta bg-gradient-to-br from-red-700 to-red-900 py-16 text-center">
         <div className="container mx-auto max-w-3xl px-6">
           <Calendar className="mx-auto mb-4 h-10 w-10 text-amber-300" />
           <h2 className="mb-4 text-3xl font-bold text-white">체력은 지금부터 해야 합니다</h2>

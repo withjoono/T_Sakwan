@@ -17,7 +17,9 @@ const inter = Inter({
 })
 
 const NAVER_VERIFICATION = process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION
-const GOOGLE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+// 소유확인 값은 공개 HTML 메타 태그라 비밀이 아니다. 저장소 Variables 가 비어 있어도 빠지지 않도록 기본값을 둔다.
+const GOOGLE_VERIFICATION =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "onmQYfnWdZC0DL6ZBVCBcVgrg0PpWhWYfxp5I919iuk"
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

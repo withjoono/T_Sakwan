@@ -1,6 +1,7 @@
+import { PastGuide, MOCK_FAQ } from "@/components/guides/mock-guide"
 import type { Metadata } from "next"
 import JsonLd from "@/components/json-ld"
-import { abs, breadcrumb, graph } from "@/lib/seo"
+import { abs, breadcrumb, faqPage, graph } from "@/lib/seo"
 import PastExamClient from "./past-exam-client"
 
 export const metadata: Metadata = {
@@ -26,9 +27,11 @@ export default function Page() {
             ["모의고사", "/mock"],
             ["역대 기출", "/mock/past"],
           ]),
+          faqPage(MOCK_FAQ),
         )}
       />
       <PastExamClient />
+      <PastGuide />
     </>
   )
 }

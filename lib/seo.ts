@@ -13,7 +13,7 @@ export const SITE_NAME = "T사관"
  * 빌드마다 오늘 날짜를 넣지 말 것 — 내용이 그대로인데 매번 "수정됨"을 주장하면
  * AI 검색의 신선도 판단에서 신뢰도만 깎인다. 본문을 실제로 고쳤을 때만 바꾼다.
  */
-export const CONTENT_UPDATED = "2026-09-13"
+export const CONTENT_UPDATED = "2026-10-21"
 
 /** 절대 URL. sitemap·JSON-LD는 상대경로를 허용하지 않는다. */
 export const abs = (p: string) => `${SITE_URL}${p.startsWith("/") ? p : `/${p}`}`

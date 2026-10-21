@@ -1,6 +1,7 @@
+import { MockGuide, MOCK_FAQ } from "@/components/guides/mock-guide"
 import type { Metadata } from "next"
 import JsonLd from "@/components/json-ld"
-import { abs, breadcrumb, graph } from "@/lib/seo"
+import { abs, breadcrumb, faqPage, graph } from "@/lib/seo"
 import MockHubClient from "./mock-hub-client"
 
 export const metadata: Metadata = {
@@ -25,9 +26,11 @@ export default function Page() {
             ["홈", "/"],
             ["모의고사", "/mock"],
           ]),
+          faqPage(MOCK_FAQ),
         )}
       />
       <MockHubClient />
+      <MockGuide />
     </>
   )
 }

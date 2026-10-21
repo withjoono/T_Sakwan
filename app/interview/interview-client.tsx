@@ -171,11 +171,11 @@ export default function InterviewPage() {
         </div>
       </section>
 
-      {/* 빈출 질문 100선 */}
+      {/* 빈출 질문 */}
       <section className="bg-gray-50 py-16">
         <div className="container mx-auto max-w-5xl px-6">
-          <h2 className="mb-2 text-3xl font-bold text-gray-900">빈출 질문 100선</h2>
-          <p className="mb-6 text-sm text-gray-500">카테고리별 아코디언 — 클릭해서 펼쳐 보세요.</p>
+          <h2 className="mb-2 text-3xl font-bold text-gray-900">학교 공통 빈출 질문</h2>
+          <p className="mb-6 text-sm text-gray-500">국가관·리더십·시사·자기소개 4개 분야. 분야를 눌러 펼쳐 보세요.</p>
 
           <div className="space-y-3">
             {FAQ.map((f, i) => {
@@ -189,16 +189,14 @@ export default function InterviewPage() {
                     <span className="font-bold text-gray-900">{f.cat}</span>
                     <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
                   </button>
-                  {open && (
-                    <ul className="space-y-2 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+                  <ul hidden={!open} className="space-y-2 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
                       {f.items.map((q, qi) => (
                         <li key={qi} className="flex gap-2 text-sm text-gray-700">
                           <span className="font-bold text-amber-600">Q{qi + 1}.</span>
                           {q}
                         </li>
                       ))}
-                    </ul>
-                  )}
+                  </ul>
                 </div>
               )
             })}
@@ -227,8 +225,8 @@ export default function InterviewPage() {
                 }`}
               >
                 <div>
-                  <div className="text-sm font-bold text-gray-900">{slot.date} · {slot.time}</div>
-                  <div className="mt-1 text-xs text-gray-500">{slot.mentor}</div>
+                  <div className="text-sm font-bold text-gray-900">{slot.mentor.split(" (")[1]?.replace(")", "") ?? ""} 합격생 멘토</div>
+                  <div className="mt-1 text-xs text-gray-500">{slot.mentor} · 일정은 신청 후 조율</div>
                 </div>
                 <Button
                   size="sm"

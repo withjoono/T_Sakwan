@@ -1,6 +1,7 @@
+import PlannerGuide, { PLANNER_FAQ } from "@/components/guides/planner-guide"
 import type { Metadata } from "next"
 import JsonLd from "@/components/json-ld"
-import { abs, breadcrumb, graph } from "@/lib/seo"
+import { abs, breadcrumb, faqPage, graph } from "@/lib/seo"
 import PlannerClient from "./planner-client"
 
 export const metadata: Metadata = {
@@ -25,9 +26,11 @@ export default function Page() {
             ["홈", "/"],
             ["플래너", "/planner"],
           ]),
+          faqPage(PLANNER_FAQ),
         )}
       />
       <PlannerClient />
+      <PlannerGuide />
     </>
   )
 }

@@ -1,6 +1,7 @@
+import SanggibuGuide, { SANGGIBU_FAQ } from "@/components/guides/sanggibu-guide"
 import type { Metadata } from "next"
 import JsonLd from "@/components/json-ld"
-import { abs, breadcrumb, graph } from "@/lib/seo"
+import { abs, breadcrumb, faqPage, graph } from "@/lib/seo"
 import SanggibuClient from "./sanggibu-client"
 
 export const metadata: Metadata = {
@@ -25,9 +26,11 @@ export default function Page() {
             ["홈", "/"],
             ["생기부 진단", "/sanggibu"],
           ]),
+          faqPage(SANGGIBU_FAQ),
         )}
       />
       <SanggibuClient />
+      <SanggibuGuide />
     </>
   )
 }

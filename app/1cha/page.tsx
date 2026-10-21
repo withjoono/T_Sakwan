@@ -1,6 +1,7 @@
+import OneChaGuide, { ONECHA_FAQ } from "@/components/guides/onecha-guide"
 import type { Metadata } from "next"
 import JsonLd from "@/components/json-ld"
-import { abs, breadcrumb, graph } from "@/lib/seo"
+import { abs, breadcrumb, faqPage, graph } from "@/lib/seo"
 import OneChaClient from "./onecha-client"
 
 export const metadata: Metadata = {
@@ -25,9 +26,11 @@ export default function Page() {
             ["홈", "/"],
             ["1차 합불 예측", "/1cha"],
           ]),
+          faqPage(ONECHA_FAQ),
         )}
       />
       <OneChaClient />
+      <OneChaGuide />
     </>
   )
 }

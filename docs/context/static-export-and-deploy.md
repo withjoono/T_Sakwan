@@ -72,7 +72,7 @@ npx firebase-tools deploy --only hosting:sakwan-front --project ts-front-479305
 ## CI 기타
 
 - pnpm 10 / Node 20.
-- `@withjoono/geobuk-shared` 는 GitHub Packages 비공개 패키지. 워크플로가 `secrets.NODE_AUTH_TOKEN` 을 `~/.npmrc` 에 기록한다 — **pnpm 10 은 프로젝트 `.npmrc` 의 registry 자격증명을 환경변수로 확장하지 않기 때문**이다. 로컬은 `pnpm config set "//npm.pkg.github.com/:_authToken" <PAT>`.
+- `@withjoono/geobuk-shared` 는 GitHub Packages 비공개 패키지. 워크플로가 `secrets.GITHUB_TOKEN`(permissions `packages: read`)을 `~/.npmrc` 에 기록한다(2026-10-25 확인, 이전엔 `NODE_AUTH_TOKEN`) — **pnpm 10 은 프로젝트 `.npmrc` 의 registry 자격증명을 환경변수로 확장하지 않기 때문**이다. 로컬은 `pnpm config set "//npm.pkg.github.com/:_authToken" <PAT>`.
 - `.env*` 가 `.gitignore` 대상이라 로컬 환경 파일은 CI로 전달되지 않는다. 소유확인 코드 두 개는 아래의 Actions Variables로 주입하며, 나머지는 별도 주입이 없어 코드에 박힌 기본값으로 만들어진다:
   - `NEXT_PUBLIC_HUB_URL` → `https://tskool.kr`
   - `NEXT_PUBLIC_HUB_API_URL` → `https://ts-back-nest-479305.du.r.appspot.com`

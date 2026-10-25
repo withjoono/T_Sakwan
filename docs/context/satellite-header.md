@@ -24,7 +24,7 @@
 
 워크플로는 `Sakwan`과 `Music_College`를 같은 상위 폴더에 체크아웃해 로컬 상대경로를 재현한다. Firebase 대상은 `hosting:sakwan-front`를 유지한다.
 
-공통 패키지를 Music_College의 `8b245ee0532f5a2474983feb0cc7f38b463b7a1b` 커밋으로 게시했으며, CI도 이 커밋으로 고정한다.
+공통 패키지는 Music_College의 특정 커밋으로 고정한다. 현재 CI 고정값은 워크플로의 `ref:`를 볼 것(2026-10-25 기준 `94861ac…`, 최초 게시 커밋은 `8b245ee…`). 헤더를 고치면 Music_College에 먼저 푸시하고 이 `ref`를 올린다.
 
 비공개 원본 저장소를 읽는 `SATELLITE_HEADER_TOKEN`을 사용하며, 미설정이면 기존 `NODE_AUTH_TOKEN`을 사용한다. 어느 쪽이든 Music_College 저장소 읽기 권한이 필요하다. 토큰 값은 코드에 넣지 않는다. 원격 체크아웃과 실제 배포는 실행하지 않았다.
 

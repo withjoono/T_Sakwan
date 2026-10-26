@@ -1,340 +1,651 @@
 import type { Metadata } from "next"
-import JsonLd from "@/components/json-ld"
-import { abs, breadcrumb, graph } from "@/lib/seo"
-import Link from "next/link";
+import Link from "next/link"
 import {
   ArrowRight,
-  Sparkles,
-  Target,
-  Dumbbell,
-  MessagesSquare,
-  Trophy,
+  ArrowUpRight,
+  BarChart3,
+  BookOpen,
   CalendarCheck,
-  ShieldCheck,
-  Users,
-  FileText,
+  Check,
   CheckCircle2,
-  BookOpenCheck,
-  Newspaper,
-  Rocket,
-} from "lucide-react";
+  ClipboardCheck,
+  Dumbbell,
+  FileSearch,
+  GraduationCap,
+  Landmark,
+  MessagesSquare,
+  NotebookPen,
+  School,
+  Target,
+  Trophy,
+  Users,
+} from "lucide-react"
+import JsonLd from "@/components/json-ld"
+import { SCHOOL_LIST } from "@/lib/admission"
+import { abs, breadcrumb, faqPage, graph } from "@/lib/seo"
+
+/*
+ * /promo — T사관 사용자 모집용 서비스 소개 페이지 (2026-10 재작성)
+ * 서비스 목록 근거: 프로젝트 문서 claude/sakwan-service-inventory.md
+ * - 숫자는 코드·요강에서 확인된 것만 쓴다(기출 2022~2026, 모의고사 패키지가, 멘토링 월 48만원, 요강 일정).
+ * - 합격선 수치(cutoffs.ts)는 예시 데이터라 쓰지 않는다. 멘토 실명·수강 후기도 싣지 않는다.
+ */
+
+const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL || "https://tskool.kr"
+
+const TITLE = "T사관 — 사관학교·경찰대 준비를 한 앱에서 | 모의고사·플래너·생기부·면접"
+const DESCRIPTION =
+  "육사·해사·공사·국간사·경찰대 준비생을 위한 T사관. 1차 기출 OMR 자동 채점과 T사관 모의고사, 성적·취약 분석, 1차 합불 예측, 스터디플래너·운동 인증, 생기부 진단, 2차 면접 대비, 합격생 1:1 멘토링까지 T스쿨 계정 하나로."
 
 export const metadata: Metadata = {
-  title: "T 사관 — 사관학교·경찰대 진학 전문 포털",
-  description:
-    "육·해·공군 사관학교, 국군간호사관학교, 경찰대 합격을 위한 특화 플랫폼. 전용 모의고사·과거 합격선, 체력·2차 면접 대비, 합격생 1:1 멘토링, 생기부 진단까지 한 곳에서.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: abs("/promo") },
-  openGraph: {
-    url: abs("/promo"),
-    title: "T 사관 — 사관학교·경찰대 진학 전문 포털",
-    description:
-      "육·해·공군 사관학교, 국군간호사관학교, 경찰대 합격을 위한 특화 플랫폼. 전용 모의고사·과거 합격선, 체력·2차 면접 대비, 합격생 1:1 멘토링, 생기부 진단까지 한 곳에서.",
-  },
-};
+  openGraph: { url: abs("/promo"), title: TITLE, description: DESCRIPTION },
+}
 
-const VALUE_PROPS = [
-  {
-    icon: ShieldCheck,
-    title: "사관·경찰만 파는 특화 전형 분석",
-    body:
-      "사관학교·경찰대 1차는 내신 미반영, 국영수 중심 전형입니다. 일반 대입과 평가 축이 완전히 다른 만큼, 학교별(육·해·공·국간사·경찰대) 전형 구조와 합격선을 정확히 짚어 준비합니다.",
-  },
-  {
-    icon: Dumbbell,
-    title: "체력·신체검사·2차는 1년 전부터",
-    body:
-      "체력검정과 신체검사는 벼락치기가 통하지 않습니다. 플래너 운동 인증으로 매일 체력을 쌓고, 학교별 신체 기준과 종목별 배점을 미리 관리해 2차에서 흔들리지 않습니다.",
-  },
-  {
-    icon: MessagesSquare,
-    title: "합격생 멘토가 직접 관리",
-    body:
-      "지금 그 학교에 다니는 합격생이 1:1로 한 명의 수험생을 책임집니다. 주 1회 화상으로 플래너를 점검하고, 국가관·리더십 면접까지 실제 경험으로 이끌어 줍니다.",
-  },
-];
+const SCHOOL_CODES: Record<string, string> = { army: "KMA", navy: "KNA", airforce: "KAFA", nursing: "AFNA", police: "KNPU" }
 
-// 학교별 진입 (실제 존재하는 /class/[slug] 라우트로 연결)
-const CLASS_LINKS = [
-  { title: "🟢 육군사관학교반", body: "국가관·리더십·체력 중심 육사 전형 맞춤 관리", href: "/class/army" },
-  { title: "🔷 공군사관학교반", body: "조종 적성·시력 기준·AI 면접까지 공사 특화", href: "/class/airforce" },
-  { title: "🔵 해군사관학교반", body: "수영·장기 항해 적응성 등 해사 전형 대비", href: "/class/navy" },
-  { title: "🏥 국군간호사관학교반", body: "공감·의료 윤리·체력 균형까지 국간사 준비", href: "/class/nursing" },
-  { title: "👮 경찰대학반", body: "법치·윤리·5종 체력·토론 면접까지 경찰대 집중", href: "/class/police" },
-  { title: "마이클래스 안내", body: "5개 반 분리 운영 — 내 시험에 맞는 반을 고르세요", href: "/class/army" },
-];
+const STAGES = [
+  {
+    no: "STEP 01",
+    title: "목표 학교 정하기",
+    body: "다섯 학교의 전형을 나란히 놓고, 나에게 맞는 학교를 고릅니다.",
+    items: [
+      { icon: Landmark, label: "5개 학교 전형 비교", href: "/admission" },
+      { icon: School, label: "학교별 반", href: "#schools" },
+    ],
+  },
+  {
+    no: "STEP 02",
+    title: "1차 필기 준비",
+    body: "실전 형식으로 풀고, 채점과 분석, 합불 예측까지 한 번에 봅니다.",
+    items: [
+      { icon: BookOpen, label: "기출 모의고사", href: "/mock/past" },
+      { icon: Trophy, label: "T사관 모의고사", href: "/mock/tsagwan" },
+      { icon: BarChart3, label: "성적·취약 분석", href: "/mock/score-analysis" },
+      { icon: Target, label: "1차 합불 예측", href: "/1cha" },
+    ],
+  },
+  {
+    no: "STEP 03",
+    title: "매일의 학습 관리",
+    body: "공부와 체력을 같은 계획표에 올리고, 매일 실천을 쌓습니다.",
+    items: [
+      { icon: CalendarCheck, label: "스터디플래너", href: "/planner" },
+      { icon: Dumbbell, label: "운동 인증 랭킹", href: "/planner" },
+      { icon: NotebookPen, label: "오답노트", href: "/mock/wrong-answers" },
+    ],
+  },
+  {
+    no: "STEP 04",
+    title: "학생부 · 2차 시험",
+    body: "필기 다음의 학생부, 면접, 체력까지 미리 준비합니다.",
+    items: [
+      { icon: FileSearch, label: "생기부 진단", href: "/sanggibu" },
+      { icon: MessagesSquare, label: "2차 면접 대비", href: "/interview" },
+      { icon: Users, label: "합격생 1:1 멘토링", href: "/mentoring" },
+    ],
+  },
+]
 
-// 실제 존재하는 콘텐츠 라우트로만 연결
-const SERVICES = [
-  {
-    icon: Trophy,
-    title: "사관·경찰 전용 모의고사",
-    body:
-      "전용 OMR로 응시하면 즉시 자동 채점되고, 과거 합격자 성적 DB와 겹쳐 봅니다. 지원자 풀 내 석차·작년 합격선 대비 위치를 숫자로 확인하세요.",
-    href: "/mock",
-  },
-  {
-    icon: CalendarCheck,
-    title: "스터디플래너",
-    body:
-      "매일 학습을 관리하고 같은 목표의 수험생과 학습량을 비교합니다. 운동 인증으로 체력까지 매일 체크 — 1년 전부터 페이스를 잡아 줍니다.",
-    href: "/planner",
-  },
-  {
-    icon: MessagesSquare,
-    title: "합격자 1:1 멘토링",
-    body:
-      "롤모델 합격생이 주 1회 화상으로 플래너를 검사하고 월 1회 학부모·학생 상담까지, 원서 접수 전까지 끝까지 동행합니다.",
-    href: "/mentoring",
-  },
-  {
-    icon: Users,
-    title: "2차 면접·체력 대비",
-    body:
-      "AI 인성 면접, 신체검사, 체력검정, 면접관 대면까지 학교별로 다른 2차 전형을 단계별로 준비합니다. 국가관·리더십 기출 문항도 함께.",
-    href: "/interview",
-  },
-  {
-    icon: FileText,
-    title: "생기부 진단·활동 코칭",
-    body:
-      "사관·경찰 인재상 키워드로 생기부를 진단합니다. 리더십·국가관·법치의식·체력·봉사 등 부족한 축을 찾아 활동 방향을 코칭합니다.",
-    href: "/sanggibu",
-  },
-  {
-    icon: Target,
-    title: "교차지원·마이클래스",
-    body:
-      "문↔이과 교차지원, 공·육·해사 모의지원을 내 점수로 시뮬레이션하고, 5개 반으로 나뉜 마이클래스에서 내 시험에 맞는 관리를 받습니다.",
-    href: "/class/army",
-  },
-];
+const TIMELINE = [
+  { when: "지금 ~ 2월", title: "현재 위치 확인", body: "기출 한 회로 출발점을 재고, 목표 학교와 플래너를 정합니다.", now: true },
+  { when: "3 ~ 4월", title: "체력 · 학생부", body: "지망 학교의 체력 과락선보다 여유 있게 목표를 잡습니다." },
+  { when: "5월", title: "경찰대 원서접수", body: "사관학교보다 한 달 먼저 접수가 끝납니다." },
+  { when: "6월", title: "사관학교 원서접수", body: "육사·해사·공사·국간사 4곳이 같은 기간에 받습니다." },
+  { when: "7월", title: "T사관 모의고사", body: "실전과 같은 시간표로 회차별 응시하고 마지막 점검을 합니다." },
+  { when: "8월 초", title: "1차 시험 → 2차", body: "다섯 곳이 같은 날 시험을 봅니다. 가채점 후 합불 예측, 이어서 2차 준비." },
+]
 
-const READY = [
-  "사관·경찰 전용 모의고사 + 과거 합격선 비교",
-  "지원자 풀 내 석차·상위 % 실시간 확인",
-  "학교별(육·해·공·국간사·경찰대) 2차 면접 대비",
-  "체력검정·신체검사 기준 관리 + 운동 인증",
-  "합격생 1:1 멘토링 (주1 화상 + 플래너 검사)",
-  "사관·경찰 키워드 생기부 진단·활동 코칭",
-  "문↔이과 교차지원 시뮬레이션",
-  "스터디플래너로 매일 학습량 경쟁",
-];
+const FAQ = [
+  {
+    q: "어떤 계정으로 이용하나요?",
+    a: "T스쿨 공통 계정 하나로 로그인합니다. 학부모·선생님은 T스쿨에서 학생 계정과 연동해 준비 상황을 함께 볼 수 있습니다.",
+  },
+  {
+    q: "경찰대 준비생도 쓸 수 있나요?",
+    a: "네. 전형 안내, 학교별 반, 2차 면접·체력 기준에 경찰대가 포함돼 있습니다. 경찰대 1차는 국어·영어 각 45문항 60분, 수학 25문항 80분으로 사관학교와 형식이 달라 따로 안내합니다.",
+  },
+  {
+    q: "비용은 어떻게 되나요?",
+    a: "전형 안내와 기출 모의고사 응시·채점은 로그인하면 별도 결제 없이 이용합니다. T사관 모의고사는 회차 패키지(2026년 7월 5회 패키지 180,000원)로, 합격생 1:1 멘토링 정규 프로그램은 월 48만원입니다.",
+  },
+  {
+    q: "1차 합불 예측은 어떻게 계산하나요?",
+    a: "지망 학교·계열·성별을 고르고 가채점 원점수를 넣으면, 각 학교 모집요강의 산식으로 환산해 모집단위별로 판정합니다. 예측은 참고 자료이며 실제 합격선은 해마다 응시자 분포에 따라 달라집니다.",
+  },
+  {
+    q: "언제부터 준비하면 되나요?",
+    a: "1차 시험은 8월 초 하루에 다섯 곳이 함께 치르고 한 곳만 응시할 수 있습니다. 경찰대 접수는 5월, 사관학교는 6월이라 지원 학교는 봄에 정해야 하고, 체력은 몇 주 만에 끌어올리기 어렵습니다. 지금 기출로 위치를 확인하고 계획을 세우는 것이 가장 빠른 출발입니다.",
+  },
+]
 
 export default function PromoPage() {
   return (
     <>
-      <JsonLd data={graph(breadcrumb([["홈", "/"], ["T 사관 소개", "/promo"]]))} />
-    <main>
-      {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#A5141B] via-[#C81E27] to-[#E0453E] text-white">
-        {/* 장식 원 */}
-        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10" />
-        <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-white/5" />
-        <div className="relative mx-auto max-w-5xl px-6 py-20 text-center sm:px-12 sm:py-28">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5" />
-            거북스쿨 생태계 · 사관·경찰 진학 특화
+      <JsonLd data={graph(breadcrumb([["홈", "/"], ["T사관 서비스 소개", "/promo"]]), faqPage(FAQ))} />
+      <main>
+        {/* ===== HERO ===== */}
+        <section className="pm-hero">
+          <div>
+            <p className="eyebrow">
+              <span />
+              2028학년도 사관학교 · 경찰대 준비
+            </p>
+            <h1>
+              1차 필기부터 2차 면접까지,
+              <br />
+              <em>한 앱에서 준비합니다.</em>
+            </h1>
+            <p className="pm-hero-lead">
+              기출과 전용 모의고사로 풀고, 바로 채점하고, 약한 곳을 찾습니다. 공부와 체력은 플래너에, 학생부와
+              면접은 학교별 기준에 맞춰. 육사·해사·공사·국간사·경찰대 준비에 필요한 것을 T사관에 모았습니다.
+            </p>
+            <div className="pm-actions">
+              <Link className="solid-link" href="/mock/past">
+                기출로 내 위치 확인하기 <ArrowRight size={18} />
+              </Link>
+              <Link className="quiet-link" href="/admission">
+                5개 학교 전형 비교 <ArrowUpRight size={17} />
+              </Link>
+            </div>
+            <div className="pm-proof">
+              <div>
+                <b>5곳</b>
+                <span>사관학교 4곳 + 경찰대</span>
+              </div>
+              <div>
+                <b>5개년</b>
+                <span>1차 기출 2022–2026</span>
+              </div>
+              <div>
+                <b>즉시</b>
+                <span>국·영·수 OMR 채점</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-            사관·경찰 합격, <span className="text-white/85">특화 전략으로 완성</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/90 sm:text-xl">
-            T 사관은 육·해·공군 사관학교, 국군간호사관학교, 경찰대 진학만을 파고드는 전문 포털입니다. 전용 모의고사·과거 합격선, 체력·2차 면접 대비, 합격생 1:1 멘토링을 한 곳에서 준비하세요.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/mock"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-primary shadow-sm transition-transform hover:-translate-y-0.5"
-            >
-              모의고사 무료 체험
-              <ArrowRight className="h-4 w-4" />
+
+          <div className="pm-preview" aria-label="T사관 화면 예시">
+            <div className="pm-report">
+              <div className="pm-report-top">
+                <span>SCORE REPORT</span>
+                <ClipboardCheck size={18} />
+              </div>
+              <h3>모의고사 채점 결과</h3>
+              <p className="pm-report-sub">응시 직후 과목별 점수와 취약 유형을 보여 줍니다</p>
+              <div className="pm-bars">
+                {[
+                  ["국어", 84],
+                  ["영어", 90],
+                  ["수학", 72],
+                ].map(([s, v]) => (
+                  <div className="pm-bar" key={s}>
+                    <span>{s}</span>
+                    <div className="pm-bar-track">
+                      <div className="pm-bar-fill" style={{ width: `${v}%` }} />
+                    </div>
+                    <span>{v}점</span>
+                  </div>
+                ))}
+              </div>
+              <div className="pm-report-foot">
+                <span className="pm-chip">
+                  <i />
+                  취약 · 수학 미적분 극한
+                </span>
+                <span className="pm-chip">
+                  <i />
+                  취약 · 국어 비문학 사회
+                </span>
+              </div>
+            </div>
+            <div className="pm-today">
+              <p>TODAY · 플래너</p>
+              <ul>
+                <li className="done">
+                  <span className="box">
+                    <Check size={11} />
+                  </span>
+                  기출 미적분 — 극한 단원
+                </li>
+                <li className="done">
+                  <span className="box">
+                    <Check size={11} />
+                  </span>
+                  비문학 사회 지문 5세트
+                </li>
+                <li>
+                  <span className="box" />
+                  달리기 1.5km + 윗몸일으키기
+                </li>
+              </ul>
+            </div>
+            <p className="pm-caption">※ 화면 예시입니다.</p>
+          </div>
+        </section>
+
+        {/* ===== 단계별 서비스 ===== */}
+        <section className="pm-section">
+          <div className="pm-wrap">
+            <div className="pm-head-row">
+              <div>
+                <p className="eyebrow">
+                  <span />
+                  ALL SERVICES
+                </p>
+                <h2 className="pm-h2">준비 순서대로 쓰는 T사관 서비스</h2>
+                <p className="pm-lead">목표 학교를 고르는 날부터 2차 면접장에 들어가는 날까지, 단계마다 쓰는 도구가 준비돼 있습니다.</p>
+              </div>
+            </div>
+            <div className="pm-stages">
+              {STAGES.map((s) => (
+                <div className="pm-stage" key={s.no}>
+                  <span className="pm-stage-no">{s.no}</span>
+                  <h3>{s.title}</h3>
+                  <p>{s.body}</p>
+                  <ul>
+                    {s.items.map(({ icon: Icon, label, href }) => (
+                      <li key={label}>
+                        <Link href={href}>
+                          <Icon size={17} />
+                          {label}
+                          <ArrowUpRight size={15} />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== 기능 상세 ===== */}
+        <section className="pm-section">
+          <div className="pm-wrap">
+            <div className="pm-head-row">
+              <div>
+                <p className="eyebrow">
+                  <span />
+                  HOW IT WORKS
+                </p>
+                <h2 className="pm-h2">사관·경찰 시험에 맞춰 다시 만든 도구들</h2>
+                <p className="pm-lead">
+                  일반 수능용 앱을 그대로 쓰지 않습니다. 문항 수와 시간, 평가 키워드, 면접 방식까지 사관학교·경찰대 기준으로
+                  바꿨습니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="pm-features">
+              {/* 모의고사 */}
+              <article className="pm-feature">
+                <div className="pm-feature-copy">
+                  <span className="pm-feature-label">
+                    <Trophy size={14} />
+                    모의고사 · 채점 · 분석
+                  </span>
+                  <h3>실전처럼 풀고, 바로 채점하고, 약한 곳까지</h3>
+                  <p>실제 1차 시험과 같은 과목·문항 수·시간으로 응시합니다. 답을 입력하면 그 자리에서 채점되고 분석이 이어집니다.</p>
+                  <ul>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      사관학교 1차 기출 2022~2026 5개년 OMR 응시 · 자동 채점
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      기출과 다른 신유형으로 출제한 T사관 자체 모의고사
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      과목별 정답률, 회차별 성적 추이, 취약 유형, 오답노트
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      가채점 점수를 학교별 산식으로 환산하는 1차 합불 예측
+                    </li>
+                  </ul>
+                  <Link className="quiet-link" href="/mock">
+                    모의고사 보러 가기 <ArrowRight size={16} />
+                  </Link>
+                </div>
+                <div className="pm-feature-visual">
+                  <div className="pm-flow">
+                    {[
+                      ["응시", "기출 또는 T사관 회차 선택"],
+                      ["즉시 채점", "국어·영어·수학 OMR 자동 채점"],
+                      ["분석", "정답률 · 취약 유형 · 오답노트"],
+                      ["합불 예측", "지망 학교 · 계열 · 성별 기준 환산"],
+                    ].map(([t, d], i) => (
+                      <div className="pm-flow-step" key={t}>
+                        <b>{i + 1}</b>
+                        <div>
+                          {t}
+                          <small>{d}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </article>
+
+              {/* 플래너 */}
+              <article className="pm-feature">
+                <div className="pm-feature-copy">
+                  <span className="pm-feature-label">
+                    <CalendarCheck size={14} />
+                    스터디플래너 · 운동 인증
+                  </span>
+                  <h3>공부와 체력을 같은 계획표에</h3>
+                  <p>
+                    체력검정은 시험 직전에 끌어올리기 어렵습니다. 하루 계획에 과목 공부와 운동을 함께 올리고, 같은 학교를
+                    준비하는 친구들과 실천량을 비교합니다.
+                  </p>
+                  <ul>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      오늘의 일정 체크 — 과목 · 적성 · 체력 · 시사를 한 화면에
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      육사·해사·공사·국간사·경찰대 반별 학습량 랭킹
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      1주 누적 운동 인증 랭킹
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      합격생 멘토의 플래너 검사와 피드백
+                    </li>
+                  </ul>
+                  <Link className="quiet-link" href="/planner">
+                    플래너 열기 <ArrowRight size={16} />
+                  </Link>
+                </div>
+                <div className="pm-feature-visual">
+                  <div className="pm-flow">
+                    {[
+                      ["수학", "사관학교 기출 미적분 — 극한 단원"],
+                      ["국어", "비문학 사회 지문 5세트"],
+                      ["체력", "달리기 1.5km + 윗몸일으키기 3세트"],
+                      ["시사", "오늘의 시사 이슈 1줄 브리핑"],
+                    ].map(([t, d]) => (
+                      <div className="pm-flow-step" key={t}>
+                        <b>
+                          <Check size={14} />
+                        </b>
+                        <div>
+                          {t}
+                          <small>{d}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </article>
+
+              {/* 생기부 */}
+              <article className="pm-feature">
+                <div className="pm-feature-copy">
+                  <span className="pm-feature-label">
+                    <FileSearch size={14} />
+                    생기부 진단
+                  </span>
+                  <h3>면접관이 보는 키워드로 생기부를 읽습니다</h3>
+                  <p>
+                    사관학교와 경찰대가 학생부에서 찾는 역량은 일반 대학과 다릅니다. 내 생기부에서 키워드를 뽑아 4대 평가축으로
+                    나누고, 부족한 축을 채울 활동을 안내합니다.
+                  </p>
+                  <ul>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      사관 · 경찰 트랙별 4대 평가축 진단
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      생기부 문장에서 평가 키워드 자동 추출
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      동아리 · 봉사 · 독서 · 대회 영역별 활동 가이드
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      학교별 학생부 반영 방식과 한국사 가산점 안내
+                    </li>
+                  </ul>
+                  <Link className="quiet-link" href="/sanggibu">
+                    생기부 진단 받기 <ArrowRight size={16} />
+                  </Link>
+                </div>
+                <div className="pm-feature-visual">
+                  <div className="pm-axes">
+                    {[
+                      ["사관", "리더십 · 통솔력", "학급 임원, 동아리 주장"],
+                      ["사관", "국가관 · 안보의식", "안보 토론, 보훈 봉사"],
+                      ["경찰", "법치의식 · 준법", "선도부, 모의법정"],
+                      ["공통", "체력 · 학업 역량", "체육 활동, 국영수"],
+                    ].map(([tag, t, d]) => (
+                      <div className="pm-axis" key={t}>
+                        <span>{tag}</span>
+                        <b>{t}</b>
+                        <small>{d}</small>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </article>
+
+              {/* 2차 면접 */}
+              <article className="pm-feature">
+                <div className="pm-feature-copy">
+                  <span className="pm-feature-label">
+                    <MessagesSquare size={14} />
+                    2차 면접 · 체력
+                  </span>
+                  <h3>학교마다 다른 2차 시험, 학교 기준대로</h3>
+                  <p>
+                    면접 구성과 판정 방식, 체력검정 종목과 과락선은 학교마다 다릅니다. 모집요강 기준을 정리하고, 빈출 질문과
+                    시기별 체크리스트로 준비를 이어 갑니다.
+                  </p>
+                  <ul>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      학교별 면접 구성 · 판정 방식 (모집요강 원문 기준)
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      국가관 · 리더십 · 시사 · 자기소개 빈출 질문
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      D-7 · D-1 · 당일 체크리스트
+                    </li>
+                    <li>
+                      <CheckCircle2 size={16} />
+                      5개 학교 체력검정 과락 기준 비교
+                    </li>
+                  </ul>
+                  <Link className="quiet-link" href="/interview">
+                    면접 준비 시작 <ArrowRight size={16} />
+                  </Link>
+                </div>
+                <div className="pm-feature-visual">
+                  <div className="pm-flow">
+                    {[
+                      ["인성검사", "학교별 방식 상이 · 국간사는 온라인 실시"],
+                      ["신체검사", "학교별 신체 기준 사전 확인"],
+                      ["체력검정", "달리기 · 윗몸일으키기 · 팔굽혀펴기 등"],
+                      ["면접관 대면", "국가관 · 리더십 · 시사 · 자기소개"],
+                    ].map(([t, d], i) => (
+                      <div className="pm-flow-step" key={t}>
+                        <b>{i + 1}</b>
+                        <div>
+                          {t}
+                          <small>{d}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== 학교별 ===== */}
+        <section id="schools" className="pm-section">
+          <div className="pm-wrap">
+            <div className="pm-head-row">
+              <div>
+                <p className="eyebrow">
+                  <span />
+                  FIVE SCHOOLS
+                </p>
+                <h2 className="pm-h2">같은 날 시험, 다른 준비</h2>
+                <p className="pm-lead">다섯 학교는 같은 날 1차를 보지만 정원, 체력 기준, 면접 방식이 모두 다릅니다. 학교별 반에서 내 시험 기준으로 준비하세요.</p>
+              </div>
+              <Link href="/admission">
+                5개 학교 비교하기 <ArrowUpRight size={16} />
+              </Link>
+            </div>
+            <div className="school-grid">
+              {SCHOOL_LIST.map((s, i) => (
+                <article key={s.slug} className="school-card" data-school={s.slug}>
+                  <div className="school-card-top">
+                    <span className="school-code">{SCHOOL_CODES[s.slug]}</span>
+                    <span>0{i + 1}</span>
+                  </div>
+                  <h3>{s.name}</h3>
+                  <p>{s.quotaTotal}</p>
+                  <div className="school-card-detail">{s.distinctive}</div>
+                  <div className="school-card-links">
+                    <Link href={`/admission/${s.slug}`}>
+                      전형안내 <ArrowUpRight size={15} />
+                    </Link>
+                    <Link href={`/class/${s.slug}`}>{s.short}반 보기</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== 일정 ===== */}
+        <section className="pm-section">
+          <div className="pm-wrap">
+            <div className="pm-head-row">
+              <div>
+                <p className="eyebrow">
+                  <span />
+                  ROADMAP
+                </p>
+                <h2 className="pm-h2">지금부터 내년 8월까지</h2>
+                <p className="pm-lead">원서접수와 1차 시험 날짜에서 거꾸로 세운 1년 준비 흐름입니다.</p>
+              </div>
+            </div>
+            <div className="pm-timeline">
+              {TIMELINE.map((t) => (
+                <div className={`pm-tl${t.now ? " now" : ""}`} key={t.when}>
+                  <div className="pm-tl-when">{t.when}</div>
+                  <h4>{t.title}</h4>
+                  <p>{t.body}</p>
+                </div>
+              ))}
+            </div>
+            <p className="pm-note">
+              월별 일정은 2027학년도 모집요강 기준입니다. 2028학년도 일정은 각 학교 시행계획이 나오면 전형 안내에 반영합니다.
+            </p>
+          </div>
+        </section>
+
+        {/* ===== 멘토링 ===== */}
+        <section className="pm-section">
+          <div className="pm-wrap">
+            <div className="pm-mentor">
+              <div>
+                <p className="eyebrow">
+                  <span />
+                  1:1 MENTORING
+                </p>
+                <h2>
+                  먼저 그 길을 간 합격생이
+                  <br />한 명을 끝까지 맡습니다
+                </h2>
+                <p>
+                  육사·해사·공사·국간사·경찰대 합격생 멘토가 매주 화상으로 플래너 실행과 학습, 체력 준비를 점검하고, 매달
+                  학생·학부모와 방향을 맞춥니다.
+                </p>
+                <Link className="solid-link" href="/mentoring">
+                  멘토링 자세히 보기 <ArrowRight size={18} />
+                </Link>
+              </div>
+              <ul>
+                <li>
+                  <span>주 1회 화상 관리</span>
+                  <b>플래너 · 주간 학습 테스트 · 체력</b>
+                </li>
+                <li>
+                  <span>월 1회 학부모 상담</span>
+                  <b>진행 상황 공유 · 가정 지원 방향</b>
+                </li>
+                <li>
+                  <span>월 1회 학생 상담</span>
+                  <b>학습 진단 · 진로 조언</b>
+                </li>
+                <li>
+                  <span>정규 프로그램</span>
+                  <b>월 48만원</b>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== FAQ ===== */}
+        <section className="pm-section">
+          <div className="pm-wrap">
+            <div className="pm-head-row">
+              <div>
+                <p className="eyebrow">
+                  <span />
+                  FAQ
+                </p>
+                <h2 className="pm-h2">자주 묻는 질문</h2>
+              </div>
+            </div>
+            <div className="pm-faq">
+              {FAQ.map((f) => (
+                <details key={f.q}>
+                  <summary>{f.q}</summary>
+                  <p>{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== 마무리 ===== */}
+        <section className="pm-final">
+          <GraduationCap size={30} color="#a56850" style={{ margin: "0 auto 18px" }} />
+          <h2>
+            기출 한 회로 시작하세요.
+            <br />
+            지금 내 위치부터 보입니다.
+          </h2>
+          <p>T스쿨 계정으로 로그인하면 바로 응시할 수 있습니다. 채점과 분석은 응시가 끝나는 즉시 나옵니다.</p>
+          <div className="pm-actions">
+            <Link className="solid-link" href="/mock/past">
+              기출 모의고사 풀기 <ArrowRight size={18} />
             </Link>
-            <a
-              href="https://www.tskool.kr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center rounded-xl border border-white/40 bg-white/10 px-6 py-3 text-base font-medium text-white backdrop-blur transition-colors hover:bg-white/20"
-            >
-              Hub에서 가입
+            <a className="quiet-link" href={HUB_URL} target="_blank" rel="noopener noreferrer">
+              T스쿨 가입하기 <ArrowUpRight size={17} />
             </a>
           </div>
-        </div>
-      </section>
-
-      {/* ===== VALUE PROPS ===== */}
-      <section className="mx-auto max-w-6xl px-6 py-20 sm:px-12">
-        <div className="grid gap-5 md:grid-cols-3">
-          {VALUE_PROPS.map((v) => {
-            const Icon = v.icon;
-            return (
-              <div key={v.title} className="rounded-2xl border bg-card p-6">
-                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground">{v.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{v.body}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ===== 학교별 반 ===== */}
-      <section className="bg-secondary/30 px-6 py-20 sm:px-12">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              학교마다 다른 전형, 반부터 다릅니다
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              육·해·공사, 국간사, 경찰대는 신체검사·체력·면접 기준이 모두 제각각입니다. 마이클래스는 5개 반으로 나뉘어 각 시험 특성에 맞춘 콘텐츠와 멘토를 배정합니다.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {CLASS_LINKS.map((u) => (
-              <Link
-                key={u.title}
-                href={u.href}
-                className="group flex flex-col rounded-2xl border bg-card p-5 transition-colors hover:bg-accent"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <ShieldCheck className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-foreground">{u.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{u.body}</p>
-                  </div>
-                </div>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
-                  자세히 보기
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 전문 서비스 (실제 라우트) ===== */}
-      <section className="mx-auto max-w-6xl px-6 py-20 sm:px-12">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            1차 필기부터 2차 면접까지, 전 과정
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            모의고사·플래너·멘토링·2차 면접·생기부 — 사관·경찰 합격에 필요한 모든 단계를 한 곳에서 지원합니다.
-          </p>
-        </div>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {SERVICES.map((s) => {
-            const Icon = s.icon;
-            return (
-              <Link
-                key={s.title}
-                href={s.href}
-                className="group flex flex-col rounded-2xl border bg-card p-5 transition-colors hover:bg-accent"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-foreground">{s.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
-                  </div>
-                </div>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
-                  자세히 보기
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ===== READY ===== */}
-      <section className="bg-secondary/30 px-6 py-20 sm:px-12">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            지금 준비할 수 있는 것
-          </h2>
-          <p className="mt-4 text-muted-foreground">사관·경찰 합격을 위한 모든 준비가 여기 모여 있습니다.</p>
-        </div>
-        <ul className="mx-auto mt-10 grid max-w-3xl gap-2 sm:grid-cols-2">
-          {READY.map((r) => (
-            <li
-              key={r}
-              className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3 text-sm text-foreground"
-            >
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-              {r}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* ===== 사용법 · 블로그 안내 ===== */}
-      <section className="mx-auto max-w-6xl px-6 py-20 sm:px-12">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link
-            href="/promo/guide"
-            className="group flex flex-col rounded-2xl border bg-card p-7 transition-colors hover:bg-accent"
-          >
-            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <BookOpenCheck className="h-6 w-6" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground">사용법 가이드</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              가입부터 목표 학교 선택, 1차 필기·생기부 준비, 2차 면접·체력 대비, 멘토링·모의고사 활용까지 — 처음이라도 순서대로 따라오면 됩니다.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:gap-2 transition-all">
-              사용법 보기
-              <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-          <Link
-            href="/promo/blog"
-            className="group flex flex-col rounded-2xl border bg-card p-7 transition-colors hover:bg-accent"
-          >
-            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Newspaper className="h-6 w-6" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground">블로그 · 사관·경찰 인사이트</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              사관·경찰 입시, 2차 면접, 체력·신체검사 대비에 대한 실전 정보와 합격 전략을 정리해 전합니다.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:gap-2 transition-all">
-              블로그 보기
-              <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-        </div>
-      </section>
-
-      {/* ===== FINAL CTA ===== */}
-      <section className="mx-auto max-w-3xl px-6 py-20 text-center sm:px-12">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <Rocket className="h-6 w-6" />
-        </div>
-        <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          사관·경찰 합격, 지금 시작하세요
-        </h2>
-        <p className="mt-4 text-muted-foreground">
-          내신은 안 들어가고 체력은 지금부터. 전용 모의고사와 합격생 멘토링으로 육·해·공사·국간사·경찰대 합격을 함께 준비합니다.
-        </p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/mock"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
-          >
-            모의고사 체험하기
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
     </>
-  );
+  )
 }

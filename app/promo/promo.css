@@ -1,0 +1,166 @@
+/* /promo 전용 스타일 — 홈 리디자인(네이비·아이보리) 톤을 그대로 따른다. 접두사 pm- */
+.pm-root { background: #f7f6f2; color: #182e43; }
+.pm-wrap { max-width: 1200px; margin: auto; padding-inline: 32px; }
+.pm-section { padding-block: 72px; }
+.pm-section + .pm-section { border-top: 1px solid #e1e5e5; }
+.pm-h2 { margin-top: 10px; font-size: clamp(26px, 2.6vw, 34px); font-weight: 720; line-height: 1.4; letter-spacing: -.05em; color: #1d354a; }
+.pm-lead { margin-top: 12px; max-width: 640px; font-size: 14px; line-height: 1.9; color: #66757f; }
+.pm-head-row { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 34px; }
+.pm-head-row > a { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: #53677a; flex-shrink: 0; }
+.pm-head-row > a:hover { color: #aa624c; }
+
+/* 서브 탭 (소개·사용법·블로그) */
+.pm-tabs { background: #fffefa; border-bottom: 1px solid #e4e6e5; position: sticky; top: 0; z-index: 30; }
+.pm-tabs ul { max-width: 1200px; margin: auto; padding: 10px 32px; display: flex; gap: 6px; overflow-x: auto; }
+.pm-tabs a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; font-size: 12px; color: #607281; white-space: nowrap; }
+.pm-tabs a:hover { background: #eef2f4; color: #203b55; }
+.pm-tabs a[aria-current="page"] { background: #203b55; color: #fff; }
+
+/* HERO */
+.pm-hero { max-width: 1200px; margin: auto; padding: 72px 32px 64px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; }
+.pm-hero h1 { margin: 22px 0 20px; font-size: clamp(36px, 3.9vw, 56px); line-height: 1.24; font-weight: 760; letter-spacing: -.065em; color: #182e43; }
+.pm-hero h1 em { font-style: normal; color: #aa624c; }
+.pm-hero-lead { font-size: 16px; line-height: 1.9; color: #637181; max-width: 540px; }
+.pm-actions { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+.pm-proof { margin-top: 36px; padding-top: 22px; border-top: 1px solid #e0e3e2; display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 34px; }
+.pm-proof b { display: block; font-size: 22px; font-weight: 720; letter-spacing: -.04em; color: #203b55; }
+.pm-proof span { font-size: 11px; color: #75838e; }
+
+/* 앱 미리보기 */
+.pm-preview { position: relative; padding: 0 0 112px 0; }
+.pm-report { background: #1c344b; border-radius: 20px; padding: 26px 28px 24px; color: #fff; box-shadow: 0 30px 60px -36px #172d46; }
+.pm-report-top { display: flex; justify-content: space-between; align-items: center; font-size: 9px; letter-spacing: .16em; color: #b9c5cf; }
+.pm-report h3 { margin-top: 14px; font-size: 20px; font-weight: 650; letter-spacing: -.03em; }
+.pm-report-sub { margin-top: 4px; font-size: 11px; color: #a9b9c6; }
+.pm-bars { margin-top: 20px; display: flex; flex-direction: column; gap: 13px; }
+.pm-bar { display: grid; grid-template-columns: 40px 1fr 44px; align-items: center; gap: 12px; font-size: 12px; }
+.pm-bar > span:first-child { color: #c3d0da; }
+.pm-bar-track { height: 8px; border-radius: 99px; background: #ffffff1a; overflow: hidden; }
+.pm-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #8fb0c7, #e8cfac); }
+.pm-bar > span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.pm-report-foot { margin-top: 20px; padding-top: 16px; border-top: 1px solid #ffffff20; display: flex; flex-wrap: wrap; gap: 8px; }
+.pm-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px; background: #ffffff14; font-size: 10px; color: #dbe4ea; }
+.pm-chip i { width: 6px; height: 6px; border-radius: 50%; background: #e0a37f; display: inline-block; }
+.pm-today { position: absolute; right: -18px; bottom: 0; width: 250px; background: #fffefa; border: 1px solid #e2e5e2; border-radius: 16px; padding: 18px 18px 14px; box-shadow: 0 24px 40px -28px #203b55; color: #20364b; }
+.pm-today p { font-size: 10px; letter-spacing: .12em; color: #8b624e; font-weight: 700; }
+.pm-today ul { margin-top: 10px; display: flex; flex-direction: column; gap: 9px; }
+.pm-today li { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.pm-today li span.box { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid #b6c4cd; flex-shrink: 0; display: grid; place-items: center; }
+.pm-today li.done span.box { background: #203b55; border-color: #203b55; color: #fff; }
+.pm-today li.done { color: #8c99a2; text-decoration: line-through; }
+.pm-caption { margin-top: 12px; font-size: 10px; color: #9aa5ad; }
+
+/* 준비 단계별 서비스 */
+.pm-stages { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.pm-stage { background: #fff; border: 1px solid #e1e5e6; border-radius: 16px; padding: 24px 22px 18px; display: flex; flex-direction: column; }
+.pm-stage-no { font-size: 10px; letter-spacing: .14em; color: #a07560; font-weight: 700; }
+.pm-stage h3 { margin-top: 10px; font-size: 18px; font-weight: 700; letter-spacing: -.04em; }
+.pm-stage > p { margin-top: 6px; font-size: 12px; line-height: 1.8; color: #75818c; min-height: 44px; }
+.pm-stage ul { margin-top: 16px; border-top: 1px solid #edf0f1; }
+.pm-stage li a { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f2f2; font-size: 13px; color: #2b4357; transition: color .15s, padding .15s; }
+.pm-stage li:last-child a { border-bottom: 0; }
+.pm-stage li a:hover { color: #aa624c; padding-left: 4px; }
+.pm-stage li a svg:first-child { color: #6d8597; flex-shrink: 0; }
+.pm-stage li a svg:last-child { margin-left: auto; color: #b3bec5; flex-shrink: 0; }
+
+/* 기능 상세 */
+.pm-features { display: flex; flex-direction: column; gap: 18px; }
+.pm-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #fff; border: 1px solid #e1e5e6; border-radius: 20px; overflow: hidden; }
+.pm-feature-copy { padding: 40px 42px; }
+.pm-feature-label { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #8b624e; letter-spacing: .04em; }
+.pm-feature h3 { margin-top: 12px; font-size: 25px; line-height: 1.45; font-weight: 720; letter-spacing: -.05em; color: #1d354a; }
+.pm-feature-copy > p { margin-top: 12px; font-size: 14px; line-height: 1.9; color: #66757f; }
+.pm-feature-copy ul { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.pm-feature-copy li { display: flex; gap: 10px; font-size: 13px; line-height: 1.7; color: #33495c; }
+.pm-feature-copy li svg { margin-top: 3px; color: #5f8a76; flex-shrink: 0; }
+.pm-feature-copy .quiet-link { margin-top: 26px; }
+.pm-feature-visual { background: #eef1ef; padding: 36px; display: flex; align-items: center; justify-content: center; }
+.pm-feature:nth-child(even) .pm-feature-copy { order: 2; }
+.pm-flow { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 10px; }
+.pm-flow-step { display: flex; align-items: center; gap: 14px; background: #fffefa; border: 1px solid #dfe4e2; border-radius: 12px; padding: 14px 16px; }
+.pm-flow-step b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: #203b55; color: #fff; font-size: 12px; flex-shrink: 0; }
+.pm-flow-step div { font-size: 13px; font-weight: 650; color: #20364b; }
+.pm-flow-step div small { display: block; font-size: 11px; font-weight: 400; color: #7b8892; margin-top: 2px; }
+.pm-axes { width: 100%; max-width: 360px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pm-axis { background: #fffefa; border: 1px solid #dfe4e2; border-radius: 12px; padding: 16px; }
+.pm-axis span { font-size: 10px; color: #8b624e; font-weight: 700; letter-spacing: .06em; }
+.pm-axis b { display: block; margin-top: 6px; font-size: 14px; color: #20364b; }
+.pm-axis small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.6; color: #7b8892; }
+
+/* 일정 */
+.pm-timeline { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; border: 1px solid #e1e5e6; border-radius: 16px; background: #fff; overflow: hidden; }
+.pm-tl { padding: 22px 18px; border-right: 1px solid #eef0f1; position: relative; }
+.pm-tl:last-child { border-right: 0; }
+.pm-tl::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #d5dde2; }
+.pm-tl.now::before { background: #aa624c; }
+.pm-tl-when { font-size: 11px; font-weight: 700; color: #53697c; }
+.pm-tl.now .pm-tl-when { color: #aa624c; }
+.pm-tl h4 { margin-top: 8px; font-size: 14px; font-weight: 700; color: #1d354a; letter-spacing: -.03em; }
+.pm-tl p { margin-top: 6px; font-size: 11px; line-height: 1.75; color: #7b8892; }
+.pm-note { margin-top: 14px; font-size: 11px; color: #8b969e; }
+
+/* 멘토링 밴드 */
+.pm-mentor { background: #1c344b; border-radius: 22px; color: #fff; padding: 46px 48px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
+.pm-mentor .eyebrow { color: #e0b99d; }
+.pm-mentor h2 { margin-top: 12px; font-size: clamp(24px, 2.4vw, 32px); font-weight: 700; line-height: 1.45; letter-spacing: -.05em; }
+.pm-mentor > div > p { margin-top: 12px; font-size: 14px; line-height: 1.9; color: #b8c6d1; }
+.pm-mentor ul { display: flex; flex-direction: column; }
+.pm-mentor li { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid #ffffff20; font-size: 13px; }
+.pm-mentor li span { color: #a7b8c5; }
+.pm-mentor li b { font-weight: 600; text-align: right; }
+.pm-mentor .solid-link { margin-top: 26px; background: #fffefa; color: #1c344b; }
+.pm-mentor .solid-link:hover { background: #ece4d8; }
+
+/* FAQ */
+.pm-faq { max-width: 860px; }
+.pm-faq details { border-bottom: 1px solid #e3e7e8; padding: 20px 2px; }
+.pm-faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; font-size: 15px; font-weight: 650; color: #20364b; }
+.pm-faq summary::-webkit-details-marker { display: none; }
+.pm-faq summary::after { content: "+"; color: #9aa7b0; font-weight: 400; font-size: 20px; line-height: 1; }
+.pm-faq details[open] summary::after { content: "–"; }
+.pm-faq details p { margin-top: 12px; font-size: 13px; line-height: 1.9; color: #66757f; }
+
+/* 마무리 */
+.pm-final { text-align: center; padding: 84px 24px 96px; }
+.pm-final h2 { font-size: clamp(26px, 3vw, 38px); font-weight: 740; letter-spacing: -.055em; line-height: 1.4; color: #1d354a; }
+.pm-final p { margin: 14px auto 0; max-width: 520px; font-size: 14px; line-height: 1.9; color: #66757f; }
+.pm-final .pm-actions { justify-content: center; }
+
+.pm-footer { border-top: 1px solid #e1e5e5; background: #f1f1ec; padding: 30px 24px; text-align: center; font-size: 11px; line-height: 1.9; color: #7c8993; }
+.pm-footer a { text-decoration: underline; }
+
+@media (max-width: 1100px) {
+  .pm-hero { gap: 40px; }
+  .pm-stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pm-timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pm-tl:nth-child(3) { border-right: 0; }
+  .pm-tl:nth-child(-n+3) { border-bottom: 1px solid #eef0f1; }
+  .pm-today { right: 0; }
+}
+@media (max-width: 760px) {
+  .pm-wrap { padding-inline: 16px; }
+  .pm-section { padding-block: 48px; }
+  .pm-tabs ul { padding-inline: 16px; }
+  .pm-head-row { flex-direction: column; align-items: start; gap: 12px; margin-bottom: 24px; }
+  .pm-hero { grid-template-columns: 1fr; padding: 40px 16px 44px; gap: 36px; }
+  .pm-hero h1 { font-size: 38px; }
+  .pm-hero-lead { font-size: 14px; }
+  .pm-actions { gap: 16px; }
+  .pm-proof { gap: 20px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pm-proof b { font-size: 18px; }
+  .pm-preview { padding-bottom: 0; }
+  .pm-today { position: relative; right: auto; width: auto; margin: -18px 14px 0; }
+  .pm-report { padding: 22px; }
+  .pm-stages { grid-template-columns: 1fr; }
+  .pm-stage > p { min-height: 0; }
+  .pm-feature { grid-template-columns: 1fr; }
+  .pm-feature:nth-child(even) .pm-feature-copy { order: 0; }
+  .pm-feature-copy { padding: 28px 22px; }
+  .pm-feature h3 { font-size: 21px; }
+  .pm-feature-visual { padding: 22px 16px; }
+  .pm-timeline { grid-template-columns: 1fr; }
+  .pm-tl { border-right: 0; border-bottom: 1px solid #eef0f1; padding: 18px 18px 18px 22px; }
+  .pm-tl::before { top: 0; bottom: 0; right: auto; width: 3px; height: auto; }
+  .pm-mentor { grid-template-columns: 1fr; padding: 30px 22px; gap: 20px; }
+  .pm-final { padding: 56px 16px 64px; }
+}

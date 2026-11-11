@@ -164,3 +164,68 @@
   .pm-mentor { grid-template-columns: 1fr; padding: 30px 22px; gap: 20px; }
   .pm-final { padding: 56px 16px 64px; }
 }
+
+/* ===== /promo/start — 기말 직후 2028 준비 캠페인 (접두사 pms-) ===== */
+.pms-ticket { background: #1c344b; color: #fff; border-radius: 20px; padding: 28px 28px 24px; box-shadow: 0 30px 60px -36px #172d46; position: relative; overflow: hidden; }
+.pms-ticket::after { content: ""; position: absolute; right: -60px; top: -60px; width: 180px; height: 180px; border-radius: 50%; background: #ffffff0d; }
+.pms-ticket-top { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: .18em; color: #e0b99d; }
+.pms-ticket h2 { margin-top: 14px; font-size: 24px; font-weight: 720; letter-spacing: -.045em; line-height: 1.35; }
+.pms-ticket-sub { margin-top: 6px; font-size: 12px; color: #a9b9c6; }
+.pms-ticket dl { margin-top: 20px; border-top: 1px dashed #ffffff33; }
+.pms-ticket dl > div { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid #ffffff14; font-size: 12px; }
+.pms-ticket dt { color: #9fb2c1; }
+.pms-ticket dd { color: #eef3f6; }
+.pms-ticket-cta { margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; padding: 14px 18px; border-radius: 10px; background: #fffefa; color: #1c344b; font-size: 14px; font-weight: 700; transition: background .18s; }
+.pms-ticket-cta:hover { background: #ece4d8; }
+
+.pms-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; background: #eef2f4; color: #203b55; flex-shrink: 0; }
+.pms-why { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.pms-why article { background: #fff; border: 1px solid #e1e5e6; border-radius: 16px; padding: 24px 22px; }
+.pms-why h3 { margin-top: 16px; font-size: 16px; font-weight: 700; letter-spacing: -.035em; color: #1d354a; }
+.pms-why p { margin-top: 8px; font-size: 12.5px; line-height: 1.85; color: #6a7883; }
+
+.pms-steps { margin-top: 22px !important; gap: 12px !important; }
+.pms-steps li { display: flex; gap: 14px !important; align-items: flex-start; }
+.pms-steps li > b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #203b55; color: #fff; font-size: 12px; flex-shrink: 0; }
+.pms-steps li strong { display: block; font-size: 13.5px; color: #1d354a; }
+.pms-steps li span { display: block; margin-top: 2px; font-size: 12px; line-height: 1.7; color: #6f7d88; }
+.pms-cta { margin-top: 28px; }
+
+.pms-timetable { width: 100%; max-width: 380px; background: #fffefa; border: 1px solid #dfe4e2; border-radius: 16px; padding: 22px; }
+.pms-timetable > p { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #8b624e; margin-bottom: 10px; }
+.pms-timetable > div { display: grid; grid-template-columns: 46px 1fr auto; grid-template-rows: auto auto; column-gap: 12px; padding: 13px 0; border-top: 1px solid #edf0f1; align-items: center; }
+.pms-timetable > div span { grid-row: span 2; font-size: 11px; color: #7b8892; }
+.pms-timetable > div b { font-size: 15px; color: #20364b; }
+.pms-timetable > div em { font-style: normal; font-size: 15px; font-weight: 700; color: #aa624c; font-variant-numeric: tabular-nums; }
+.pms-timetable > div small { grid-column: 2 / 4; font-size: 11px; color: #7b8892; }
+.pms-src { display: block; margin-top: 10px; font-size: 10px; color: #9aa5ad; }
+
+.pms-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.pms-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #e1e5e6; border-radius: 16px; padding: 24px 22px 20px; transition: border-color .18s, transform .18s; }
+.pms-card:hover { border-color: #b9c6cf; transform: translateY(-2px); }
+.pms-card-top { display: flex; justify-content: space-between; align-items: center; color: #b3bec5; }
+.pms-tag { margin-top: 18px; font-size: 10px; font-weight: 700; letter-spacing: .1em; color: #a07560; }
+.pms-card h3 { margin-top: 6px; font-size: 17px; font-weight: 700; letter-spacing: -.04em; line-height: 1.45; color: #1d354a; }
+.pms-card p { margin-top: 8px; font-size: 12.5px; line-height: 1.85; color: #6a7883; flex: 1; }
+.pms-card strong { margin-top: 16px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650; color: #405367; }
+.pms-card:hover strong { color: #aa624c; }
+.pms-soon { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding: 16px 20px; border: 1px dashed #cfd7dc; border-radius: 14px; }
+.pms-soon > span { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: #fff; background: #8a98a3; border-radius: 99px; padding: 4px 10px; }
+.pms-soon p { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #4b5f70; }
+.pms-soon small { font-size: 11px; color: #8b969e; margin-left: auto; }
+
+/* 다른 페이지에서 캠페인으로 보내는 띠 배너 */
+.pms-banner { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px 16px; background: #aa624c; color: #fff; font-size: 13px; font-weight: 600; text-align: center; }
+.pms-banner:hover { background: #95533f; }
+
+@media (max-width: 1100px) {
+  .pms-why { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pms-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .pms-why, .pms-grid { grid-template-columns: 1fr; }
+  .pms-ticket { padding: 22px; }
+  .pms-ticket h2 { font-size: 21px; }
+  .pms-soon small { margin-left: 0; }
+  .pms-banner { font-size: 12px; }
+}

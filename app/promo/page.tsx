@@ -126,6 +126,9 @@ export default function PromoPage() {
     <>
       <JsonLd data={graph(breadcrumb([["홈", "/"], ["T사관 서비스 소개", "/promo"]]), faqPage(FAQ))} />
       <main>
+        <Link className="pms-banner" href="/promo/start">
+          🎁 기말고사 끝나면 바로 2028 준비 — T사관 모의 1회 무료 응시 <ArrowRight size={15} />
+        </Link>
         {/* ===== HERO ===== */}
         <section className="pm-hero">
           <div>

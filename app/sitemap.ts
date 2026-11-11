@@ -23,6 +23,7 @@ const ADMISSION_SLUGS = ["army", "navy", "airforce", "nursing", "police"] as con
 const ENTRIES: Entry[] = [
   { path: "/", priority: 1.0, changeFrequency: "weekly" },
   { path: "/promo", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/promo/start", priority: 0.8, changeFrequency: "monthly" },
   { path: "/promo/guide", priority: 0.7, changeFrequency: "monthly" },
   { path: "/promo/blog", priority: 0.7, changeFrequency: "weekly" },
   { path: "/1cha", priority: 0.9, changeFrequency: "weekly" },

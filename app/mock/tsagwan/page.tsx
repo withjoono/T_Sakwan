@@ -64,6 +64,15 @@ export default function TsagwanMockPage() {
     <div className="min-h-screen bg-white">
       <Navigation />
 
+      {/* 2026-11 캠페인 — 1회 무료 개방 (FREE_ROUNDS) */}
+      <Link
+        href="/promo/start"
+        className="flex items-center justify-center gap-2 bg-[#aa624c] px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#95533f]"
+      >
+        🎁 기말고사 끝나면 바로 2028 준비 — 1회는 결제 없이 무료로 응시할 수 있어요
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+
       {/* Hero */}
       <section className="workspace-hero relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-orange-900 py-16">
         <div className="container relative mx-auto max-w-5xl px-6">

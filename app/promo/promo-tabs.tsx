@@ -2,10 +2,11 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpenCheck, Newspaper, Sparkles } from "lucide-react"
+import { BookOpenCheck, Gift, Newspaper, Sparkles } from "lucide-react"
 
 const TABS = [
   { href: "/promo", label: "서비스 소개", icon: Sparkles },
+  { href: "/promo/start", label: "2028 시작 이벤트", icon: Gift },
   { href: "/promo/guide", label: "사용법", icon: BookOpenCheck },
   { href: "/promo/blog", label: "블로그", icon: Newspaper },
 ]

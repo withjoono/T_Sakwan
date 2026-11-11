@@ -131,6 +131,17 @@ export function isGrantedEmail(email?: string | null): boolean {
  */
 export const PAYMENT_ENABLED = true
 
+/* ───────── 무료 개방 회차 ─────────
+ * 2026-11 「기말 끝나면 바로 2028 사관 준비」 이벤트(/promo/start): 1회는 결제 없이 개방.
+ * 오픈일·채점(점수 입력 후 답지·해설) 게이트는 그대로 유지하고 '결제' 게이트만 통과시킨다.
+ * 이벤트를 끝낼 때는 배열을 비우면 된다.
+ */
+export const FREE_ROUNDS: number[] = [1]
+
+export function isFreeRound(round: number): boolean {
+  return FREE_ROUNDS.includes(round)
+}
+
 /* ───────── 결제 상태(localStorage) ───────── */
 const PAID_KEY = "tsagwan_paid_v1"
 

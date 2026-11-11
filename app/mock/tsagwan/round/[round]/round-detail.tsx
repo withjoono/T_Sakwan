@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/use-auth"
 import {
   MOCK_ROUNDS,
   PAYMENT_ENABLED,
+  isFreeRound,
   isGrantedEmail,
   isRoundOpen,
   loadPaid,
@@ -69,7 +70,7 @@ export default function RoundDetail({ round }: { round: number }) {
 
   // 오픈일 게이트는 모두에게 적용(3~5회는 시행일 이후 오픈). 결제해제·granted는 '결제' 게이트만 통과.
   const open = dateOpen
-  const isPaid = !PAYMENT_ENABLED || granted || !!paid?.rounds?.includes(r.round)
+  const isPaid = !PAYMENT_ENABLED || granted || isFreeRound(r.round) || !!paid?.rounds?.includes(r.round)
   const d = dday(r.openIso)
   const prev = MOCK_ROUNDS.find((x) => x.round === r.round - 1)
   const next = MOCK_ROUNDS.find((x) => x.round === r.round + 1)

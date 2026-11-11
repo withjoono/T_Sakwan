@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   MOCK_ROUNDS,
   PAST_EXAM_LINKS,
+  FREE_ROUNDS,
   PAYMENT_ENABLED,
   isGrantedEmail,
   isRoundOpen,
@@ -53,10 +54,11 @@ export default function DownloadPage() {
   }, [])
 
   // 로컬 게이트(전체개방 플래그/허용 이메일/localStorage) + 허브 라이선스(실결제)를 합집합으로 개방
-  const localUnlocked = !PAYMENT_ENABLED || granted ? new Set([1, 2, 3, 4, 5]) : new Set(paid?.rounds ?? [])
+  const localUnlocked = !PAYMENT_ENABLED || granted ? new Set([1, 2, 3, 4, 5]) : new Set([...FREE_ROUNDS, ...(paid?.rounds ?? [])])
   const unlocked = new Set<number>([...localUnlocked, ...(hubOwned ?? [])])
   // 결제 유도 배너: 로컬·허브 어디에도 개방 회차가 없을 때만 노출
-  const hasAnyAccess = unlocked.size > 0
+  // 무료 개방 회차(FREE_ROUNDS)는 결제로 치지 않는다 — 무료 회차만 열린 사용자에게도 패키지 안내를 보여 준다
+  const hasAnyAccess = [...unlocked].some((n) => !FREE_ROUNDS.includes(n))
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -104,7 +106,7 @@ export default function DownloadPage() {
                 <div className="mb-5 flex flex-col items-start justify-between gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center">
                   <div className="flex items-start gap-2 text-sm text-amber-900">
                     <Lock className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                    <span>아직 결제 내역이 없어요. 응시 신청 후 회차별 문제지를 다운로드할 수 있습니다.</span>
+                    <span>{FREE_ROUNDS.length > 0 ? `${FREE_ROUNDS.join("·")}회는 무료로 열려 있어요. 나머지 회차는 응시 신청 후 다운로드할 수 있습니다.` : "아직 결제 내역이 없어요. 응시 신청 후 회차별 문제지를 다운로드할 수 있습니다."}</span>
                   </div>
                   <Link href="/mock/tsagwan/checkout?plan=package">
                     <Button className="whitespace-nowrap bg-amber-500 font-bold text-white hover:bg-amber-600">

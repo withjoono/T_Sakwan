@@ -27,7 +27,8 @@ jobs:
           repository: withjoono/Music_College
           ref: 94861ac84b3b55b8a1a75c04e74be2b70e3ae7d1
           path: Music_College
-          token: ${{ secrets.SATELLITE_HEADER_TOKEN || secrets.NODE_AUTH_TOKEN }}
+          ssh-key: ${{ secrets.SATELLITE_HEADER_DEPLOY_KEY }}
+          persist-credentials: false
           sparse-checkout: packages/satellite-header
 
       - name: Verify shared header source

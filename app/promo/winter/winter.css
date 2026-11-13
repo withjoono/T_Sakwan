@@ -1,0 +1,51 @@
+/* ===== /promo/winter — 겨울방학 플랜 세우기 + 사관반 모집 (접두사 pmw-) ===== */
+.pmw-problem { margin-top: 16px !important; font-size: 11px !important; line-height: 1.6 !important; color: #a07560 !important; font-weight: 700; }
+.pmw-problem + h3 { margin-top: 4px; }
+.pmw-status { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 6px 12px; border-radius: 99px; border: 1px dashed #c3ccd2; font-size: 11px; font-weight: 650; color: #53677a; }
+
+.pmw-panel { width: 100%; max-width: 400px; background: #fffefa; border: 1px solid #dfe4e2; border-radius: 16px; padding: 20px 20px 16px; }
+.pmw-panel-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.pmw-panel-top span { font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #8b624e; }
+.pmw-panel-top b { font-size: 14px; color: #20364b; font-variant-numeric: tabular-nums; }
+
+.pmw-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.g-ma { background: #203b55; }
+.g-en { background: #aa624c; }
+.g-mb { background: #6d8597; }
+.g-ko { background: #5f8a76; }
+.g-sc { background: #c39a5c; }
+.g-rd { background: #8f86a8; }
+
+.pmw-alloc { display: grid; grid-template-columns: 9px 1fr 40px 64px; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #edf0f1; font-size: 13px; color: #20364b; }
+.pmw-alloc span small { display: block; font-size: 10px; color: #8b969e; margin-top: 1px; }
+.pmw-alloc b { text-align: right; font-variant-numeric: tabular-nums; }
+.pmw-alloc em { font-style: normal; text-align: right; font-size: 12px; color: #53677a; }
+.pmw-alloc em.warn { color: #aa624c; font-weight: 700; }
+.pmw-alloc em.warn::after { content: " ⚠"; }
+
+.pmw-grid { display: grid; grid-template-columns: 30px repeat(7, minmax(0, 1fr)); gap: 4px; align-items: stretch; margin-top: 4px; }
+.pmw-day, .pmw-slot { font-size: 10px; color: #7b8892; display: grid; place-items: center; }
+.pmw-day { padding-bottom: 2px; }
+.pmw-cell { font-style: normal; display: grid; place-items: center; min-height: 34px; border-radius: 7px; font-size: 11px; font-weight: 650; color: #fff; }
+.pmw-cell.empty { background: #f0f2f1; color: #b3bec5; font-weight: 400; }
+.pmw-cell.buffer { grid-row: span 3; background: transparent; border: 1px dashed #c3ccd2; color: #7b8892; font-weight: 600; writing-mode: vertical-rl; letter-spacing: .2em; }
+.pmw-legend { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.pmw-legend span { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; color: #66757f; }
+
+.pmw-progress { height: 5px; border-radius: 99px; background: #e8ecec; overflow: hidden; margin-bottom: 6px; }
+.pmw-progress i { display: block; height: 100%; border-radius: 99px; background: #203b55; }
+.pmw-today { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid #edf0f1; }
+.pmw-today > span { font-size: 11px; color: #7b8892; }
+.pmw-today b { font-size: 14px; color: #20364b; }
+.pmw-today small { display: block; margin-top: 2px; font-size: 12px; color: #66757f; font-variant-numeric: tabular-nums; }
+.pmw-today em { font-style: normal; font-size: 11px; color: #53677a; border: 1px solid #d5dde2; border-radius: 6px; padding: 3px 8px; }
+.pmw-confirm { margin-top: 8px; padding: 12px; border-radius: 10px; background: #203b55; color: #fff; font-size: 13px; font-weight: 700; text-align: center; }
+
+.pmw-ban-note { margin-top: 22px !important; font-size: 12px !important; color: #e0b99d !important; }
+
+@media (max-width: 760px) {
+  .pmw-panel { padding: 16px 14px 14px; }
+  .pmw-alloc { grid-template-columns: 9px 1fr 36px 58px; gap: 8px; font-size: 12.5px; }
+  .pmw-grid { grid-template-columns: 26px repeat(7, minmax(0, 1fr)); gap: 3px; }
+  .pmw-cell { font-size: 10px; min-height: 32px; }
+}

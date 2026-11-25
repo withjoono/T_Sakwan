@@ -155,3 +155,8 @@
   .goal-board-wide .goal-mascot { width: 86px; right: -6px; bottom: -28px; }
   .home-closing-mascot { width: 120px; }
 }
+
+/* 홈 — 학교 카드 사진 (2026-11-26) */
+.school-card { overflow: hidden; }
+.school-card-photo { display: block; width: calc(100% + 36px); max-width: none; height: auto; aspect-ratio: 16 / 10; object-fit: cover; margin: -21px -18px 18px; }
+@media (max-width: 760px) { .school-card-photo { width: calc(100% + 28px); margin: -18px -14px 14px; } }

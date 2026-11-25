@@ -37,7 +37,7 @@ import "./winter.css"
 const PLANNER_OPEN = false
 const PLANNER_HREF = "/planner"
 /** 사관반 신청 링크(폼·카톡 채널 등). 비어 있으면 신청 버튼 대신 모집 안내 섹션으로 보낸다. */
-const BAN_APPLY_HREF = ""
+const BAN_APPLY_HREF = "/promo/ban"
 
 const TITLE = "겨울방학 플랜 세우기 — 사관학교·경찰대 준비생 방학 계획 | T사관 사관반 모집"
 const DESCRIPTION =
@@ -150,7 +150,7 @@ const FAQ = [
   },
   {
     q: "사관반은 어떻게 들어가나요?",
-    a: "사관반은 플래너와 별도로 모집하는 반으로, 전교권 학생들이 매일 학습량 등으로 서로 경쟁하는 구조입니다. 현재 모집 중이며, 신청 방법은 이 페이지의 사관반 안내에서 확인할 수 있습니다.",
+    a: "사관반은 플래너와 별도로 모집하는 반으로, 전교권 학생들이 매일 학습량 등으로 서로 경쟁하는 구조입니다. 현재 모집 중이며, 운영 방식과 신청 방법은 사관반 모집 페이지에서 확인할 수 있습니다.",
   },
 ]
 
@@ -161,7 +161,7 @@ function Cell({ k }: { k: string | null }) {
 
 export default function PromoWinterPage() {
   const banHref = BAN_APPLY_HREF || "#ban"
-  const banLabel = BAN_APPLY_HREF ? "사관반 신청하기" : "사관반 모집 안내"
+  const banLabel = BAN_APPLY_HREF ? "사관반 모집 보기" : "사관반 모집 안내"
   const banExternal = /^https?:/.test(BAN_APPLY_HREF)
   const banProps = banExternal ? { target: "_blank", rel: "noopener noreferrer" } : {}
 
@@ -485,7 +485,7 @@ export default function PromoWinterPage() {
                 </p>
                 {BAN_APPLY_HREF ? (
                   <a className="solid-link" href={BAN_APPLY_HREF} {...banProps}>
-                    사관반 신청하기 <ArrowRight size={18} />
+                    사관반 모집 보기 <ArrowRight size={18} />
                   </a>
                 ) : (
                   <p className="pmw-ban-note">신청 방법은 곧 이 자리에 안내합니다.</p>

@@ -1,0 +1,78 @@
+/* ===== /promo/ban — 겨울방학 사관반 모집 (접두사 pmb-) ===== */
+.pmb-card:hover { transform: none; border-color: #e1e5e6; }
+.pmb-card .pms-card-top { justify-content: flex-start; }
+
+/* 예시 패널 공통 */
+.pmb-panel { width: 100%; max-width: 400px; background: #fffefa; border: 1px solid #dfe4e2; border-radius: 16px; padding: 22px; }
+.pmb-panel-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #8b624e; }
+.pmb-panel-top b { font-size: 12px; letter-spacing: 0; color: #20364b; }
+.pmb-track { height: 8px; border-radius: 99px; background: #e8ecee; overflow: hidden; }
+.pmb-track u { display: block; height: 100%; border-radius: 99px; background: #203b55; text-decoration: none; }
+.pmb-track.avg u { background: #c9a58f; }
+
+/* 예시 1 — 오늘의 반 현황 */
+.pmb-row { display: grid; grid-template-columns: 20px 56px 1fr 34px; align-items: center; gap: 10px; padding: 10px 8px; border-top: 1px solid #edf0f1; font-size: 12.5px; color: #33495c; }
+.pmb-row i { font-style: normal; font-size: 11px; font-weight: 700; color: #9aa7b0; text-align: center; }
+.pmb-row b { text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; color: #20364b; }
+.pmb-row.me { background: #f3ece6; border-radius: 9px; border-top-color: transparent; font-weight: 700; }
+.pmb-row.me + .pmb-row { border-top-color: transparent; }
+.pmb-row.me i { color: #aa624c; }
+.pmb-row.me .pmb-track u { background: #aa624c; }
+
+/* 예시 2 — 주간 플래너 검사 */
+.pmb-week { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.pmb-week > div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 0; border-radius: 9px; background: #eef2f4; font-size: 11px; color: #607281; }
+.pmb-week i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-style: normal; font-size: 11px; }
+.pmb-week .ok i { background: #203b55; color: #fff; }
+.pmb-week .miss { background: #f3ece6; }
+.pmb-week .miss i { background: #fffefa; color: #aa624c; border: 1px solid #dfc4b5; }
+.pmb-note-title { margin-top: 16px; font-size: 11px; font-weight: 700; color: #53677a; }
+.pmb-notes { margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
+.pmb-notes li { position: relative; padding-left: 12px; font-size: 12px; line-height: 1.65; color: #4b5f70; }
+.pmb-notes li::before { content: ""; position: absolute; left: 0; top: 8px; width: 4px; height: 4px; border-radius: 50%; background: #aa624c; }
+
+/* 예시 3 — 시험 점수 비교 */
+.pmb-score { display: grid; grid-template-columns: 34px 1fr 34px; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #edf0f1; font-size: 12.5px; color: #33495c; }
+.pmb-score > div { display: flex; flex-direction: column; gap: 5px; }
+.pmb-score b { text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; }
+.pmb-score b.up { color: #3f6f5b; }
+.pmb-score b.down { color: #aa624c; }
+.pmb-legend { margin-top: 10px; display: flex; gap: 16px; font-size: 11px; color: #7b8892; }
+.pmb-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.pmb-legend i { width: 14px; height: 6px; border-radius: 99px; background: #203b55; display: inline-block; }
+.pmb-legend i.avg { background: #c9a58f; }
+
+/* 방학 흐름 — 공용 타임라인을 4칸으로 */
+.pm-timeline.pmb-flow { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* 학교별 반 */
+.pmb-tracks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.pmb-track-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #e1e5e6; border-radius: 16px; padding: 24px 22px 20px; color: #6d8597; transition: border-color .18s, transform .18s; }
+.pmb-track-card:hover { border-color: #b9c6cf; transform: translateY(-2px); }
+.pmb-track-card h3 { margin-top: 16px; font-size: 20px; font-weight: 720; letter-spacing: -.045em; color: #1d354a; }
+.pmb-track-card p { margin-top: 4px; font-size: 12.5px; color: #6a7883; }
+.pmb-track-card strong { margin-top: 18px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650; color: #405367; }
+.pmb-track-card:hover strong { color: #aa624c; }
+.pmb-notice { margin-top: 16px; display: flex; gap: 10px; padding: 16px 20px; border: 1px dashed #cfd7dc; border-radius: 14px; font-size: 12.5px; line-height: 1.85; color: #53677a; }
+.pmb-notice svg { margin-top: 4px; flex-shrink: 0; color: #8b624e; }
+.pmb-notice b { color: #1d354a; }
+
+.pmb-apply-note { margin-top: 22px !important; display: inline-block; padding: 10px 16px; border: 1px dashed #ffffff55; border-radius: 10px; font-size: 13px !important; color: #e6edf2 !important; }
+
+@media (max-width: 1100px) {
+  .pm-timeline.pmb-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pm-timeline.pmb-flow .pm-tl:nth-child(3) { border-right: 1px solid #eef0f1; }
+  .pm-timeline.pmb-flow .pm-tl:nth-child(2) { border-right: 0; }
+  .pm-timeline.pmb-flow .pm-tl:nth-child(-n+3) { border-bottom: 0; }
+  .pm-timeline.pmb-flow .pm-tl:nth-child(-n+2) { border-bottom: 1px solid #eef0f1; }
+  .pmb-tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .pm-timeline.pmb-flow { grid-template-columns: 1fr; }
+  .pm-timeline.pmb-flow .pm-tl { border-right: 0; border-bottom: 1px solid #eef0f1; }
+  .pmb-tracks { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pmb-track-card { padding: 18px 16px; }
+  .pmb-track-card h3 { font-size: 17px; }
+  .pmb-panel { padding: 18px; }
+  .pmb-row { grid-template-columns: 18px 48px 1fr 30px; gap: 8px; }
+}

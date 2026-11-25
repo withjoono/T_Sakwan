@@ -34,9 +34,15 @@ export default function HomePage() {
         <div className="home-actions"><Link className="solid-link" href="/admission">나의 목표 학교 찾기 <ArrowRight size={18} /></Link><Link className="quiet-link" href="/mock">모의고사 바로가기 <ArrowUpRight size={17} /></Link></div>
         <div className="home-assurances"><span><Check size={15} />5개 학교 전형 비교</span><span><Check size={15} />전용 모의고사</span><span><Check size={15} />학습·면접 준비</span></div>
       </div>
-      <div className="goal-board">
-        <div className="goal-board-top"><span>YOUR NEXT CHAPTER</span><ShieldCheck size={22} /></div>
-        <h2>어떤 미래를<br />준비하고 있나요?</h2><p>목표 학교의 모집요강부터 확인해 보세요.</p>
+      <div className="hero-stage">
+        <img className="hero-stage-mascot" src="/mascot/hero-salute.webp" alt="전투복을 입고 경례하는 T사관 거북쌤" width={657} height={1100} />
+        <p className="hero-stage-tag"><ShieldCheck size={15} />충성! 거북쌤과 준비하는 사관학교</p>
+      </div>
+    </section>
+    <section className="home-goal">
+      <div className="goal-board goal-board-wide">
+        <div className="goal-board-intro"><div className="goal-board-top"><span>YOUR NEXT CHAPTER</span><ShieldCheck size={22} /></div>
+        <h2>어떤 미래를<br />준비하고 있나요?</h2><p>목표 학교의 모집요강부터 확인해 보세요.</p></div>
         <div className="goal-schools">{SCHOOL_LIST.map((s, i) => <Link href={`/admission/${s.slug}`} key={s.slug}><span className="goal-index">0{i + 1}</span><span>{s.name}</span><ArrowUpRight size={17} /></Link>)}</div>
         <div className="goal-board-bottom"><span className="status-dot" />2027학년도 전형안내</div>
         <img className="goal-mascot" src="/mascot/guide.webp" alt="" width={343} height={489} />
@@ -56,6 +62,6 @@ export default function HomePage() {
       <div className="school-grid">{SCHOOL_LIST.map((s,i) => <article key={s.slug} className="school-card" data-school={s.slug}><div className="school-card-top"><span className="school-code">{SCHOOL_CODES[s.slug]}</span><span>0{i+1}</span></div><h3>{s.name}</h3><p>{s.quotaTotal}</p><div className="school-card-detail">{s.distinctive}</div><div className="school-card-links"><Link href={`/admission/${s.slug}`}>전형안내 <ArrowUpRight size={15} /></Link><Link href={`/class/${s.slug}`}>{s.short}반 보기</Link></div></article>)}</div>
     </section>
     <section className="home-next"><div className="home-next-heading"><img className="home-next-photo" src="/mascot/salute-officer.webp" alt="정복을 입고 경례하는 T사관 거북이 마스코트" width={1000} height={570} loading="lazy" /><p className="eyebrow">BEYOND THE FIRST EXAM</p><h2>필기 다음의 준비도,<br />함께 이어갑니다.</h2><p>학생부부터 면접까지 목표에 맞게 준비하세요.</p></div><div className="home-next-links">{[{title:"학생부 관리",desc:"학교생활과 진로의 흐름을 정리하세요.",href:"/sanggibu"},{title:"멘토링",desc:"목표 학교를 향한 준비를 상담하세요.",href:"/mentoring"},{title:"2차 면접 준비",desc:"지원 동기부터 나만의 답변까지.",href:"/interview"}].map(x=><Link href={x.href} key={x.href}><div><h3>{x.title}</h3><p>{x.desc}</p></div><ArrowUpRight size={22}/></Link>)}</div></section>
-    <section className="home-closing"><img className="home-closing-mascot" src="/mascot/salute-field.webp" alt="전투복을 입고 경례하는 T사관 거북이 마스코트" width={576} height={900} loading="lazy" /><h2>목표가 정해졌다면, 이제 한 걸음.</h2><Link className="solid-link" href="/admission">전형안내 살펴보기 <ArrowRight size={18}/></Link></section>
+    <section className="home-closing"><img className="home-closing-mascot" src="/mascot/field-sticker.webp" alt="전투복 차림의 T사관 거북쌤" width={451} height={700} loading="lazy" /><h2>목표가 정해졌다면, 이제 한 걸음.</h2><Link className="solid-link" href="/admission">전형안내 살펴보기 <ArrowRight size={18}/></Link></section>
   </main></>
 }

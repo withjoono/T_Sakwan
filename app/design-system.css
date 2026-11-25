@@ -130,3 +130,28 @@
   .home-uniforms-labels { bottom: 10px; font-size: 11px; }
   .home-closing-mascot { width: 96px; }
 }
+
+/* 홈 히어로 — 경례하는 거북쌤을 전면에 (2026-11-26) */
+.hero-stage { position: relative; height: 540px; display: flex; justify-content: center; align-items: flex-end; }
+.hero-stage::before { content: ""; position: absolute; left: 7%; right: 7%; top: 96px; bottom: 0; background: linear-gradient(180deg, #24425d 0%, #1c344b 70%); border-radius: 240px 240px 26px 26px; box-shadow: 0 30px 60px -36px #172d46; }
+.hero-stage::after { content: ""; position: absolute; left: 7%; right: 7%; top: 96px; bottom: 0; border-radius: 240px 240px 26px 26px; background: radial-gradient(circle at 50% 30%, #ffffff1f 0%, #ffffff00 60%); pointer-events: none; }
+.hero-stage-mascot { position: relative; z-index: 1; height: 560px; width: auto; max-width: none; margin-bottom: 26px; filter: drop-shadow(0 22px 22px #0c1a2866); }
+.hero-stage-tag { position: absolute; z-index: 2; bottom: -16px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; padding: 10px 18px; border-radius: 99px; background: #fffefa; border: 1px solid #e2e5e2; box-shadow: 0 14px 26px -18px #203b55; font-size: 12px; font-weight: 700; color: #1d354a; }
+.hero-stage-tag svg { color: #aa624c; }
+.home-goal { max-width: 1200px; margin: auto; padding: 0 32px 70px; }
+.goal-board-wide { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px 56px; align-items: center; padding: 34px 170px 30px 38px; }
+.goal-board-wide .goal-schools { margin-top: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
+.goal-board-wide .goal-board-bottom { grid-column: 1 / -1; }
+.goal-board-wide .goal-board-intro > p { margin-top: 10px; font-size: 12px; color: #b8c5cf; }
+.goal-board-wide .goal-mascot { right: 26px; bottom: -22px; width: 124px; }
+.home-closing-mascot { width: 150px; padding: 0; background: none; border: 0; border-radius: 0; filter: drop-shadow(0 12px 12px #203b5530); }
+@media (max-width: 1100px) { .hero-stage { height: 470px; } .hero-stage-mascot { height: 480px; } .hero-stage::before, .hero-stage::after { top: 80px; } }
+@media (max-width: 760px) {
+  .hero-stage { height: 400px; margin-bottom: 14px; } .hero-stage-mascot { height: 400px; margin-bottom: 22px; }
+  .hero-stage::before, .hero-stage::after { left: 4%; right: 4%; top: 70px; border-radius: 180px 180px 22px 22px; }
+  .home-goal { padding: 0 22px 42px; }
+  .goal-board-wide { grid-template-columns: 1fr; padding: 25px 25px 22px; }
+  .goal-board-wide .goal-schools { grid-template-columns: 1fr; margin-top: 14px; }
+  .goal-board-wide .goal-mascot { width: 86px; right: -6px; bottom: -28px; }
+  .home-closing-mascot { width: 120px; }
+}
